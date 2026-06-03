@@ -20,6 +20,14 @@ pnpm test        # vitest
 pnpm test:e2e    # playwright
 ```
 
+
+## Security
+
+Security policy and vulnerability reporting: see [SECURITY.md](./SECURITY.md).
+
+Production deploy contract (required env vars + boot-time gate): see
+[docs/production-deploy.md](./docs/production-deploy.md).
+
 ## License
 
 MIT. See `LICENSE`.

@@ -25,6 +25,7 @@ import {
 } from '$lib/services/fulfillment';
 import { priceForBook, verifyClientPriceClaim } from '$lib/services/fulfillment/pricing';
 import { resolveParentEmail } from '../../../hooks.server';
+import { secureRandomString } from '$lib/services/subscription/secureRandom';
 import type { BookFormat } from '$lib/services/assemble/types';
 
 // SECURITY-PATCH-2026-06-03 — see docs/specs (price tampering CRITICAL + auth HIGH from 2026-06-03 review)
@@ -40,6 +41,18 @@ interface OrderApiDeps {
 	store: InMemoryOrderStore;
 	idGen: () => string;
 	nowSource: () => number;
+}
+
+// CSPRNG-backed order-id generator. Replaces the prior Math.random()-based
+// shape (blocker #3 in the 2026-06-03 adversarial review): order ids are
+// the lookup key for /api/order, /api/order/:id, /api/quality-claim, so
+// guessable ids let an attacker enumerate / replay other parents' orders.
+// 8-char alphanumeric token over secureRandomString gives ~41-bit entropy
+// (36 ^ 8 = 2^41) backed by Web Crypto getRandomValues -- well above the
+// threshold for opportunistic enumeration.
+const _ORDER_ID_ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
+function _secureOrderIdGen(): string {
+	return `ord_${secureRandomString(8, _ORDER_ID_ALPHABET)}`;
 }
 
 let _deps: OrderApiDeps | null = null;
@@ -63,7 +76,7 @@ export function __getOrderApiDeps(): OrderApiDeps {
 		lifecycle,
 		stripe,
 		store,
-		idGen: () => `ord_${Math.random().toString(36).slice(2, 10)}`,
+		idGen: _secureOrderIdGen,
 		nowSource: () => Date.now(),
 	};
 	return _deps;
