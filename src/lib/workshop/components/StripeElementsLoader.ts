@@ -74,6 +74,7 @@ export interface StripeInstance {
 		clientSecret: string,
 		opts: { payment_method: { card: StripeCardElement; billing_details?: Record<string, unknown> } },
 	): Promise<StripePaymentIntentResult>;
+	retrievePaymentIntent(clientSecret: string): Promise<StripePaymentIntentResult>;
 }
 
 type StripeFactory = (publishableKey: string) => StripeInstance;
@@ -92,15 +93,24 @@ declare global {
 
 const STRIPE_SCRIPT_URL = 'https://js.stripe.com/v3/';
 
-let _scriptPromise: Promise<StripeFactory> | null = null;
+// `_scriptLoadedPromise` resolves once the Stripe.js <script> has fired its
+// `load` event (or we discover window.Stripe was already attached). It is
+// kept across the lifetime of the module on the SUCCESS path so HMR /
+// retries serialize against a single load. On the ERROR path it is cleared
+// in the inner Promise's reject handler so a later retry can re-inject.
+let _scriptLoadedPromise: Promise<StripeFactory> | null = null;
 const _instanceCache = new Map<string, StripeInstance>();
 let _factoryOverride: StripeFactory | null = null;
+// Last error captured on a null-return path. Surfaced via getLastStripeLoadError()
+// so debugging surfaces can tell apart "no window" / "CSP block" / "Stripe ctor threw".
+let _lastError: Error | null = null;
 
 /** Reset module state — tests + HMR only. */
 export function __resetStripeLoader(): void {
-	_scriptPromise = null;
+	_scriptLoadedPromise = null;
 	_instanceCache.clear();
 	_factoryOverride = null;
+	_lastError = null;
 }
 
 /**
@@ -111,8 +121,19 @@ export function __resetStripeLoader(): void {
  */
 export function __setStripeFactory(factory: StripeFactory | null): void {
 	_factoryOverride = factory;
-	_scriptPromise = null;
+	_scriptLoadedPromise = null;
 	_instanceCache.clear();
+	_lastError = null;
+}
+
+/**
+ * Surfaces the last underlying Error captured by a `loadStripe()` null
+ * return so debugging UI / structured logs can disambiguate CSP block vs
+ * no-window vs Stripe-ctor-threw. Returns null when the last load
+ * succeeded or no load has been attempted.
+ */
+export function getLastStripeLoadError(): Error | null {
+	return _lastError;
 }
 
 /**
@@ -123,9 +144,11 @@ export function __setStripeFactory(factory: StripeFactory | null): void {
  *
  * Returns `null` if loading fails (no `window`, script error, CSP block).
  * Callers MUST handle the null case and fall back to the test-mode form.
+ * Inspect `getLastStripeLoadError()` for the underlying cause.
  */
 export async function loadStripe(publishableKey: string): Promise<StripeInstance | null> {
 	if (!publishableKey || typeof publishableKey !== 'string') {
+		_lastError = new Error('invalid_publishable_key');
 		return null;
 	}
 	// Cache hit
@@ -135,17 +158,26 @@ export async function loadStripe(publishableKey: string): Promise<StripeInstance
 	let factory: StripeFactory | null;
 	try {
 		factory = await _resolveFactory();
-	} catch {
+	} catch (err) {
+		_lastError = err instanceof Error ? err : new Error(String(err));
+		console.error('[StripeElementsLoader] factory resolution failed:', _lastError);
 		return null;
 	}
-	if (!factory) return null;
+	if (!factory) {
+		// _resolveFactory already set _lastError on its known null paths
+		// (SSR detection) — leave that value alone here.
+		return null;
+	}
 
 	let instance: StripeInstance;
 	try {
 		instance = factory(publishableKey);
-	} catch {
+	} catch (err) {
+		_lastError = err instanceof Error ? err : new Error(String(err));
+		console.error('[StripeElementsLoader] Stripe(publishableKey) threw:', _lastError);
 		return null;
 	}
+	_lastError = null;
 	_instanceCache.set(publishableKey, instance);
 	return instance;
 }
@@ -161,12 +193,13 @@ export async function loadStripe(publishableKey: string): Promise<StripeInstance
 async function _resolveFactory(): Promise<StripeFactory | null> {
 	if (_factoryOverride) return _factoryOverride;
 	if (typeof window === 'undefined' || typeof document === 'undefined') {
+		_lastError = new Error('no_browser_environment');
 		return null;
 	}
 	if (window.Stripe) return window.Stripe;
-	if (_scriptPromise) return _scriptPromise;
+	if (_scriptLoadedPromise) return _scriptLoadedPromise;
 
-	_scriptPromise = new Promise<StripeFactory>((resolve, reject) => {
+	_scriptLoadedPromise = new Promise<StripeFactory>((resolve, reject) => {
 		// Re-use existing script tag if present (HMR / double-mount).
 		const existing = document.querySelector<HTMLScriptElement>(
 			`script[src="${STRIPE_SCRIPT_URL}"]`,
@@ -197,38 +230,59 @@ async function _resolveFactory(): Promise<StripeFactory | null> {
 		// SRI and self-hosting (https://docs.stripe.com/js — "Always load
 		// Stripe.js directly from js.stripe.com"). Trust here is anchored
 		// by HTTPS + Stripe's own controls on js.stripe.com, NOT SRI.
-		script.crossOrigin = 'anonymous';
+		//
+		// We deliberately do NOT set `script.crossOrigin = 'anonymous'`.
+		// Stripe's official `@stripe/stripe-js` loader does not set
+		// crossOrigin on the script tag (see https://github.com/stripe/stripe-js
+		// — the upstream loader); deviating risks future CDN cache-key /
+		// credential-handling behavior changes silently breaking payments.
+		// If CSP issues arise in practice, address them via a
+		// `script-src https://js.stripe.com` directive in the CSP header.
 		script.addEventListener('load', onLoad);
 		script.addEventListener('error', onError);
 		document.head.appendChild(script);
+	}).catch((err) => {
+		// Script-load error path: clear the cached promise so a retry can
+		// re-inject the script (e.g. after a transient network blip).
+		// Captures the cause for getLastStripeLoadError().
+		_scriptLoadedPromise = null;
+		_lastError = err instanceof Error ? err : new Error(String(err));
+		console.error('[StripeElementsLoader] script load failed:', _lastError);
+		// Re-throw so loadStripe()'s outer catch surfaces the null return.
+		throw _lastError;
 	});
-	return _scriptPromise.catch(() => {
-		// Surface as `null` to callers, but clear the cached promise so a
-		// later retry can re-inject the script (e.g. after a transient
-		// network blip).
-		_scriptPromise = null;
-		return null;
-	});
+
+	return _scriptLoadedPromise;
 }
 
 /**
  * Read the build-time PUBLIC_STRIPE_PUBLISHABLE_KEY from `$env/static/public`.
  * Returns `''` when unset, signaling "fall back to test-mode form".
  *
+ * The `$env/static/public` import is statically resolved by SvelteKit's
+ * bundler at build time (only `PUBLIC_*`-prefixed env vars are exposed —
+ * see https://kit.svelte.dev/docs/modules#$env-static-public). For vitest
+ * we alias the module to a stub in `vitest.config.ts` so this helper is
+ * importable without the SvelteKit build pipeline. The stub returns the
+ * empty string by default; tests that want to exercise the
+ * `useRealStripe=true` branch override via `__setPublishableKeyForTests()`.
+ *
  * Exported separately so tests can mock the value without touching the
  * actual Vite env.
  */
+import { PUBLIC_STRIPE_PUBLISHABLE_KEY } from '$env/static/public';
+
+// Test-only override surface — production code path always returns the
+// statically-bundled env value.
+let _publishableKeyOverride: string | null = null;
+
+export function __setPublishableKeyForTests(key: string | null): void {
+	_publishableKeyOverride = key;
+}
+
 export function readPublishableKey(): string {
-	// Indirected through a dynamic-import-shaped helper so SSR + vitest
-	// environments without the `$env` alias don't crash at module-load.
-	// In a real Svelte build the bundler statically resolves the alias and
-	// dead-code-eliminates this branch.
-	try {
-		// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
-		const env = (globalThis as { __PUBLIC_STRIPE_PUBLISHABLE_KEY__?: string })
-			.__PUBLIC_STRIPE_PUBLISHABLE_KEY__;
-		return typeof env === 'string' ? env : '';
-	} catch {
-		return '';
-	}
+	if (_publishableKeyOverride !== null) return _publishableKeyOverride;
+	return typeof PUBLIC_STRIPE_PUBLISHABLE_KEY === 'string'
+		? PUBLIC_STRIPE_PUBLISHABLE_KEY
+		: '';
 }
