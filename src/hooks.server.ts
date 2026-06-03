@@ -24,8 +24,26 @@
 // CRM-Resend wiring (2026-06-03): boot-warn when `RESEND_API_KEY` is unset
 // outside the test/vitest env, so a forgotten env var surfaces before a
 // real customer order silently no-ops. See `assertResendKeyOrBootWarn`.
+//
+// PRODUCTION DEPLOY CONTRACT: `_ensureValidated()` runs on every request
+// to validate the env. Misconfigured production deploys throw a loud
+// `ProductionConfigError` on EVERY request (not just the first) until the
+// operator fixes the env and restarts the process. The latch only flips
+// after a successful validation, so the documented 'server refuses to
+// serve traffic until reconfigured' guarantee holds.
+// See `src/lib/env/production-config.ts` + `docs/production-deploy.md`.
+//
+// Env access uses SvelteKit's `$env/dynamic/private` which honors the
+// PUBLIC_/private boundary and works across Node/Edge runtimes. Direct
+// `process.env` access is avoided so this hook works on Cloudflare Workers
+// / Deno Deploy / other non-Node runtimes (with appropriate adapter).
 
 import type { Handle } from "@sveltejs/kit";
+import { env as privateEnv } from "$env/dynamic/private";
+import {
+	_ensureValidated,
+	type ProductionConfigEnv,
+} from "$lib/env/production-config";
 
 export interface AuthUser {
 	readonly email: string;
@@ -42,7 +60,36 @@ declare module "@sveltejs/kit" {
 // before any request, NOT inside `handle` (which runs per request).
 assertResendKeyOrBootWarn(globalThis.process?.env ?? {});
 
+/**
+ * Read the relevant env vars via SvelteKit's `$env/dynamic/private`. This
+ * gives us proper PUBLIC_/private boundary enforcement and lets the gate
+ * work in non-Node runtimes (Cloudflare Workers, Deno Deploy).
+ *
+ * Pulled into a helper so tests can stub the env without needing the full
+ * `$env/dynamic/private` module mock.
+ */
+function readEnv(): ProductionConfigEnv {
+	// `$env/dynamic/private` returns a plain object — narrow to our subset.
+	const e = privateEnv as Record<string, string | undefined>;
+	return {
+		NODE_ENV: e.NODE_ENV,
+		STORYBOOK_DEV_BYPASS_AUTH: e.STORYBOOK_DEV_BYPASS_AUTH,
+		STRIPE_SECRET_KEY: e.STRIPE_SECRET_KEY,
+		STRIPE_WEBHOOK_SECRET: e.STRIPE_WEBHOOK_SECRET,
+		LULU_CLIENT_ID: e.LULU_CLIENT_ID,
+		LULU_CLIENT_SECRET: e.LULU_CLIENT_SECRET,
+		LULU_WEBHOOK_SECRET: e.LULU_WEBHOOK_SECRET,
+		RESEND_API_KEY: e.RESEND_API_KEY,
+	};
+}
+
 export const handle: Handle = async ({ event, resolve }) => {
+	// Validate production config on every request. The latch inside
+	// `_ensureValidated` makes the post-success path O(1) (a single boolean
+	// check) and re-fires the validator on every request until validation
+	// succeeds. Throws ProductionConfigError on fatal misconfiguration.
+	_ensureValidated(readEnv());
+
 	// STUB: no session lookup yet. event.locals.user stays null unless
 	// dev-bypass env flag is set (the endpoint handles that fallback).
 	event.locals.user = null;
@@ -64,6 +111,21 @@ export interface AuthError {
 	readonly hint?: string;
 }
 
+/**
+ * Truthy-string detector for the dev-bypass flag — mirrors
+ * `_devBypassEnabled` from production-config.ts so both gates accept the
+ * same operator-friendly variants (`true`, `yes`, `on`, etc.) and reject
+ * the same explicit-off values (`false`, `0`, `no`).
+ */
+function bypassEnabled(raw: string | undefined): boolean {
+	if (typeof raw !== "string") return false;
+	const v = raw.trim();
+	if (v.length === 0) return false;
+	const off = new Set(["0", "false", "no", "off", "disable", "disabled"]);
+	if (off.has(v.toLowerCase())) return false;
+	return true;
+}
+
 export function resolveParentEmail(
 	sessionUser: AuthUser | null,
 	bodyEmail: string | undefined,
@@ -73,11 +135,11 @@ export function resolveParentEmail(
 		return { email: sessionUser.email, source: "session" };
 	}
 	const inProd = env.NODE_ENV === "production";
-	const bypassAllowed = env.STORYBOOK_DEV_BYPASS_AUTH === "1";
+	const bypassAllowed = bypassEnabled(env.STORYBOOK_DEV_BYPASS_AUTH);
 	if (inProd && bypassAllowed) {
 		return {
 			error: "auth_bypass_misconfigured",
-			hint: "STORYBOOK_DEV_BYPASS_AUTH=1 must NOT be set in production. Wire real session auth before deploy.",
+			hint: "STORYBOOK_DEV_BYPASS_AUTH must NOT be set in production. Wire real session auth before deploy.",
 		};
 	}
 	if (!bypassAllowed) {
@@ -90,10 +152,13 @@ export function resolveParentEmail(
 	if (!bodyEmail || typeof bodyEmail !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bodyEmail)) {
 		return { error: "auth_required", hint: "Dev bypass requires a valid parentEmail in the request body." };
 	}
+	// Structured log line (per minor concern): JSON-prefixed payload so
+	// downstream log aggregators can parse it without regex gymnastics.
 	// eslint-disable-next-line no-console
 	console.warn(
 		`[storybook-workshop] AUTH BYPASS: accepting parentEmail="${bodyEmail}" from request body. ` +
-			`This is unsafe in production. Wire real session auth.`,
+			`This is unsafe in production. Wire real session auth. ` +
+			`structured=${JSON.stringify({ event: "auth_bypass", email: bodyEmail, source: "dev_bypass_body" })}`,
 	);
 	return { email: bodyEmail, source: "dev_bypass_body" };
 }
