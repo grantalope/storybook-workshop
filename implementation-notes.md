@@ -85,3 +85,74 @@ helper doesn't expose batch atomicity; acceptable for parent-side ops).
   directly. No new infra needed.
 - Existing `kidsContentSafetyService` reachable via direct import (no
   kernel needed), and exposes `.scan(text)` synchronously fallback-stub-friendly.
+
+---
+
+# Fulfillment phase (feat/fulfillment, 2026-06-03)
+
+## Design decisions
+
+- **Path adjustment**: standalone-repo paths used — services under
+  `src/lib/services/fulfillment/`, API routes under
+  `src/routes/api/{order,lulu-webhook,stripe-webhook,shipping-quote,quality-claim}/`,
+  tests under `tests/fulfillment/`. Goal-doc paths (which assumed pachinko monorepo)
+  re-mapped accordingly. No `storybook-workshop/` prefix on API routes.
+- **No new runtime deps.** Stripe + Lulu access via injectable HTTP client
+  interface, default impl is `fetch`. HMAC verification uses node:crypto
+  (Web Crypto API in browser).
+- **Injectable boundaries**: every external integration sits behind a typed
+  interface; tests use in-memory mocks. Production wiring picks default
+  fetch-based impls reading env (`LULU_CLIENT_ID`, `LULU_CLIENT_SECRET`,
+  `LULU_API_BASE`, `LULU_WEBHOOK_SECRET`, `STRIPE_SECRET_KEY`,
+  `STRIPE_WEBHOOK_SECRET`). Documented in `fulfillment/types.ts`.
+- **OAuth2 token cache**: module-scoped variable in default Lulu HTTP impl.
+  Refresh on `expires_at - 60s`. Survives across requests in same process.
+- **Order persistence**: injectable `OrderStore` interface; default impl is
+  in-memory `Map` for browser+test parity. Server-side production swap to
+  Postgres/SQLite is a follow-up (out of MVP scope per goal). Tests inject
+  the same in-memory store.
+- **Stripe Tax**: PaymentIntent carries `automatic_tax: { enabled: true }`
+  + `customer_details.address` from shipping address. Stripe handles US
+  sales-tax + EU VAT.
+- **Webhook signature verification**:
+  - Lulu: HMAC-SHA256 over raw body, header `Lulu-Signature: sha256=<hex>`,
+    constant-time compare.
+  - Stripe: simplified `t=...,v1=...` parse + HMAC-SHA256 over `${t}.${body}`
+    (matches `stripe.webhooks.constructEvent` algorithm without pulling in
+    the `stripe` package).
+- **Cancel window**: 75 min default; configurable per env. Window measured
+  from `submitted_to_lulu` transition timestamp.
+- **Reprint reserve**: tracked in audit log only; ops dashboard accounting
+  is out of MVP scope.
+- **Transactional email**: `TransactionalEmailProvider` interface; default
+  is `NoopEmailProvider` (test mode). `ResendEmailProvider` and
+  `PostmarkEmailProvider` are sketched as constructor-only stubs;
+  real wire-up is goal #11 marketing-funnel territory.
+
+## Deviations
+
+- Goal-doc paths re-mapped to standalone repo (see Design decisions).
+- Real Stripe Elements lazy-load deferred — v1 Station 7 UI uses a
+  test-mode card form that posts `{cardLast4: '4242'}` and the server
+  StripeCheckoutService creates a mock PaymentIntent via the injected
+  provider. Real Elements integration is v2 (one Svelte component swap;
+  documented in PR body).
+- Real Resend/Postmark email provider deferred (no-op default).
+- Reprint cost-vs-reserve accounting: tracked-only (no ops dashboard).
+- Ops dashboard for pending QualityClaims: deferred (claims persist in
+  order store, surfaced via /api/quality-claim GET — TODO).
+- Real Lulu sandbox E2E: not run from agent session (no sandbox creds
+  available). Documented in PR body for manual smoke pre-launch.
+
+## Open questions
+- [?] Production OrderStore choice (SQLite vs Postgres) — defer to ops
+  goal alongside subscription persistence.
+- [?] Reissue API endpoint shape on Lulu Direct — used `POST /print-jobs/{id}/reissue/`
+  per docs; if it changes during sandbox testing, swap in LuluHttpClient.
+
+## Surprises
+- Subscription service already shipped a clean PaymentProvider interface +
+  mock pattern; fulfillment Stripe service mirrors that pattern exactly.
+- LuluPdfSpecValidator already exists from book-assembler and returns a
+  rich ValidationReport — `/api/order` POST reuses it directly.
+
