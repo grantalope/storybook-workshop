@@ -1,0 +1,223 @@
+// @graph-layer: private
+// @rationale: private (email is PII tier; HMAC cookie binds shortcode to email)
+//
+// src/lib/services/marketing/EmailGateService.ts
+//
+// Email-gate cookie + CRM contact registration.
+//
+// Soft email gate: anonymous parent builds a book in the workshop, the
+// first 4 spreads of the read-along preview are public, and the gate
+// kicks in beyond page 4 (per spec §8.1). When the parent submits their
+// email:
+//
+//   1. CRM contact is upserted with anonymized tags (age band, theme,
+//      length tier, archetype family — no kid PII).
+//   2. Signed HMAC cookie `swEmailGate=<hex>` is returned. The cookie
+//      value is `HMAC-SHA256(serverSecret, "{email}:{shortcode}")`,
+//      truncated to 32 hex chars. Cookies bind email-to-shortcode so a
+//      single account doesn't unlock arbitrary other shortcodes.
+//   3. Lifecycle scheduler is notified — caller composes the
+//      LifecycleEmailService.scheduleForContact(contact) right after.
+//
+// Idempotency: re-submitting the same email for the same shortcode
+// returns the SAME cookie and does NOT re-fire the gate-unlock email.
+//
+// Spec: docs/specs/2026-05-24-design.md §8.1
+
+import type {
+	CrmContact,
+	EmailGateRecordOpts,
+	EmailGateResult,
+	UnsubscribeBucket,
+} from './types';
+
+export interface EmailGateServiceOpts {
+	/** Server-side HMAC secret. Required; throw if undefined / empty. */
+	serverSecret: string;
+	nowSource?: () => number;
+	/** Optional override for the default Web Crypto subtle. */
+	subtle?: SubtleCrypto;
+}
+
+/**
+ * Default unsubscribe state on a fresh contact: opted IN to marketing
+ * and educational (parent just gave us their email), opted IN to
+ * transactional because that's how order confirmations / shipping
+ * updates flow.
+ */
+const DEFAULT_UNSUB: Record<UnsubscribeBucket, boolean> = {
+	transactional: false,
+	marketing: false,
+	educational: false,
+};
+
+export class EmailGateService {
+	private _contacts = new Map<string, CrmContact>();
+	/** Shortcode-to-email-to-cookie idempotency table. */
+	private _cookies = new Map<string, string>();
+
+	constructor(private opts: EmailGateServiceOpts) {
+		if (!opts.serverSecret || opts.serverSecret.length < 8) {
+			throw new Error('EmailGateService: serverSecret must be >= 8 chars');
+		}
+	}
+
+	private _now(): number {
+		return (this.opts.nowSource ?? (() => Date.now()))();
+	}
+
+	/**
+	 * Record an email-gate submission. Idempotent: re-submitting the same
+	 * email for the same shortcode returns the same cookie, does NOT bump
+	 * createdAt, does NOT mark the contact as a duplicate signup.
+	 */
+	async record(opts: EmailGateRecordOpts): Promise<EmailGateResult> {
+		this._validateEmail(opts.email);
+		this._validateShortcode(opts.shortcode);
+
+		const cookieKey = this._cookieKey(opts.email, opts.shortcode);
+		const existing = this._cookies.get(cookieKey);
+		if (existing && this._contacts.has(opts.email.toLowerCase())) {
+			const contact = this._contacts.get(opts.email.toLowerCase())!;
+			return { contact, cookieValue: existing, reused: true };
+		}
+
+		const cookie = await this._mintCookie(opts.email, opts.shortcode);
+		this._cookies.set(cookieKey, cookie);
+
+		const key = opts.email.toLowerCase();
+		let contact = this._contacts.get(key);
+		if (!contact) {
+			contact = {
+				email: opts.email,
+				createdAt: this._now(),
+				lifecycleStage: 'gate_unlocked',
+				tags: {
+					kidAgeBand: opts.kidAgeBand,
+					themePicked: opts.themePicked,
+					lengthTier: opts.lengthTier,
+					pillarArchetypeFamily: opts.pillarArchetypeFamily,
+				},
+				unsubscribed: { ...DEFAULT_UNSUB },
+				lastShortcode: opts.shortcode,
+				templateLastSentAt: {},
+			};
+			this._contacts.set(key, contact);
+		} else {
+			// Already-known parent unlocking a new shortcode — update lastShortcode but
+			// preserve their lifecycle stage + unsubscribe history. Tags merge (last-write
+			// wins for set fields).
+			contact.lastShortcode = opts.shortcode;
+			if (opts.kidAgeBand) contact.tags.kidAgeBand = opts.kidAgeBand;
+			if (opts.themePicked) contact.tags.themePicked = opts.themePicked;
+			if (opts.lengthTier) contact.tags.lengthTier = opts.lengthTier;
+			if (opts.pillarArchetypeFamily) {
+				contact.tags.pillarArchetypeFamily = opts.pillarArchetypeFamily;
+			}
+		}
+
+		return { contact, cookieValue: cookie, reused: false };
+	}
+
+	/** Look up a contact (caller uses to drive lifecycle dispatch). */
+	getContact(email: string): CrmContact | undefined {
+		return this._contacts.get(email.toLowerCase());
+	}
+
+	/** Verify a cookie value matches the expected HMAC. */
+	async verifyCookie(email: string, shortcode: string, cookieValue: string): Promise<boolean> {
+		if (!email || !shortcode || !cookieValue) return false;
+		const expected = await this._mintCookie(email, shortcode);
+		return constantTimeEqual(expected, cookieValue);
+	}
+
+	/** Marks a contact lifecycle stage. Used by other services. */
+	advanceStage(email: string, stage: CrmContact['lifecycleStage']): void {
+		const key = email.toLowerCase();
+		const contact = this._contacts.get(key);
+		if (contact) contact.lifecycleStage = stage;
+	}
+
+	/** Toggle per-bucket unsubscribe flag. */
+	setUnsubscribed(email: string, bucket: UnsubscribeBucket, value: boolean): void {
+		const key = email.toLowerCase();
+		const contact = this._contacts.get(key);
+		if (contact) {
+			contact.unsubscribed[bucket] = value;
+			if (bucket === 'marketing' && value) {
+				// hard-cascade: marketing unsubscribe also halts educational drip
+				contact.unsubscribed.educational = true;
+			}
+		}
+	}
+
+	/** Hard-delete a contact (GDPR account delete cascade). */
+	deleteContact(email: string): boolean {
+		const key = email.toLowerCase();
+		return this._contacts.delete(key);
+	}
+
+	/** All known contacts — used by lifecycle tick. */
+	allContacts(): CrmContact[] {
+		return Array.from(this._contacts.values());
+	}
+
+	private _cookieKey(email: string, shortcode: string): string {
+		return `${email.toLowerCase()}:${shortcode}`;
+	}
+
+	private async _mintCookie(email: string, shortcode: string): Promise<string> {
+		const payload = `${email.toLowerCase()}:${shortcode}`;
+		return hmacSha256Hex(this.opts.serverSecret, payload, this.opts.subtle).then((hex) =>
+			hex.slice(0, 32),
+		);
+	}
+
+	private _validateEmail(email: string): void {
+		if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+			throw new Error(`EmailGateService: invalid email "${email}"`);
+		}
+	}
+
+	private _validateShortcode(shortcode: string): void {
+		if (!shortcode || shortcode.length < 4) {
+			throw new Error(`EmailGateService: invalid shortcode "${shortcode}"`);
+		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// HMAC helper (Web Crypto / vitest polyfill)
+// ---------------------------------------------------------------------------
+
+async function hmacSha256Hex(
+	secret: string,
+	payload: string,
+	subtle?: SubtleCrypto,
+): Promise<string> {
+	const s =
+		subtle ??
+		((globalThis as { crypto?: { subtle?: SubtleCrypto } }).crypto?.subtle as SubtleCrypto | undefined);
+	if (!s) {
+		throw new Error('EmailGateService: SubtleCrypto unavailable — env requires Web Crypto');
+	}
+	const enc = new TextEncoder();
+	const key = await s.importKey(
+		'raw',
+		enc.encode(secret),
+		{ name: 'HMAC', hash: 'SHA-256' },
+		false,
+		['sign'],
+	);
+	const sig = await s.sign('HMAC', key, enc.encode(payload));
+	return Array.from(new Uint8Array(sig))
+		.map((b) => b.toString(16).padStart(2, '0'))
+		.join('');
+}
+
+function constantTimeEqual(a: string, b: string): boolean {
+	if (a.length !== b.length) return false;
+	let diff = 0;
+	for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+	return diff === 0;
+}
