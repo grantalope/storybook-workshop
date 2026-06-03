@@ -20,8 +20,19 @@
 // (cookie-based JWT verify, or upstream Auth0/Clerk/Supabase session).
 // Populate `event.locals.user = { email, parentId, ... }`. Endpoints then
 // read `event.locals.user.email` and ignore client-supplied identity.
+//
+// PRODUCTION DEPLOY CONTRACT: `ensureProductionConfig()` runs at first
+// request to validate the env. Misconfigured production deploys throw a
+// loud `ProductionConfigError` at the very first request and the server
+// will refuse to serve traffic until reconfigured. See
+// `src/lib/env/production-config.ts` + `docs/production-deploy.md`.
 
 import type { Handle } from "@sveltejs/kit";
+import {
+	ensureProductionConfig,
+	_markValidated,
+	type ProductionConfigEnv,
+} from "$lib/env/production-config";
 
 export interface AuthUser {
 	readonly email: string;
@@ -35,6 +46,16 @@ declare module "@sveltejs/kit" {
 }
 
 export const handle: Handle = async ({ event, resolve }) => {
+	// First-request gate: validate production config exactly once. Throws
+	// ProductionConfigError on fatal misconfiguration; warns on degraded.
+	if (_markValidated()) {
+		const envBag: ProductionConfigEnv =
+			typeof process !== "undefined" && process.env
+				? (process.env as unknown as ProductionConfigEnv)
+				: {};
+		ensureProductionConfig(envBag);
+	}
+
 	// STUB: no session lookup yet. event.locals.user stays null unless
 	// dev-bypass env flag is set (the endpoint handles that fallback).
 	event.locals.user = null;
