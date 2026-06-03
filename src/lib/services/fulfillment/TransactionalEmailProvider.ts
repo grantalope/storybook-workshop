@@ -3,18 +3,16 @@
 //
 // src/lib/services/fulfillment/TransactionalEmailProvider.ts
 //
-// Transactional email provider interface + 3 concrete implementations:
+// Transactional email provider interface + concrete implementations:
 //   - NoopEmailProvider:    no-op; default for tests + dev.
 //   - LoggingEmailProvider: captures messages in memory; default for the
 //                           in-process server until a real provider is
 //                           configured (so ops can replay if needed).
-//   - ResendEmailProvider:  sketch — uses fetch + Resend REST API.
 //   - PostmarkEmailProvider: sketch — uses fetch + Postmark REST API.
 //
-// Real provider implementations are minimal — they construct the HTTP
-// request shape. The wire-up to a transactional email vendor is goal #11
-// (marketing-funnel) territory. The interface lives here so the lifecycle
-// service can fire events without knowing which vendor is live.
+// The real Resend provider with HTML+plain-text, retry, audit, and
+// unsubscribe-footer support lives in `./resend-provider.ts` and is
+// re-exported from the fulfillment barrel.
 
 import type { EmailMessage, TransactionalEmailProvider } from './types';
 
@@ -31,33 +29,6 @@ export class LoggingEmailProvider implements TransactionalEmailProvider {
 	}
 }
 
-export interface ResendEmailProviderOpts {
-	apiKey: string;
-	from: string;
-	fetchImpl?: typeof fetch;
-}
-
-export class ResendEmailProvider implements TransactionalEmailProvider {
-	constructor(private opts: ResendEmailProviderOpts) {}
-	async send(msg: EmailMessage): Promise<void> {
-		const fetchImpl = this.opts.fetchImpl ?? fetch;
-		const body = JSON.stringify({
-			from: this.opts.from,
-			to: msg.to,
-			subject: subjectFor(msg.event, msg.order.id),
-			text: textFor(msg),
-		});
-		await fetchImpl('https://api.resend.com/emails', {
-			method: 'POST',
-			headers: {
-				Authorization: `Bearer ${this.opts.apiKey}`,
-				'Content-Type': 'application/json',
-			},
-			body,
-		});
-	}
-}
-
 export interface PostmarkEmailProviderOpts {
 	serverToken: string;
 	from: string;
@@ -71,8 +42,8 @@ export class PostmarkEmailProvider implements TransactionalEmailProvider {
 		const body = JSON.stringify({
 			From: this.opts.from,
 			To: msg.to,
-			Subject: subjectFor(msg.event, msg.order.id),
-			TextBody: textFor(msg),
+			Subject: postmarkSubjectFor(msg.event, msg.order.id),
+			TextBody: postmarkTextFor(msg),
 			MessageStream: 'outbound',
 		});
 		await fetchImpl('https://api.postmarkapp.com/email', {
@@ -87,7 +58,7 @@ export class PostmarkEmailProvider implements TransactionalEmailProvider {
 	}
 }
 
-function subjectFor(event: EmailMessage['event'], orderId: string): string {
+function postmarkSubjectFor(event: EmailMessage['event'], orderId: string): string {
 	switch (event) {
 		case 'paid': return `Your storybook order ${orderId} is confirmed!`;
 		case 'printed': return `Your storybook is being printed`;
@@ -98,7 +69,7 @@ function subjectFor(event: EmailMessage['event'], orderId: string): string {
 	}
 }
 
-function textFor(msg: EmailMessage): string {
+function postmarkTextFor(msg: EmailMessage): string {
 	const { event, order } = msg;
 	switch (event) {
 		case 'paid':

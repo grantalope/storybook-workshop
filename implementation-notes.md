@@ -156,3 +156,130 @@ helper doesn't expose batch atomicity; acceptable for parent-side ops).
 - LuluPdfSpecValidator already exists from book-assembler and returns a
   rich ValidationReport — `/api/order` POST reuses it directly.
 
+
+---
+
+# CRM-Resend phase (feat/crm-resend-provider, 2026-06-03)
+
+## Design decisions
+
+- **New dedicated file `src/lib/services/fulfillment/resend-provider.ts`**
+  instead of growing the existing `TransactionalEmailProvider.ts` sketch.
+  Resend is now the production primary transactional provider; it deserves
+  its own module with retry, audit, body templating, and CAN-SPAM unsubscribe
+  rendering. The legacy `TransactionalEmailProvider.ts` keeps the Noop +
+  Logging + Postmark sketch implementations; the old Resend constructor-only
+  sketch is REMOVED to avoid two divergent Resend classes coexisting (per
+  Rule 10: no v2 / parallel modules).
+- **`buildEmailHandlersFromProvider(provider)`** factory builds a
+  `LifecycleHandlers` object wiring `onPaid` / `onInProduction` / `onShipped`
+  / `onDelivered` / `onFailed` / `onTerminalError`. Spec §5.7 names the 5
+  customer-facing emails (paid / printed / shipped / delivered / failed);
+  `onTerminalError` reuses the `failed` template (terminal Lulu failure is
+  customer-facing in the same way). `onSubmitted` is NOT wired — internal
+  state transition, not user-relevant. Per-handler send errors are caught +
+  logged so a flaky vendor never blocks a state transition (the audit log
+  has the receipt; ops follows up).
+- **Injectable boundaries**: `fetchImpl`, `auditSink`, `nowSource`, `sleep`,
+  `maxAttempts`, `baseBackoffMs`. Same shape the rest of fulfillment uses
+  (StripeHttpClient / LuluHttpClient pattern). Tests pass mocks; production
+  defaults to `globalThis.fetch` + console-logging audit sink.
+- **Retry on 5xx ≤ 3 attempts** with exponential backoff
+  (`base × 2^(attempt-1)`, default base 250ms). 4xx is audit-and-bail
+  immediately — server has rejected; spinning trips rate limits.
+- **Audit sink** records every call outcome (`sent` / `rejected_4xx` /
+  `failed_5xx` / `network_error`) so OrderAuditService can capture the
+  receipt without coupling the provider to that service directly. Audit
+  sink failures are swallowed (must NOT crash the send pipeline).
+- **`ResendSendError`** named error with `kind` (`rejected_4xx` /
+  `failed_5xx` / `network_error`), `attempts`, `httpStatus`, `cause`. Lets
+  callers branch on failure category instead of regex-parsing the message.
+- **CAN-SPAM compliance**: unsubscribe footer rendered in BOTH plain-text
+  and HTML bodies; `List-Unsubscribe` + `List-Unsubscribe-Post:
+  List-Unsubscribe=One-Click` headers per RFC 8058. `unsubscribeBaseUrl`
+  is REQUIRED at construction — refuses to build a provider that can ship
+  non-compliant email.
+- **Body templating**: HTML uses inline styles (max-width 560 px, system
+  font stack, line-height 1.45) so it renders reasonably in every major
+  mail client without external CSS. Subjects are short, ≤ 60 chars,
+  free of marketing punctuation. `htmlBodyFor` / `textBodyFor` are exported
+  for direct visual regression testing.
+- **Boot warning in `hooks.server.ts`**: `assertResendKeyOrBootWarn` runs
+  at module init (not per-request) so the warning lands once at server
+  startup. Skip-logic respects `VITEST`/`NODE_ENV=test` so unit tests don't
+  spam the console, and `STORYBOOK_SKIP_RESEND_BOOT_CHECK=1` is a documented
+  opt-out for ops who already know. Returns a typed `ResendBootCheck` so
+  tests can assert without intercepting console.
+
+## Deviations
+
+- **Did NOT modify `OrderApiDeps` in `/api/order/+server.ts`** to pre-wire
+  `buildEmailHandlersFromProvider` into the default `OrderLifecycleService`.
+  Reason: the default deps factory uses `InMemoryOrderStore` + mock Stripe
+  for tests; adding a Resend client to that default would either fail
+  silently (no API key in test env) or invent a no-op stub that defeats the
+  goal. Production wiring is documented via `buildEmailHandlersFromProvider`
+  + `__setOrderApiDeps`; tests cover the end-to-end lifecycle path through
+  a constructed lifecycle service. Bigger CRM marketing-funnel goal (#11)
+  will own the production `__setOrderApiDeps` call site.
+- Real Resend sandbox E2E not run from this session (no sandbox account
+  configured for the worker). Documented in PR body for manual smoke
+  pre-launch.
+
+## Tradeoffs
+
+- Body templates are static strings, not Handlebars / mjml — keeps the
+  dep footprint at zero, but means richer styling (header image, brand
+  colors beyond `#222`) is a follow-up. The unsubscribe footer + tracking
+  link are the load-bearing bits and they're there.
+- Audit sink is a plain callback, not an EventEmitter or kernel-purpose
+  hook. Matches the rest of fulfillment's "inject a function" boundary
+  style; OrderAuditService can wrap it from the production wiring layer.
+
+## Open questions
+
+- [?] `from` address format — spec doesn't fix one. Tests use
+  `Storybook Workshop <hello@storybook.example>` (RFC-5322 display name).
+  Production should swap to the verified domain.
+- [?] Whether to surface `ResendSendError` to the parent in any UI path.
+  Currently the OrderLifecycle handlers swallow + log; ops sees the audit
+  trail. Marketing-funnel goal can revisit if customer-visible "we tried
+  to email you" status proves valuable.
+
+## Surprises
+
+- The existing `TransactionalEmailProvider.ts` had a constructor-only
+  Resend sketch and a Postmark sketch side-by-side. Deleted the Resend
+  sketch and kept Postmark (still spec-named as the secondary provider in
+  §8.7). The `index.ts` barrel re-exports the new `ResendEmailProvider`
+  from `./resend-provider`, so consumer import paths stay stable.
+- `LifecycleHandlers` was not exported from the fulfillment barrel —
+  added a `export type { LifecycleHandlers }` line so the factory's
+  return type is consumable downstream without reaching into the file.
+
+## Tests
+
+- `tests/fulfillment/resend-email-provider.test.ts` — 23 tests, all green:
+  - Construction guards (apiKey / from / unsubscribeBaseUrl required)
+  - POST shape (URL, Bearer auth, JSON body, all 6 event subjects, headers,
+    tags, reply-to default + override, unsubscribeBaseUrl trailing slash trim)
+  - Plain-text + HTML body templates include unsubscribe footer for every
+    event name
+  - 5xx retry: succeed on attempt 2; cap at maxAttempts; exponential
+    backoff sleep delays
+  - Network error retry: capped at maxAttempts, audits `network_error`
+  - `ResendSendError` exposes `kind`/`attempts`/`httpStatus`
+  - 4xx no-retry: single attempt, audit `rejected_4xx`, no backoff sleep
+  - Audit-sink failure does NOT crash the send pipeline
+  - Empty `msg.to` rejects fast
+  - `buildEmailHandlersFromProvider` wires lifecycle transitions
+    (paid/in_production/shipped/delivered, NOT submitted_to_lulu) and
+    end-to-end through a real ResendEmailProvider hits fetch with
+    `X-Email-Event: paid`
+  - Per-handler send errors don't block lifecycle transitions; logger sees
+    the failure
+  - `assertResendKeyOrBootWarn` covers test-env skip, explicit skip,
+    key-present, missing-in-prod (loud), missing-in-dev (hint)
+
+Full suite: 706/706 green (683 baseline + 23 new). svelte-check: 96/96
+baseline errors, 0 NEW.

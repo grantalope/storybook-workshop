@@ -20,6 +20,10 @@
 // (cookie-based JWT verify, or upstream Auth0/Clerk/Supabase session).
 // Populate `event.locals.user = { email, parentId, ... }`. Endpoints then
 // read `event.locals.user.email` and ignore client-supplied identity.
+//
+// CRM-Resend wiring (2026-06-03): boot-warn when `RESEND_API_KEY` is unset
+// outside the test/vitest env, so a forgotten env var surfaces before a
+// real customer order silently no-ops. See `assertResendKeyOrBootWarn`.
 
 import type { Handle } from "@sveltejs/kit";
 
@@ -33,6 +37,10 @@ declare module "@sveltejs/kit" {
 		user: AuthUser | null;
 	}
 }
+
+// One-shot boot warning: emit at module init so it lands in the server log
+// before any request, NOT inside `handle` (which runs per request).
+assertResendKeyOrBootWarn(globalThis.process?.env ?? {});
 
 export const handle: Handle = async ({ event, resolve }) => {
 	// STUB: no session lookup yet. event.locals.user stays null unless
@@ -88,4 +96,59 @@ export function resolveParentEmail(
 			`This is unsafe in production. Wire real session auth.`,
 	);
 	return { email: bodyEmail, source: "dev_bypass_body" };
+}
+
+// ---------------------------------------------------------------------------
+// CRM-Resend boot warning
+// ---------------------------------------------------------------------------
+
+/** Env vars consulted by the boot warning. Exposed for tests. */
+export interface ResendBootEnv {
+	readonly RESEND_API_KEY?: string;
+	readonly NODE_ENV?: string;
+	readonly VITEST?: string;
+	readonly STORYBOOK_SKIP_RESEND_BOOT_CHECK?: string;
+}
+
+/** Result returned to tests so the boot path can be exercised without side effects. */
+export type ResendBootCheck =
+	| { readonly outcome: "ok"; readonly reason: "key_present" }
+	| { readonly outcome: "skipped"; readonly reason: "test_env" | "explicit_skip" }
+	| { readonly outcome: "warn"; readonly reason: "missing_in_dev"; readonly hint: string }
+	| { readonly outcome: "warn"; readonly reason: "missing_in_prod"; readonly hint: string };
+
+/**
+ * Emit a one-shot warning when `RESEND_API_KEY` is missing outside the
+ * test/vitest environment. Production gets a louder message; dev gets a hint.
+ * Returns the decision so unit tests can assert without snooping on the
+ * console (the function still console.warns for the real boot path).
+ */
+export function assertResendKeyOrBootWarn(
+	env: ResendBootEnv,
+	logger: (msg: string) => void = (m) => console.warn(m),
+): ResendBootCheck {
+	if (env.STORYBOOK_SKIP_RESEND_BOOT_CHECK === "1") {
+		return { outcome: "skipped", reason: "explicit_skip" };
+	}
+	if (env.VITEST === "true" || env.NODE_ENV === "test") {
+		return { outcome: "skipped", reason: "test_env" };
+	}
+	const hasKey = typeof env.RESEND_API_KEY === "string" && env.RESEND_API_KEY.length > 0;
+	if (hasKey) {
+		return { outcome: "ok", reason: "key_present" };
+	}
+	const isProd = env.NODE_ENV === "production";
+	if (isProd) {
+		const hint =
+			"[storybook-workshop] RESEND_API_KEY is UNSET in production. " +
+			"Transactional emails (paid/printed/shipped/delivered/failed) will silently no-op via NoopEmailProvider. " +
+			"Set RESEND_API_KEY before any real customer order, or set STORYBOOK_SKIP_RESEND_BOOT_CHECK=1 to acknowledge.";
+		logger(hint);
+		return { outcome: "warn", reason: "missing_in_prod", hint };
+	}
+	const hint =
+		"[storybook-workshop] RESEND_API_KEY is unset (dev). Order lifecycle emails will not actually send. " +
+		"Wire RESEND_API_KEY (or STORYBOOK_SKIP_RESEND_BOOT_CHECK=1) before testing the email path.";
+	logger(hint);
+	return { outcome: "warn", reason: "missing_in_dev", hint };
 }
