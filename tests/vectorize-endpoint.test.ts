@@ -13,7 +13,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
     POST,
     __test,
-} from '../../src/routes/api/vectorize/+server';
+} from '../src/routes/api/vectorize/+server';
 import { PILLAR_EMBEDDING_DIM } from '$lib/services/PillarVectorizerService';
 
 function makeRequestEvent(opts: {
