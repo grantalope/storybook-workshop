@@ -21,6 +21,7 @@ export {
 	OrderLifecycleError,
 	InMemoryOrderStore,
 } from './OrderLifecycleService';
+export type { LifecycleHandlers } from './OrderLifecycleService';
 export {
 	ShippingQuoteService,
 	ShippingAddressError,
@@ -37,6 +38,21 @@ export { ReprintCoordinator } from './ReprintCoordinator';
 export {
 	NoopEmailProvider,
 	LoggingEmailProvider,
-	ResendEmailProvider,
 	PostmarkEmailProvider,
 } from './TransactionalEmailProvider';
+export {
+	ResendEmailProvider,
+	ResendSendError,
+	RESEND_API_URL,
+	subjectFor as resendSubjectFor,
+	textBodyFor as resendTextBodyFor,
+	htmlBodyFor as resendHtmlBodyFor,
+	buildUnsubscribeUrl as resendUnsubscribeUrl,
+	buildEmailHandlersFromProvider,
+} from './resend-provider';
+export type {
+	ResendEmailProviderOpts,
+	ResendAuditEntry,
+	ResendAuditSink,
+	ResendSendErrorMeta,
+} from './resend-provider';
