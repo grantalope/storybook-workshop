@@ -32,8 +32,10 @@ export {
 export {
     fetchManifest,
     getCachedManifest,
+    getCachedManifestSource,
     invalidate as invalidateManifest,
     parseManifest,
+    type PillarManifestSource,
 } from './PillarManifestClient';
 
 export {
