@@ -1,13 +1,29 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
+	import { browser } from '$app/environment';
 	import type { WorkshopOrchestrator } from '$lib/workshop/services/WorkshopOrchestrator';
 	import type { BookFormat } from '$lib/services/assemble/types';
 	import type {
 		ShippingAddress,
 		ShippingOption,
 	} from '$lib/services/fulfillment';
+	import {
+		loadStripe,
+		readPublishableKey,
+		getLastStripeLoadError,
+		type StripeCardElement,
+		type StripeInstance,
+	} from '$lib/workshop/components/StripeElementsLoader';
+	import {
+		decideStripePath,
+		handlePaymentIntentResult,
+		pollAfter3DS,
+	} from '$lib/workshop/services/stripeElementsGate';
 
-	const { orchestrator }: { orchestrator: WorkshopOrchestrator } = $props();
+	const {
+		orchestrator,
+		devMode = false,
+	}: { orchestrator: WorkshopOrchestrator; devMode?: boolean } = $props();
 	const dispatch = createEventDispatcher<{ done: void }>();
 
 	type Phase =
@@ -21,12 +37,36 @@
 
 	let phase: Phase = 'choose';
 	let errorMsg = '';
-	let downloaded = false;
+	let downloaded = $state(false);
 
 	const s6 = orchestrator.draft.outputs.s6;
 	const s1 = orchestrator.draft.outputs.s1;
 	const shortcode = s6?.bookShortcode ?? 'unknown';
 	const targetPages = computeOrderPages();
+
+	// Real Stripe Elements lazy-load gate. Resolution deferred until
+	// onMount() so SSR-rendered HTML always uses the safe test-mode shape,
+	// preventing hydration mismatches when the publishable-key resolves
+	// differently between SSR and the client (it doesn't today, but the
+	// pattern is fragile across env-resolver changes).
+	let _publishableKey = $state('');
+	let useRealStripe = $state(false);
+	let _stripe: StripeInstance | null = null;
+	let _cardElement: StripeCardElement | null = null;
+	let _stripeMountNode: HTMLDivElement | null = $state(null);
+	let _stripeReady = $state(false);
+	let _stripeLoadError = $state<string | null>(null);
+	let _requiresAction = $state(false);
+	let clientSecret = $state<string | null>(null);
+
+	onMount(() => {
+		_publishableKey = readPublishableKey();
+		const decision = decideStripePath({
+			publishableKey: _publishableKey,
+			devMode,
+		});
+		useRealStripe = decision.useRealStripe;
+	});
 
 	function computeOrderPages(): number {
 		// Spreads x 2 pages per spread, rounded up to format multiple downstream.
@@ -39,6 +79,7 @@
 
 	// ── Free digital download ────────────────────────────────────────────────
 	function downloadDigital() {
+		if (!browser) return;
 		// MVP: the AssembledBook blob is not currently persisted across
 		// stations (Station6Output stores only metadata). Emit a stub text
 		// payload pointing to the shortcode + hash. Replace with the real PDF
@@ -114,6 +155,14 @@
 		}
 		errorMsg = '';
 		try {
+			// Server is the single source of truth for `bookCostCents`; we
+			// intentionally do NOT send a client-side price claim. The
+			// server already computes the authoritative price via
+			// `priceForBook(format, pages)` (see /api/order/+server.ts), so
+			// sending a client value would create a drift hazard: a price
+			// hike server-side would 400 every cached client with
+			// `price_mismatch`. Per-format display prices live in
+			// `bookCostFor()` for UI hint copy only.
 			const res = await fetch('/api/order', {
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
@@ -126,7 +175,6 @@
 					pdfHash: s6.pdfHash,
 					shippingAddress: addressForm,
 					shippingOption: selectedOption,
-					bookCostCents: bookCostFor(selectedFormat),
 					consentLog: s6.consent,
 				}),
 			});
@@ -137,14 +185,61 @@
 				return;
 			}
 			orderId = data.orderId;
+			clientSecret = data.clientSecret ?? null;
 			phase = 'pay';
+			if (useRealStripe) {
+				// Kick off Elements mount in the background — UI shows the
+				// card-input div in the same phase render.
+				void mountStripeElements();
+			}
 		} catch (e) {
 			errorMsg = (e as Error).message;
 			phase = 'error';
 		}
 	}
 
+	async function mountStripeElements(): Promise<void> {
+		if (_stripeReady) return;
+		_stripeLoadError = null;
+		try {
+			_stripe = await loadStripe(_publishableKey);
+			if (!_stripe) {
+				const cause = getLastStripeLoadError();
+				_stripeLoadError = cause?.message ?? 'stripe_load_failed';
+				return;
+			}
+			const elements = _stripe.elements();
+			_cardElement = elements.create('card');
+			// Wait for Svelte's render cycle to flush the {#if phase === 'pay'}
+			// branch so the `bind:this={_stripeMountNode}` actually binds.
+			// `await tick()` is the canonical Svelte flush primitive — a
+			// single `await Promise.resolve()` runs BEFORE the effect-flush
+			// pass and leaves the bind target null. Fall back to a bounded
+			// retry; if it's still null after that, surface an error
+			// instead of leaving the Pay button silently disabled forever.
+			await tick();
+			for (let i = 0; i < 5 && !_stripeMountNode; i++) {
+				await tick();
+			}
+			if (!_stripeMountNode) {
+				_stripeLoadError = 'mount_node_missing';
+				return;
+			}
+			if (!_cardElement) {
+				_stripeLoadError = 'card_element_missing';
+				return;
+			}
+			_cardElement.mount(_stripeMountNode);
+			_stripeReady = true;
+		} catch (e) {
+			_stripeLoadError = (e as Error).message;
+		}
+	}
+
 	function bookCostFor(fmt: BookFormat): number {
+		// Display-only UI hint; server's `priceForBook(format, pages)` is
+		// authoritative. Keep cents-matched to common cases so the hint copy
+		// reads correctly while the server validates the real charge.
 		switch (fmt) {
 			case 'hardcover-8x8':
 				return 2999;
@@ -154,23 +249,96 @@
 				return 1499;
 		}
 	}
+	// Reference `bookCostFor` to keep `selectedFormat` linked to the hint
+	// copy and avoid an unused-symbol warning when copy is restructured.
+	void bookCostFor;
 
 	async function submitPayment() {
+		errorMsg = '';
+		if (useRealStripe) {
+			await submitRealStripe();
+		} else {
+			await submitTestModeCard();
+		}
+	}
+
+	async function submitTestModeCard() {
 		if (cardNumber.replace(/\s+/g, '') !== '4242424242424242') {
 			errorMsg = 'use the test card number 4242 4242 4242 4242';
 			return;
 		}
 		phase = 'paying';
-		// Simulate Stripe confirm + poll the order status until paid/submitted.
-		// In a real Elements flow we would confirmCardPayment + listen for the
-		// stripe-webhook to advance the order. Test-mode bypasses Elements.
+		// In test-mode the order is advanced via the Stripe webhook
+		// `payment_intent.succeeded`. We poll the order status; the
+		// /api/order POST default-mock-Stripe returns `succeeded`.
 		try {
 			const res = await fetch(`/api/order/${orderId}`);
 			const data = await res.json();
-			trackingInfo = {
-				luluJobId: data.luluJobId,
-				state: data.state,
-			};
+			trackingInfo = { luluJobId: data.luluJobId, state: data.state };
+			phase = 'success';
+		} catch (e) {
+			errorMsg = (e as Error).message;
+			phase = 'error';
+		}
+	}
+
+	async function submitRealStripe() {
+		if (!_stripe || !_cardElement || !clientSecret || !orderId) {
+			errorMsg = 'stripe_not_ready';
+			return;
+		}
+		phase = 'paying';
+		_requiresAction = false;
+		try {
+			// confirmCardPayment is CLIENT-SIDE ONLY by Stripe design.
+			// The secret key never leaves the server; the publishable key +
+			// clientSecret + card iframe stay in the browser.
+			const result = await _stripe.confirmCardPayment(clientSecret, {
+				payment_method: { card: _cardElement },
+			});
+			let outcome = handlePaymentIntentResult(result);
+			if (outcome.kind === 'requires_action') {
+				// Stripe.js has already shown the 3DS modal inline; after
+				// the user completes (or fails) the challenge we re-poll
+				// `retrievePaymentIntent` to detect the post-challenge
+				// terminal state. Reference:
+				// https://docs.stripe.com/payments/payment-intents/web-manual#handle-redirect
+				_requiresAction = true;
+				errorMsg = outcome.userMessage;
+				outcome = await pollAfter3DS(_stripe, clientSecret);
+				if (outcome.kind !== 'succeeded') {
+					// Show the post-challenge result message; user can hit
+					// the Pay button again to retry.
+					errorMsg = outcome.kind === 'error'
+						? outcome.userMessage
+						: outcome.kind === 'other_pending'
+							? outcome.userMessage
+							: outcome.userMessage;
+					phase = 'pay';
+					return;
+				}
+				_requiresAction = false;
+			} else if (outcome.kind !== 'succeeded') {
+				errorMsg = outcome.userMessage;
+				phase = 'pay';
+				return;
+			}
+			// Tell the server the client-side confirmation succeeded.
+			// The webhook is the ultimate source of truth, but {action: confirm}
+			// lets the parent see "paid" immediately rather than waiting for
+			// the async webhook to round-trip.
+			const confirmRes = await fetch(`/api/order/${orderId}`, {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ action: 'confirm' }),
+			});
+			const confirmData = await confirmRes.json();
+			if (!confirmRes.ok) {
+				errorMsg = confirmData.error ?? 'confirm_failed';
+				phase = 'error';
+				return;
+			}
+			trackingInfo = { state: confirmData.state };
 			phase = 'success';
 		} catch (e) {
 			errorMsg = (e as Error).message;
@@ -182,6 +350,19 @@
 		phase = 'choose';
 		errorMsg = '';
 	}
+
+	onDestroy(() => {
+		try {
+			_cardElement?.unmount();
+			_cardElement?.destroy();
+		} catch (err) {
+			// element may already be destroyed by Stripe on payment success;
+			// surface the underlying cause to the dev console so unexpected
+			// failures are not silently swallowed (audit trail per CLAUDE.md
+			// "no try/catch swallowing real errors silently").
+			console.debug('[Station7TakeHome] card element teardown swallowed:', err);
+		}
+	});
 </script>
 
 <section class="station">
@@ -279,18 +460,37 @@
 		</div>
 	{:else if phase === 'pay'}
 		<div class="print-form">
-			<h3>Test-mode card</h3>
-			<p class="hint">
-				Stripe Elements integration ships in v2. For now enter the test card
-				<code>4242 4242 4242 4242</code>.
-			</p>
-			<label>
-				Card number
-				<input bind:value={cardNumber} placeholder="4242 4242 4242 4242" />
-			</label>
+			{#if useRealStripe}
+				<h3>Card details</h3>
+				<p class="hint">Secured by Stripe. Card data never touches our servers.</p>
+				<div class="stripe-card-host" bind:this={_stripeMountNode} data-testid="stripe-card-element"></div>
+				{#if !_stripeReady && !_stripeLoadError}
+					<p class="hint">Loading secure card form…</p>
+				{/if}
+				{#if _stripeLoadError}
+					<p class="error">Couldn't load Stripe ({_stripeLoadError}). Refresh to retry.</p>
+				{/if}
+				{#if _requiresAction}
+					<p class="hint">Complete the bank verification popup, then we will finish your order.</p>
+				{/if}
+			{:else}
+				<h3>Test-mode card</h3>
+				<p class="hint">
+					Real Stripe Elements activates when <code>PUBLIC_STRIPE_PUBLISHABLE_KEY</code>
+					is set. For now enter the test card <code>4242 4242 4242 4242</code>.
+				</p>
+				<label>
+					Card number
+					<input bind:value={cardNumber} placeholder="4242 4242 4242 4242" />
+				</label>
+			{/if}
 			<div class="actions">
 				<button class="back" on:click={() => (phase = 'quote')}>Back</button>
-				<button class="primary" on:click={submitPayment}>Pay & print →</button>
+				<button
+					class="primary"
+					on:click={submitPayment}
+					disabled={useRealStripe && !_stripeReady}
+				>Pay & print →</button>
 			</div>
 			{#if errorMsg}<p class="error">{errorMsg}</p>{/if}
 		</div>
@@ -425,6 +625,13 @@
 	.hint {
 		font-size: 0.85rem;
 		color: #555;
+	}
+	.stripe-card-host {
+		padding: 0.6rem 0.8rem;
+		border: 1px solid #bbb;
+		border-radius: 6px;
+		background: #fff;
+		min-height: 2.6rem;
 	}
 	code {
 		background: #f4f4f4;
