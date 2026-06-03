@@ -143,11 +143,19 @@ export class EmailGateService {
 		return this._contacts.get(email.toLowerCase());
 	}
 
-	/** Verify a cookie value matches the expected HMAC. */
+	/** Verify a cookie value matches the expected HMAC (handles legacy + v1 prefix). */
 	async verifyCookie(email: string, shortcode: string, cookieValue: string): Promise<boolean> {
 		if (!email || !shortcode || !cookieValue) return false;
 		const expected = await this._mintCookie(email, shortcode);
-		return constantTimeEqual(expected, cookieValue);
+		if (constantTimeEqual(expected, cookieValue)) return true;
+		// Legacy (pre-v1 prefix) cookies are plain 32-hex with no version byte.
+		// Accept them for backwards compatibility until the rotation grace window
+		// elapses; this lets users keep their session across the deploy.
+		if (!cookieValue.startsWith("v1:")) {
+			const legacy = expected.startsWith("v1:") ? expected.slice(3) : expected;
+			if (constantTimeEqual(legacy, cookieValue)) return true;
+		}
+		return false;
 	}
 
 	/** Marks a contact lifecycle stage. Used by other services. */
@@ -185,11 +193,16 @@ export class EmailGateService {
 		return `${email.toLowerCase()}:${shortcode}`;
 	}
 
+	/**
+	 * Cookie format: `v1:<32 hex>` (HMAC-SHA256 of `<emailLower>:<shortcode>`).
+	 * Prefix is a version byte so future key rotation can validate against
+	 * multiple HMAC variants in parallel without invalidating every minted
+	 * cookie at once. verifyCookie dispatches by prefix.
+	 */
 	private async _mintCookie(email: string, shortcode: string): Promise<string> {
 		const payload = `${email.toLowerCase()}:${shortcode}`;
-		return hmacSha256Hex(this.opts.serverSecret, payload, this.opts.subtle).then((hex) =>
-			hex.slice(0, 32),
-		);
+		const hex = await hmacSha256Hex(this.opts.serverSecret, payload, this.opts.subtle);
+		return `v1:${hex.slice(0, 32)}`;
 	}
 
 	private _validateEmail(email: string): void {

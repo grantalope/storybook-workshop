@@ -14,7 +14,7 @@ describe('EmailGateService', () => {
 			lengthTier: 'bedtime',
 		});
 		expect(res.reused).toBe(false);
-		expect(res.cookieValue).toHaveLength(32);
+		expect(res.cookieValue).toMatch(/^v1:[0-9a-f]{32}$/);
 		expect(res.contact.email).toBe('parent@example.com');
 		expect(res.contact.lifecycleStage).toBe('gate_unlocked');
 		expect(res.contact.tags.kidAgeBand).toBe('4-6');

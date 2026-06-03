@@ -139,8 +139,10 @@ export interface AbandonedCart {
 	abandonedAt: number;
 	/** Anonymized snapshot of cart total at abandonment. */
 	bookCostCents: number;
-	/** Last template fired against this cart. */
+	/** Last template fired against this cart (legacy; kept for back-compat). */
 	lastSentTemplate?: EmailTemplate;
+	/** Per-template send-set for O(1) order-independent dedup. */
+	sentTemplates?: Set<EmailTemplate>;
 	/** Set to true when parent eventually pays — terminates the recovery chain. */
 	resolved: boolean;
 }

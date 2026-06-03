@@ -82,20 +82,25 @@ export class AbandonedCartService {
 	}
 
 	/** Track a fresh Station-7 abandonment. Idempotent on quick re-entry. */
-	track(opts: { parentEmail: string; kidId: string; bookId: string; bookCostCents: number }): AbandonedCart {
+	/** Track a fresh Station-7 abandonment. shortcode is preferred; bookId is accepted for back-compat. */
+	track(opts: { parentEmail: string; kidId: string; bookId?: string; shortcode?: string; bookCostCents: number }): AbandonedCart {
+		const shortcode = opts.shortcode ?? opts.bookId;
+		if (!shortcode) {
+			throw new Error("AbandonedCartService.track: shortcode or bookId is required");
+		}
 		const key = this._key(opts.parentEmail, opts.kidId);
 		const now = this._now();
 		const existing = this._carts.get(key);
 		if (existing && !existing.resolved && now - existing.abandonedAt < 5 * 60 * 1000) {
 			// recent re-entry — keep original abandonedAt to avoid spamming reset
-			existing.bookId = opts.bookId;
+			existing.bookId = shortcode;
 			existing.bookCostCents = opts.bookCostCents;
 			return existing;
 		}
 		const cart: AbandonedCart = {
 			parentEmail: opts.parentEmail,
 			kidId: opts.kidId,
-			bookId: opts.bookId,
+			bookId: shortcode,
 			abandonedAt: now,
 			bookCostCents: opts.bookCostCents,
 			resolved: false,
@@ -187,6 +192,8 @@ export class AbandonedCartService {
 					html: rendered.html,
 				});
 				if (send.ok) {
+					if (!cart.sentTemplates) cart.sentTemplates = new Set();
+					cart.sentTemplates.add(step.template);
 					cart.lastSentTemplate = step.template;
 					report.sent += 1;
 				} else {
@@ -198,12 +205,18 @@ export class AbandonedCartService {
 	}
 
 	private _wasSent(cart: AbandonedCart, template: EmailTemplate): boolean {
+		// Per-template Set is order-independent + works for arbitrary schedules.
+		if (cart.sentTemplates?.has(template)) return true;
+		// Back-compat for carts persisted before sentTemplates landed.
+		if (!cart.lastSentTemplate) return false;
 		const order: EmailTemplate[] = [
 			'abandoned_cart_T1h',
 			'abandoned_cart_T24h',
 			'abandoned_cart_T72h',
 		];
-		if (!cart.lastSentTemplate) return false;
-		return order.indexOf(template) <= order.indexOf(cart.lastSentTemplate);
+		const li = order.indexOf(cart.lastSentTemplate);
+		const ti = order.indexOf(template);
+		if (li < 0 || ti < 0) return false;
+		return ti <= li;
 	}
 }

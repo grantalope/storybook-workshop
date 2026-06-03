@@ -232,6 +232,36 @@ export class PromoCodeService {
 		return v;
 	}
 
+	/**
+	 * Prune expired codes from the in-memory map. Run on every tick or
+	 * lazily before validate(). Returns the number of codes evicted.
+	 * The seeded BEDTIME10 first-time code never expires (no expiresAt),
+	 * so it is exempt from this sweep.
+	 */
+	pruneExpired(grace = 0): number {
+		const now = this._now();
+		let evicted = 0;
+		for (const [k, c] of this._codes.entries()) {
+			if (c.expiresAt && now > c.expiresAt + grace) {
+				this._codes.delete(k);
+				evicted += 1;
+			}
+		}
+		// Hard LRU cap: if we somehow grow past 100k codes, drop the oldest
+		// non-first_time codes. Insertion order in a Map is creation order,
+		// so the head of the iterator is the oldest.
+		const HARD_CAP = 100_000;
+		while (this._codes.size > HARD_CAP) {
+			for (const [k, c] of this._codes.entries()) {
+				if (c.type === "first_time") continue;
+				this._codes.delete(k);
+				evicted += 1;
+				break;
+			}
+		}
+		return evicted;
+	}
+
 	/** Snapshot helper for ops dashboards / tests. */
 	snapshot(): { totalCodes: number; redeemedByType: Record<PromoType, number> } {
 		const redeemedByType: Record<PromoType, number> = {

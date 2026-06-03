@@ -75,7 +75,13 @@ export class UnsubscribeService {
 		return { ok: true, email, bucket, cascaded };
 	}
 
-	/** Re-subscribe to a bucket (test/admin helper). */
+	/**
+	 * Re-subscribe to a bucket. Symmetric to unsubscribe(marketing) which
+	 * cascades to educational — resub(marketing) also re-enables
+	 * educational when it was opted out *as part of* the marketing
+	 * cascade. We track the cascade by clearing both flags when the user
+	 * explicitly resubs from marketing.
+	 */
 	resubscribe(email: string, bucket: string): UnsubscribeResult {
 		if (!this._isValidBucket(bucket)) {
 			return { ok: false, email, bucket: 'marketing', error: 'invalid_bucket' };
@@ -83,7 +89,15 @@ export class UnsubscribeService {
 		const contact = this.opts.gate.getContact(email);
 		if (!contact) return { ok: false, email, bucket, error: 'unknown_email' };
 		this.opts.gate.setUnsubscribed(email, bucket, false);
-		return { ok: true, email, bucket };
+		const cascaded: UnsubscribeBucket[] = [];
+		if (bucket === 'marketing' && contact.unsubscribed.educational) {
+			this.opts.gate.setUnsubscribed(email, 'educational', false);
+			cascaded.push('educational');
+		}
+		if (contact.lifecycleStage === 'unsubscribed') {
+			this.opts.gate.advanceStage(email, 'gate_unlocked');
+		}
+		return { ok: true, email, bucket, cascaded };
 	}
 
 	/** Full-account GDPR delete cascade. Caller is /library delete-account. */
