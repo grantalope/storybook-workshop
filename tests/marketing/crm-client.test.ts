@@ -93,7 +93,8 @@ describe('PostmarkCrmProvider (mocked fetch)', () => {
 		expect(r.ok).toBe(true);
 		expect(r.providerMessageId).toBe('mid-1');
 		expect(fetchImpl).toHaveBeenCalled();
-		const callArgs = fetchImpl.mock.calls[0];
-		expect(callArgs?.[0]).toContain('postmarkapp.com');
+		const calls = fetchImpl.mock.calls as unknown as Array<[string, unknown]>;
+		expect(calls.length).toBeGreaterThan(0);
+		expect(calls[0][0]).toContain('postmarkapp.com');
 	});
 });

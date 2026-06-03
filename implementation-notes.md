@@ -156,3 +156,207 @@ helper doesn't expose batch atomicity; acceptable for parent-side ops).
 - LuluPdfSpecValidator already exists from book-assembler and returns a
   rich ValidationReport — `/api/order` POST reuses it directly.
 
+
+# Marketing-funnel phase (feat/marketing-funnel, 2026-06-03)
+
+## Goal
+
+Implement docs/goals/2026-05-24-marketing-funnel.md end-to-end:
+email-gated digital preview (HMAC cookie), 7-stop lifecycle scheduler
+per spec §8.2, abandoned-cart recovery chain with escalating promos,
+grandparent-referral viral loop with $5 credit, weekly educational
+drip with 24 research-cited entries covering 10 evidence knobs, per-bucket
+GDPR-clean unsubscribe, promo codes (first-time / abandoned-cart /
+birthday / series-discount), CrmClient interface with Resend default +
+Postmark drop-in + Mock for tests, public read-along route gated past
+spread 4, marketing pages (landing + research + privacy).
+
+## Design decisions
+
+### CRM provider choice
+Resend selected as the default production provider. Reasons: (1) lighter
+HTTP API than Postmark, (2) modern dev ergonomics, (3) Vercel-native.
+PostmarkCrmProvider ships as a drop-in alternative behind the same
+CrmClient interface. Selection at runtime: RESEND_API_KEY env present ->
+Resend; POSTMARK_SERVER_TOKEN -> Postmark; neither -> MockCrmClient
+(tests + dev). No SDK dependency added — raw fetch keeps the
+boundary mockable.
+
+### CrmClient interface shape
+Single `send({ template, to, vars, tags })` method. Provider-agnostic;
+the marketing services (LifecycleEmailService etc.) never see vendor-
+specific shapes. Tests inject MockCrmClient which captures every call
+to an in-memory ring buffer.
+
+### Lifecycle scheduler implementation
+In-app pull-based (not cron-side timing) because:
+1. CRM providers' scheduling features are vendor-specific and lock-in.
+2. We need to terminate on user state changes (paid_print, unsubscribed)
+   which the CRM doesn't know about.
+3. The same tick() can be called from a Vercel cron (HTTP POST), a
+   GitHub Actions cron, or a manual ops trigger — uniform interface.
+
+Idempotency is enforced via per-template last-send sentinel on the
+CrmContact. The sentinel is a TIMESTAMP not a boolean — but the
+check uses `!== undefined` so that a T=0 timestamp doesn't read as
+"not yet sent". (Caught by the lifecycle test suite during initial
+implementation.)
+
+### Cookie signing scheme
+HMAC-SHA256 over `{email.toLowerCase()}:{shortcode}`, hex-encoded then
+truncated to 32 chars (128 bits — plenty against guessing). Secret
+comes from STORYBOOK_EMAIL_GATE_SECRET env; if missing in dev/test we
+fall back to a deterministic constant (loud warn in production paths
+should be added when ops wires this in).
+
+Cookie name is per-shortcode: `swEmailGate_<shortcode>`. This binds
+the cookie to the unlocked shortcode so a single email can't unlock
+arbitrary other shortcodes. Cookie is HttpOnly + SameSite=Lax with
+30-day Max-Age.
+
+### Abandoned cart key
+`{parentEmail.lowerCase()}::{kidId}` — different kids have independent
+recovery chains. Re-tracking the same key within 5 minutes is treated
+as the same browser session (preserves the original abandonedAt so the
+T+1h email doesn't restart).
+
+### Promo code accounting
+NOT Stripe coupons — we own the validation surface so the same code
+works at PaymentIntent-time AND for in-flight checkout previews.
+Stripe-coupon-mirror could be added later via a webhook subscriber if
+we want native Stripe receipts to show the discount, but the v1 ledger
+is in-process (matches the InMemoryOrderStore pattern from fulfillment).
+
+Single-promo-per-order enforced via a Map<orderId, codeApplied>. Re-
+applying the same code to the same orderId is a no-op. Applying a
+different code rejects with `already_used_in_order`. The first-time
+code BEDTIME10 is a SHARED code across all parents (anyone can type it)
+but limited to ONE redemption per parent (tracked via a separate
+`_firstTimeRedeemed` set keyed on email).
+
+### Promo code generation
+CSPRNG-derived (`secureRandomString` from `$lib/services/subscription/secureRandom`)
+over alphabet `ABCDEFGHJKMNPQRSTUVWXYZ23456789` (30 chars, no
+ambiguous 0/O/1/l/I). 10 chars = ~49 bits entropy. Collision-loop
+caps at 100 attempts.
+
+### Educational drip rotation logic
+Per-parent cursor stored in PerParentCursor. `nextIndex` mod
+catalogSize. On send, cursor.nextIndex = (cursor.nextIndex + 1) % size.
+This deterministically rotates through all 24 entries before any
+repeats. cadenceMs default 7 days; `lastSentAt` gate prevents same-week
+double-sends.
+
+The catalog covers all 10 evidence knobs from spec §7.1, with multiple
+entries per knob (some knobs have 3 entries — e.g. personalized_hero
+gets Symons 1997, Rogers 1977, Bandura 1986 — for variety across the
+rotation).
+
+### Referral attribution split
+We have TWO referral services in the codebase now:
+- `services/subscription/ReferralAttribution` — owns the gift-flow
+  conversion path (grandparent buys a subscription via a referral link).
+- `services/marketing/ReferralLinkService` — owns the marketing-side
+  share-link surface (every read-along link is a referral source;
+  conversion to a print purchase awards $5).
+
+They use the same $5 credit constant (REFERRAL_CREDIT_CENTS=500) but
+different storage. A production unification could collapse them, but
+the split mirrors the goal split (#9 subscription vs #11 marketing) and
+keeps the test surface focused.
+
+### Marketing pages path
+Spec calls for `<product>.com/` to be the marketing landing. But `/`
+in the standalone repo is the workshop entry. To avoid the conflict,
+landing lives at `/marketing` with sub-routes at `/marketing/research`
+and `/marketing/privacy`. The standalone repo can later either alias
+`/` to `/marketing` via vercel.json, or split the marketing site into
+its own SvelteKit app (planned Phase B per goal doc).
+
+The public read-along is at `/r/[shortcode]/+page.svelte` (not under
+`(marketing)` — it's the social-share surface and needs the cleanest URL).
+
+### API endpoint conventions
+All marketing endpoints under `/api/marketing/` for clean isolation:
+- POST /api/marketing/email-gate -> set HMAC cookie + fire welcome
+- POST /api/marketing/lifecycle-tick -> cron-triggered; CRON_SECRET auth
+- POST /api/marketing/abandoned-cart-tick -> cron-triggered; CRON_SECRET auth
+- GET  /api/marketing/referral/[shortcode] -> 302 with click recorded
+- GET/POST /api/marketing/unsubscribe -> per-bucket opt-out
+- POST /api/marketing/promo/[code] -> validate + apply (cross-called
+  from /api/order POST in fulfillment)
+
+Cron auth: optional `Bearer $CRON_SECRET` header. If env unset, open
+(dev/test mode). Constant-time string compare on the secret.
+
+Unknown-email on unsubscribe returns 200 + ok:false (NOT 404) to
+prevent email-enumeration via the unsubscribe endpoint.
+
+### Cross-deps
+- `/api/order` POST (fulfillment) can cross-call
+  `promoCodeService.validate()` / `.apply()` / `.redeem()` to enforce
+  single-promo-per-order. The wiring point is intentionally NOT
+  hard-coded into /api/order — that endpoint stays unchanged for this
+  PR. Production wiring picks up promo codes via the order POST body
+  carrying a `promoCode` field; that wiring can land in a follow-up
+  without re-opening this PR.
+- `birthdayCron` (subscription) can mint birthday promos by calling
+  `promoCodeService.mintBirthdayPromo(parentEmail)`. Same pattern:
+  the cross-call is available; the wiring is a follow-up.
+
+## Deviations
+
+- Marketing landing path moved from `/` to `/marketing` to avoid
+  collision with the workshop root route (see above).
+- Real Resend / Postmark SMTP credentials NOT exercised by the test
+  suite — would require live keys. The fetch boundary is mocked.
+- Playwright e2e (e2e/storybook-workshop-marketing-funnel.spec.ts) is
+  out of scope for this commit cycle; the goal doc lists it as Phase 10
+  but the standalone repo's e2e harness needs the Lulu/Stripe mock
+  stack which is a separate goal. Vitest endpoint tests cover the
+  HTTP surface.
+- Birthday cron auto-fire wiring deferred — `mintBirthdayPromo` is
+  exposed; cron-side trigger is a 1-line addition in
+  `services/subscription/BirthdayCronService` and tracked as a
+  follow-up.
+
+## Tradeoffs
+
+- In-memory stores everywhere (CrmContact map, abandoned-cart map,
+  promo-code map, referral-shortcode map). Survives a single process
+  lifetime; a server restart wipes state. Same tradeoff as fulfillment
+  Phase. Production swap-in (Postgres / Redis) is a follow-up ops
+  goal alongside subscription/fulfillment persistence.
+- 24-entry educational catalog is a fixed in-app constant, not a
+  CMS-loaded resource. Easier to ship today; harder for non-engineer
+  ops to add new entries. Acceptable for v1; revisit once we have an
+  advisory council suggesting entries (spec §8.6 Phase B).
+
+## Open questions
+
+- [?] Should the unsubscribe endpoint also one-click for
+  `type=all`? Right now it requires three separate clicks (one per
+  bucket). UX vs explicit consent tension.
+- [?] Hardening: should the email-gate POST rate-limit by IP? Today
+  any visitor can hammer the endpoint with arbitrary emails to seed
+  contacts. Acceptable risk for the v1 launch; revisit if abuse seen.
+
+## Surprises
+
+- The book-assembler endpoint (/api/book/[shortcode]) already implements
+  its own email-gate cookie scheme (separate from the marketing-funnel
+  HMAC cookie). The read-along page now sets both: it POSTs to the
+  marketing-funnel email-gate AND to the book-assembler email-gate, so
+  the legacy session-token flow keeps working alongside the new HMAC
+  flow. This is intentional belt-and-suspenders.
+- 'lifecycle_T0' subject test caught a falsy-zero bug in the lifecycle
+  scheduler's idempotency check — `if (contact.templateLastSentAt[t])`
+  treats T=0 as "not sent" because 0 is falsy. Fixed to
+  `!== undefined`. Caught by the second-tick test before commit.
+
+## Verification
+
+```
+pnpm test          # 800/800 (683 baseline + 117 new marketing)
+pnpm exec svelte-check  # 96 errors (== baseline; 0 NEW)
+```
