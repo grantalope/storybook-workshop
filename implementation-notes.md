@@ -156,3 +156,85 @@ helper doesn't expose batch atomicity; acceptable for parent-side ops).
 - LuluPdfSpecValidator already exists from book-assembler and returns a
   rich ValidationReport — `/api/order` POST reuses it directly.
 
+
+---
+
+# Stripe Elements phase (feat/stripe-elements-real, 2026-06-03)
+
+## Design decisions
+
+- **Lazy-load from canonical CDN.** `StripeElementsLoader.loadStripe()` injects
+  `<script src="https://js.stripe.com/v3/">` on demand the first time a
+  caller asks for a Stripe instance. Stripe's TOS + PCI posture forbids
+  bundling/self-hosting the SDK; SRI is also explicitly disallowed because
+  Stripe updates the hosted script in-place for live fraud + 3DS layers.
+  We set `crossOrigin='anonymous'` and rely on HTTPS + Stripe-controlled
+  delivery for trust — documented inline in the loader with a SECURITY NOTE.
+- **Test seam: `__setStripeFactory()`.** Tests inject a synthetic factory
+  that returns a fake `StripeInstance`; the loader short-circuits the DOM
+  script-injection path. `__resetStripeLoader()` clears the module
+  singletons + override between tests. Production code never calls these.
+- **Caching.** Per-publishable-key cache for the `StripeInstance` so
+  re-mounting Station 7 (back-arrow, HMR, retries) doesn't allocate a
+  second Stripe instance. Script-injection promise is module-scoped and
+  re-used across all keys.
+- **Activation gate.** Station 7 reads `readPublishableKey()` (which in
+  production is wired to `/static/public.PUBLIC_STRIPE_PUBLISHABLE_KEY`).
+  Empty key OR `devMode=true` prop → fall through to the legacy test-mode
+  "type 4242 4242 4242 4242" form. This keeps the dev/test path frictionless
+  while the production build flips to real Elements automatically when the
+  env var is set.
+- **`confirmCardPayment` is client-only by Stripe design.** The secret key
+  never leaves the server; the publishable key + clientSecret + card-iframe
+  stay in the browser. We never see the raw card number — Stripe Elements
+  owns the iframe.
+- **Server-side verification on `{action:'confirm'}`.** The new POST
+  `/api/order/[id]` action does NOT trust the client claim that the
+  PaymentIntent succeeded — it re-fetches the PI from Stripe and only
+  transitions `pending_payment → paid` when Stripe itself reports
+  `succeeded`. This makes the client confirmation a UX accelerator (parent
+  sees "paid" immediately rather than waiting for the webhook), not an
+  authority. The webhook handler is unchanged and still the canonical
+  long-term source of truth.
+- **Idempotency with the webhook.** If the webhook lands first and flips
+  the order to `paid` before the client confirm POST arrives, `{action:
+  'confirm'}` returns `200 { state:'paid', idempotent:true }` rather than
+  re-transitioning (lifecycle would throw `paid → paid` as illegal). Both
+  paths converge on the same terminal state.
+- **No `@stripe/stripe-js` runtime dep added.** Loader carries minimal
+  inline TypeScript types for the v3 surface we use (Stripe, Elements,
+  CardElement, PaymentIntent result). Adding the npm package would
+  duplicate the CDN script for no value.
+
+## Deviations
+- E2E test of the full Stripe Elements mount + iframe interaction is
+  deferred (requires Playwright with network access to `js.stripe.com` +
+  Stripe test-mode account). Tests cover the loader contract (override +
+  caching + null fallback) and the server-side confirm endpoint — the two
+  surfaces that aren't owned by Stripe.
+- `readPublishableKey()` reads `globalThis.__PUBLIC_STRIPE_PUBLISHABLE_KEY__`
+  rather than `import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY` directly so
+  the loader stays importable from vitest (where the `` alias is not
+  resolvable). Production wiring sets the global in `hooks.client.ts` or
+  the app shell before any Station 7 instance is constructed; tracked as a
+  v2 ergonomic-only follow-up to plug straight into `$env/static/public`.
+
+## Open questions
+- [?] Wallet methods (Apple Pay / Google Pay): Stripe Elements supports
+  PaymentRequestButton via the same SDK; should ship in a follow-up once
+  domain verification is set up.
+- [?] 3DS challenge flow: `confirmCardPayment` can return
+  `requires_action` and Stripe.js handles the redirect/challenge inline.
+  Our handler treats `paymentIntent.status !== 'succeeded'` as an error
+  for now; `requires_action` should be surfaced as "complete bank
+  verification" rather than a generic error in v2.
+
+## Surprises
+- The existing `createMockStripe()` mock already returns a deterministic
+  `getPaymentIntent` shape; tests for the confirm endpoint only need to
+  override `status` on top of it.
+- The existing Stripe webhook handler already implements the
+  `payment_intent.succeeded → paid` transition with the SAME guard
+  (`order.state !== 'pending_payment'` → ignored) — the new confirm
+  action piggybacks on that guard, so both paths are race-safe by
+  construction without any additional locking.
