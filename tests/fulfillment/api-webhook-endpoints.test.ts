@@ -68,7 +68,6 @@ const validBody = () => ({
 	pdfHash: 'sha256-abcdefgh',
 	shippingAddress: makeAddress(),
 	shippingOption: makeShippingOption(),
-	bookCostCents: 2999,
 	consentLog: makeConsent(),
 });
 

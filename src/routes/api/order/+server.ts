@@ -23,7 +23,11 @@ import {
 	type Order,
 	type FulfillmentEnv,
 } from '$lib/services/fulfillment';
+import { priceForBook, verifyClientPriceClaim } from '$lib/services/fulfillment/pricing';
+import { resolveParentEmail } from '../../../hooks.server';
 import type { BookFormat } from '$lib/services/assemble/types';
+
+// SECURITY-PATCH-2026-06-03 — see docs/specs (price tampering CRITICAL + auth HIGH from 2026-06-03 review)
 
 // ---------------------------------------------------------------------------
 // Module-scoped server singletons. Injected mock providers used in tests via
@@ -103,17 +107,20 @@ function createMockStripeHttp(): StripeHttpClient {
 interface CreateOrderBody {
 	kidId: string;
 	bookId: string;
-	parentEmail: string;
+	/** OPTIONAL: only used as a sanity-check vs server-computed price. Server price is authoritative. */
+	parentEmail?: string;
 	format: BookFormat;
 	pages: number;
 	pdfHash: string;
 	shippingAddress: ShippingAddress;
 	shippingOption: ShippingOption;
-	bookCostCents: number;
+	/** OPTIONAL: sanity-check vs priceForBook(format, pages). NEVER used directly for charge. */
+	bookCostCents?: number;
 	consentLog: ConsentLogEntry;
 }
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async (event) => {
+	const { request, locals } = event;
 	let body: CreateOrderBody;
 	try {
 		body = (await request.json()) as CreateOrderBody;
@@ -125,15 +132,14 @@ export const POST: RequestHandler = async ({ request }) => {
 	const required: Array<keyof CreateOrderBody> = [
 		'kidId',
 		'bookId',
-		'parentEmail',
 		'format',
 		'pages',
 		'pdfHash',
 		'shippingAddress',
 		'shippingOption',
-		'bookCostCents',
 		'consentLog',
 	];
+	// parentEmail + bookCostCents intentionally omitted — both are derived server-side
 	for (const k of required) {
 		if (body[k] === undefined || body[k] === null) {
 			return json({ error: 'missing_field', field: k }, { status: 400 });
@@ -179,6 +185,46 @@ export const POST: RequestHandler = async ({ request }) => {
 		throw e;
 	}
 
+
+	// ---------------------------------------------------------------------
+	// SECURITY: server-derived parent identity + price (2026-06-03 review).
+	// ---------------------------------------------------------------------
+	const parentResolution = resolveParentEmail(
+		locals?.user ?? null,
+		body.parentEmail,
+		{
+			NODE_ENV: typeof process !== 'undefined' ? process.env.NODE_ENV : undefined,
+			STORYBOOK_DEV_BYPASS_AUTH:
+				typeof process !== 'undefined' ? process.env.STORYBOOK_DEV_BYPASS_AUTH : undefined,
+		},
+	);
+	if ('error' in parentResolution) {
+		return json(
+			{ error: parentResolution.error, hint: parentResolution.hint },
+			{ status: parentResolution.error === 'auth_bypass_misconfigured' ? 500 : 401 },
+		);
+	}
+	const parentEmail = parentResolution.email;
+
+	// Server-side price — authoritative. Client-supplied bookCostCents is
+	// accepted ONLY as a sanity-check value and must match if provided.
+	let serverBookCostCents: number;
+	try {
+		serverBookCostCents = priceForBook(body.format, body.pages);
+	} catch (e) {
+		return json(
+			{ error: 'unpriced_combo', reason: (e as Error).message },
+			{ status: 400 },
+		);
+	}
+	const priceMismatch = verifyClientPriceClaim(body.bookCostCents, serverBookCostCents);
+	if (priceMismatch) {
+		return json(
+			{ error: 'price_mismatch', detail: priceMismatch, serverPriceCents: serverBookCostCents },
+			{ status: 400 },
+		);
+	}
+
 	const deps = __getOrderApiDeps();
 	const orderId = deps.idGen();
 
@@ -186,24 +232,24 @@ export const POST: RequestHandler = async ({ request }) => {
 		id: orderId,
 		kidId: body.kidId,
 		bookId: body.bookId,
-		parentEmail: body.parentEmail,
+		parentEmail,
 		format: body.format,
 		pages: body.pages,
 		pdfHash: body.pdfHash,
 		shippingAddress: body.shippingAddress,
 		shippingOption: body.shippingOption,
-		bookCostCents: body.bookCostCents,
+		bookCostCents: serverBookCostCents,
 		consentLog: body.consentLog,
 	});
 
-	const totalCents = body.bookCostCents + body.shippingOption.costCents;
+	const totalCents = serverBookCostCents + body.shippingOption.costCents;
 	let pi;
 	try {
 		pi = await deps.stripe.createPaymentIntent({
 			orderId,
 			amountCents: totalCents,
 			currency: body.shippingOption.currency,
-			parentEmail: body.parentEmail,
+			parentEmail,
 			shippingAddress: body.shippingAddress,
 			metadata: { kidId: body.kidId, bookId: body.bookId },
 		});
