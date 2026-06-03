@@ -156,3 +156,75 @@ helper doesn't expose batch atomicity; acceptable for parent-side ops).
 - LuluPdfSpecValidator already exists from book-assembler and returns a
   rich ValidationReport — `/api/order` POST reuses it directly.
 
+
+---
+
+# Production-hardening phase (feat/production-hardening, 2026-06-03)
+
+## Design decisions
+
+- **Module placement**: `src/lib/env/production-config.ts`. New `env/`
+  directory under `src/lib/` because the contract is a runtime-env concern,
+  not service logic. CLAUDE.md layout updated to reflect.
+- **Three-tier finding model**: `fatal` (throws — server refuses to start) vs
+  `warn` (logs + continues) vs silent-pass. Codes are stable
+  machine-readable strings (`dev_bypass_in_production`, `missing_stripe_secret`,
+  etc.) so ops dashboards can pattern-match. The discriminant lives on
+  the finding itself (`level: "fatal" | "warn"`) so future migration to
+  pure-record (no-throw) APIs is straightforward.
+- **Boot-time, not request-time**: called from `hooks.server.ts handle`
+  guarded by a module-scope `_validatedOnce` latch — runs exactly once
+  per process, on the first request. Idempotent + cheap if called again
+  (no IO, just object reads).
+- **Webhook secrets are WARN, not FATAL**: some deploys terminate webhook
+  verification at an upstream reverse proxy or webhook relay, so refusing
+  to start would be over-restrictive. Warned + documented in
+  `production-deploy.md` operational notes.
+- **Whitespace-only secrets are treated as unset**: `nonEmpty()` does a
+  `.trim().length > 0` check so a deploy that accidentally sets
+  `STRIPE_SECRET_KEY=" "` (e.g. from a YAML quoting accident) gets
+  caught.
+- **Empty/undefined NODE_ENV is treated as non-production** (skip all
+  gates) — protects local `vite dev` / `vitest` from spurious throws.
+  Production deploys must explicitly set `NODE_ENV=production`.
+- **Injectable warn sink**: `EnsureProductionConfigOpts.warn` lets tests
+  capture warns deterministically rather than spying on `console.warn`.
+  Default is `console.warn`.
+- **Test-only escape hatches** (`_markValidated`, `_resetValidationLatch`)
+  are exported with underscore prefix per the existing repo convention
+  (see `__setOrderApiDeps` in fulfillment).
+
+## Deviations
+
+- ADR-0044 was referenced in the SETUP but the file doesn't exist on
+  origin/main (the latest committed adrs are 0042 + 0043). No ADR file
+  was created — the design is captured in `production-deploy.md` +
+  CLAUDE.md production-deploy-contract section instead.
+- `RESEND_API_KEY` warn only (not fatal) per the goal scope — the spec
+  treats email delivery as degraded-mode acceptable for v1 launch.
+
+## Tradeoffs
+
+- Aggregating multiple fatal findings into one `ProductionConfigError`
+  rather than throwing on the first — gives the operator a full list to
+  fix in one pass. Cost: slightly longer error message.
+- Module-scope latch state rather than per-`Kernel` / per-Locals binding.
+  Acceptable for a singleton-style boot gate; trivially mockable via
+  `_resetValidationLatch()` in tests.
+
+## Open questions
+- [?] Should `STRIPE_WEBHOOK_SECRET` / `LULU_WEBHOOK_SECRET` be promoted
+  to fatal once the marketing-funnel goal lands real Resend wiring?
+  Probably yes — once webhooks are real, missing-secret means real
+  customer impact. Deferred — track in the next deploy-contract review.
+- [?] Production session-auth wiring (cookie JWT vs Auth0 vs Clerk vs
+  Supabase) — recipes shipped in `docs/production-deploy.md` §4; pick
+  one before flipping to real production traffic.
+
+## Surprises
+- The existing `hooks.server.ts` already had a clean `resolveParentEmail`
+  helper documenting the bypass story end-to-end. Wiring
+  `ensureProductionConfig` on top of it was one import + one if-block.
+- `svelte-check` baseline on origin/main shows 96 errors / 22 warnings
+  pre-existing (most in `kernel-contracts/helpers/` + `routes/series/`)
+  — production-hardening adds 0 new errors. Verified.

@@ -31,12 +31,14 @@ src/
 │       └── birthday-cron/      # cron-triggered 6-week-pre-birthday email
 ├── lib/
 │   ├── components/            # Svelte building-block components
+│   ├── env/                   # production-config boot gate (ensureProductionConfig)
 │   ├── services/              # core services
 │   │   ├── PillarVectorizerService.ts
 │   │   ├── PillarMatcherService.ts
 │   │   ├── PillarManifestClient.ts
 │   │   ├── assemble/          # BookAssembler + PDF/ePub/read-along
 │   │   ├── author/            # StoryAuthor + Tier-2 vocab + Stein-Glenn validator
+│   │   ├── fulfillment/       # Lulu Direct + Stripe + quality-claim + webhooks
 │   │   ├── render/            # BookSpreadSurfaceAdapter + emotional effects
 │   │   └── subscription/      # series subs + gift + birthday cron
 │   ├── workshop/              # workshop UI building blocks (orchestrator + stations + advanced inspectors)
@@ -50,7 +52,8 @@ src/
 docs/
 ├── adr/                       # 0042-as-product-branch, 0043-privacy-on-device-pillar
 ├── specs/                     # 2026-05-24 design + 2026-05-25 hd2d-renderer-pivot
-└── goals/                     # original 12 implementation goals (historical reference)
+├── goals/                     # original 12 implementation goals (historical reference)
+└── production-deploy.md       # production env vars + deploy checklist + session-auth recipes
 tests/
 ├── setup/web-crypto-polyfill.ts  # Node 18 vitest globalThis.crypto polyfill
 ├── assemble/                   # BookAssembler suites
@@ -58,6 +61,7 @@ tests/
 ├── render/                     # PreText surface adapter + effects + typography
 ├── subscription/               # subs + gift + bundle + birthday + referral
 ├── advanced/                   # advanced-mode override store + diff snapshots + telemetry + citations
+├── production-hardening.test.ts  # ensureProductionConfig deploy-contract assertions
 ├── pillar-vectorizer.test.ts
 ├── pillar-matcher.test.ts
 ├── pillar-manifest-client.test.ts
@@ -66,6 +70,7 @@ tests/
 e2e/
 ├── advanced.spec.ts
 └── pretext.spec.ts
+SECURITY.md                     # vuln-reporting contact + resolved-finding audit log
 ```
 
 ## Extracted from
@@ -105,6 +110,37 @@ e2e/
 - Scene briefs + dedications: pass through `PrivacyFilterService` + `KidsContentSafetyService` before any external call.
 - The fallback `/api/vectorize` endpoint is stateless, rate-limited, anonymous, photo-discarded-synchronously.
 
+## Production deploy contract (load-bearing — see `docs/production-deploy.md`)
+
+Every production deploy must pass `ensureProductionConfig()` — a single
+boot-time gate called from `src/hooks.server.ts` on the first request.
+The gate **throws** (server refuses to start) on:
+
+- `NODE_ENV=production` AND `STORYBOOK_DEV_BYPASS_AUTH=1` — auth bypass
+  in production.
+- `NODE_ENV=production` AND empty `STRIPE_SECRET_KEY` — payment integrity.
+- `NODE_ENV=production` AND empty `LULU_CLIENT_ID` /
+  `LULU_CLIENT_SECRET` — fulfillment integrity.
+
+The gate **warns** (server runs in degraded mode) on:
+
+- Missing `RESEND_API_KEY` (parents won't get confirmation emails).
+- Missing `STRIPE_WEBHOOK_SECRET` (Stripe webhooks rejected).
+- Missing `LULU_WEBHOOK_SECRET` (Lulu webhooks rejected).
+
+When adding a new required env var in production, append the check to
+`src/lib/env/production-config.ts` with a fresh error code, update the
+deploy guide, and add a `tests/production-hardening.test.ts` case.
+
+Session auth is intentionally left as a STUB in `src/hooks.server.ts` —
+real wiring picks an identity provider (cookie JWT, Auth0, Clerk,
+Supabase) per the recipes in `docs/production-deploy.md` §4. Until then,
+`STORYBOOK_DEV_BYPASS_AUTH=1` lets dev / staging accept body-supplied
+parentEmail; the gate refuses to start production with that flag set.
+
+Vulnerability reporting + the resolved-finding audit log live at
+`SECURITY.md` (security@sharksnip.com).
+
 ## Development
 
 ```bash
@@ -126,3 +162,5 @@ Pre-MVP at extraction. ~10 of 12 goals merged in upstream pachinko-app + extract
 - Privacy posture ADR: `docs/adr/0043-privacy-on-device-pillar.md`.
 - Master design spec: `docs/specs/2026-05-24-design.md`.
 - HD-2D pivot: `docs/specs/2026-05-25-hd2d-renderer-pivot.md`.
+- Production deploy guide: `docs/production-deploy.md`.
+- Security policy + audit log: `SECURITY.md`.
