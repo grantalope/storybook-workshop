@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import type { WorkshopOrchestrator } from '$lib/workshop/services/WorkshopOrchestrator';
 	import type { BookFormat } from '$lib/services/assemble/types';
 	import type {
@@ -27,6 +27,58 @@
 	const s1 = orchestrator.draft.outputs.s1;
 	const shortcode = s6?.bookShortcode ?? 'unknown';
 	const targetPages = computeOrderPages();
+
+	// -- Abandoned-cart tracking (blocker 5 wiring) -----------------------
+	// Per spec section 8.3, Station 7 abandonment must register a cart
+	// after a debounce window so the recovery chain fires at T+1h/24h/72h.
+	// We trigger the registration when the parent has set their email AND
+	// the phase is still pre-payment after 30 seconds.
+	let _cartTimer: ReturnType<typeof setTimeout> | null = null;
+	let _cartRegistered = false;
+	const _cartCostCents = 3499;
+	function scheduleAbandonedCartCheck(): void {
+		if (_cartTimer) clearTimeout(_cartTimer);
+		_cartTimer = setTimeout(() => {
+			void maybeRegisterCart();
+		}, 30_000);
+	}
+	async function maybeRegisterCart(): Promise<void> {
+		if (_cartRegistered) return;
+		if (!parentEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parentEmail)) return;
+		if (phase === 'success' || phase === 'paying' || phase === 'error') return;
+		const kidId = orchestrator.draft.kidId;
+		if (!kidId) return;
+		try {
+			const r = await fetch('/api/marketing/cart-abandoned', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({
+					parentEmail,
+					kidId,
+					shortcode,
+					bookCostCents: selectedOption?.subtotalCents ?? _cartCostCents,
+				}),
+			});
+			if (r.ok) _cartRegistered = true;
+		} catch {
+			// best-effort; do not surface to the user
+		}
+	}
+	async function resolveCart(): Promise<void> {
+		const kidId = orchestrator.draft.kidId;
+		if (!parentEmail || !kidId) return;
+		try {
+			await fetch(
+				`/api/marketing/cart-abandoned?parentEmail=${encodeURIComponent(parentEmail)}&kidId=${encodeURIComponent(kidId)}`,
+				{ method: 'DELETE' },
+			);
+		} catch {
+			// best-effort
+		}
+	}
+	onMount(() => scheduleAbandonedCartCheck());
+	onDestroy(() => { if (_cartTimer) clearTimeout(_cartTimer); });
+
 
 	function computeOrderPages(): number {
 		// Spreads x 2 pages per spread, rounded up to format multiple downstream.
@@ -172,6 +224,7 @@
 				state: data.state,
 			};
 			phase = 'success';
+			void resolveCart();
 		} catch (e) {
 			errorMsg = (e as Error).message;
 			phase = 'error';

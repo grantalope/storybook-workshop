@@ -190,7 +190,7 @@ describe('/api/marketing/referral/[shortcode] GET', () => {
 
 	it('302s on valid shortcode and records click', async () => {
 		const code = deps.referral.mintShortcode('p@example.com');
-		const r = await referralGet({ params: { shortcode: code } } as never);
+		const r = await referralGet({ params: { shortcode: code }, url: new URL("http://localhost/api/marketing/referral/" + code), getClientAddress: () => "1.2.3.4" } as never);
 		expect(r.status).toBe(302);
 		expect(r.headers.get('location')).toContain(`/?ref=${code}`);
 		expect(r.headers.get('set-cookie')).toMatch(/swReferral=/);

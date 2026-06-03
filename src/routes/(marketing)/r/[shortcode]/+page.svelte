@@ -147,6 +147,11 @@ component owns the read-along animation. We just gate it.
 				<h2>Love it? Make it a hardcover.</h2>
 				<a href="/?ref={shortcode}" class="primary">Order this for {bundle.title}</a>
 				<a href="/" class="secondary">Make one for your own grandkid</a>
+				<div class="share" data-testid="share-controls">
+					<button type="button" onclick={mintShareLink}>Share with Grandma</button>
+					{#if shareUrl}<input class="share-url" readonly value={shareUrl} />{/if}
+					{#if shareMessage}<p class="tiny">{shareMessage}</p>{/if}
+				</div>
 			</section>
 		{/if}
 	{/if}
