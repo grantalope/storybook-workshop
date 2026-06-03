@@ -10,6 +10,7 @@ import {
 	UnsubscribeService,
 } from '$lib/services/marketing';
 import { mintUnsubToken } from '$lib/services/marketing/unsubToken';
+import { __resetRateLimitersForTests } from '$lib/services/marketing/rateLimit';
 import {
 	__resetMarketingApiDeps,
 	__setMarketingApiDeps,
@@ -23,6 +24,10 @@ import { GET as unsubGet, POST as unsubPost } from '../../src/routes/api/marketi
 import { POST as promoPost } from '../../src/routes/api/marketing/promo/[code]/+server';
 
 const SECRET = 'test-secret-1234567890';
+
+// _globalReset: drain rate-limit buckets between tests so per-IP throttle
+// does not bleed across cases.
+beforeEach(() => __resetRateLimitersForTests());
 
 function makeDeps(): MarketingDeps & { crm: MockCrmClient } {
 	let now = 0;
@@ -66,6 +71,8 @@ describe('/api/marketing/email-gate POST', () => {
 	it('records a fresh email + sets cookie + fires gate_unlock', async () => {
 		const r = await emailGatePost({
 			request: jsonReq({ email: 'p@example.com', shortcode: 'abcd1234' }),
+			getClientAddress: () => "1.2.3.4",
+			url: new URL("http://localhost/api/marketing/email-gate"),
 		} as never);
 		const body = (await r.json()) as { ok: boolean; unlocked: boolean; reused: boolean };
 		expect(body.ok).toBe(true);
@@ -85,6 +92,8 @@ describe('/api/marketing/email-gate POST', () => {
 				method: 'POST',
 				body: 'not-json',
 			}),
+			getClientAddress: () => "1.2.3.4",
+			url: new URL("http://localhost/api/marketing/email-gate"),
 		} as never);
 		expect(r.status).toBe(400);
 	});
@@ -92,6 +101,8 @@ describe('/api/marketing/email-gate POST', () => {
 	it('returns 400 missing_field email', async () => {
 		const r = await emailGatePost({
 			request: jsonReq({ shortcode: 'abcd1234' }),
+			getClientAddress: () => "1.2.3.4",
+			url: new URL("http://localhost/api/marketing/email-gate"),
 		} as never);
 		expect(r.status).toBe(400);
 		const body = (await r.json()) as { field?: string };
@@ -101,6 +112,8 @@ describe('/api/marketing/email-gate POST', () => {
 	it('returns 400 invalid_email', async () => {
 		const r = await emailGatePost({
 			request: jsonReq({ email: 'bad', shortcode: 'abcd1234' }),
+			getClientAddress: () => "1.2.3.4",
+			url: new URL("http://localhost/api/marketing/email-gate"),
 		} as never);
 		expect(r.status).toBe(400);
 		const body = (await r.json()) as { error?: string };
@@ -110,10 +123,14 @@ describe('/api/marketing/email-gate POST', () => {
 	it('is idempotent on resubmit (reused: true, no second email)', async () => {
 		await emailGatePost({
 			request: jsonReq({ email: 'p@example.com', shortcode: 'abcd1234' }),
+			getClientAddress: () => "1.2.3.4",
+			url: new URL("http://localhost/api/marketing/email-gate"),
 		} as never);
 		await new Promise((res) => setTimeout(res, 5));
 		const r2 = await emailGatePost({
 			request: jsonReq({ email: 'p@example.com', shortcode: 'abcd1234' }),
+			getClientAddress: () => "1.2.3.4",
+			url: new URL("http://localhost/api/marketing/email-gate"),
 		} as never);
 		const body = (await r2.json()) as { reused: boolean };
 		expect(body.reused).toBe(true);

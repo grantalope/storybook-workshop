@@ -51,6 +51,21 @@ const DEFAULT_UNSUB: Record<UnsubscribeBucket, boolean> = {
 	educational: false,
 };
 
+
+export class InvalidEmailError extends Error {
+	constructor(email: string) {
+		super("invalid email: " + email);
+		this.name = "InvalidEmailError";
+	}
+}
+
+export class InvalidShortcodeError extends Error {
+	constructor(shortcode: string) {
+		super("invalid shortcode: " + shortcode);
+		this.name = "InvalidShortcodeError";
+	}
+}
+
 export class EmailGateService {
 	private _contacts = new Map<string, CrmContact>();
 	/** Shortcode-to-email-to-cookie idempotency table. */
@@ -179,13 +194,13 @@ export class EmailGateService {
 
 	private _validateEmail(email: string): void {
 		if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-			throw new Error(`EmailGateService: invalid email "${email}"`);
+			throw new InvalidEmailError(email);
 		}
 	}
 
 	private _validateShortcode(shortcode: string): void {
 		if (!shortcode || shortcode.length < 4) {
-			throw new Error(`EmailGateService: invalid shortcode "${shortcode}"`);
+			throw new InvalidShortcodeError(shortcode);
 		}
 	}
 }

@@ -13,6 +13,8 @@
 export * from './types';
 export {
 	EmailGateService,
+	InvalidEmailError,
+	InvalidShortcodeError,
 } from './EmailGateService';
 export {
 	LifecycleEmailService,
