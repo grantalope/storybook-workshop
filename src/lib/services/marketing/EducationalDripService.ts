@@ -32,6 +32,8 @@
 
 import type { CrmClient, EduDripEntry } from './types';
 import type { EmailGateService } from './EmailGateService';
+import { mintUnsubToken } from './unsubToken';
+import { renderEmail } from './EmailRenderer';
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -214,6 +216,8 @@ export interface EducationalDripServiceOpts {
 	publicUrlBase?: string;
 	cadenceMs?: number;
 	catalog?: EduDripEntry[];
+	/** HMAC secret used to mint per-recipient unsubscribe tokens. */
+	serverSecret?: string;
 }
 
 export interface DripTickReport {
@@ -277,19 +281,34 @@ export class EducationalDripService {
 				continue;
 			}
 			const entry = this._catalog[cursor.nextIndex % this._catalog.length];
+			const vars: Record<string, string> = {
+				to_email: cursor.email,
+				subject: `${entry.citation}: ${entry.knob}`,
+				body: `${entry.body}\n\n${entry.productTie}`,
+				citation: entry.citation,
+				knob: entry.knob,
+				link: `${this.opts.publicUrlBase ?? ''}/research#${entry.id}`,
+				unsubscribe_bucket: 'educational',
+			};
+			if (contact.tags.kidFirstName) {
+				vars.kid_name = contact.tags.kidFirstName;
+			}
+			if (this.opts.serverSecret) {
+				vars.unsubscribe_token = await mintUnsubToken({
+					email: cursor.email,
+					bucket: 'educational',
+					secret: this.opts.serverSecret,
+				});
+			}
+			const rendered = renderEmail({ template: 'edu_drip_weekly', to: cursor.email, vars });
 			const send = await this.opts.crm.send({
 				template: 'edu_drip_weekly',
 				to: cursor.email,
-				vars: {
-					to_email: cursor.email,
-					subject: `${entry.citation}: ${entry.knob}`,
-					body: `${entry.body}\n\n${entry.productTie}`,
-					citation: entry.citation,
-					knob: entry.knob,
-					link: `${this.opts.publicUrlBase ?? ''}/research#${entry.id}`,
-					unsubscribe_bucket: 'educational',
-				},
+				vars,
 				tags: [`edu:${entry.id}`, `knob:${entry.knob}`],
+				subject: rendered.subject ?? vars.subject,
+				text: rendered.text,
+				html: rendered.html,
 			});
 			if (send.ok) {
 				cursor.lastSentAt = now;

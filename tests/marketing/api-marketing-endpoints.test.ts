@@ -9,6 +9,7 @@ import {
 	ReferralLinkService,
 	UnsubscribeService,
 } from '$lib/services/marketing';
+import { mintUnsubToken } from '$lib/services/marketing/unsubToken';
 import {
 	__resetMarketingApiDeps,
 	__setMarketingApiDeps,
@@ -28,21 +29,23 @@ function makeDeps(): MarketingDeps & { crm: MockCrmClient } {
 	const crm = new MockCrmClient(() => now);
 	const gate = new EmailGateService({ serverSecret: SECRET, nowSource: () => now });
 	const promo = new PromoCodeService({ nowSource: () => now });
-	const lifecycle = new LifecycleEmailService({ crm, gate, nowSource: () => now });
+	const lifecycle = new LifecycleEmailService({ crm, gate, nowSource: () => now, serverSecret: SECRET });
 	const abandonedCart = new AbandonedCartService({
 		crm,
 		promo,
 		nowSource: () => now,
 		publicUrlBase: 'https://sw.example',
+		serverSecret: SECRET,
+		gate,
 	});
 	const referral = new ReferralLinkService({
 		crm,
 		nowSource: () => now,
 		publicUrlBase: 'https://sw.example',
 	});
-	const educationalDrip = new EducationalDripService({ crm, gate, nowSource: () => now });
+	const educationalDrip = new EducationalDripService({ crm, gate, nowSource: () => now, serverSecret: SECRET });
 	const unsubscribe = new UnsubscribeService({ gate });
-	return { crm, gate, lifecycle, abandonedCart, referral, educationalDrip, unsubscribe, promo };
+	return { crm, gate, lifecycle, abandonedCart, referral, educationalDrip, unsubscribe, promo, serverSecret: SECRET };
 }
 
 function jsonReq(body: unknown): Request {
@@ -195,15 +198,35 @@ describe('/api/marketing/unsubscribe GET + POST', () => {
 		__setMarketingApiDeps(deps);
 	});
 
-	it('GET ?email=&type=marketing unsubscribes', async () => {
+	it('GET ?email=&type=marketing&token=<hmac> unsubscribes', async () => {
 		await deps.gate.record({ email: 'p@example.com', shortcode: 'abcd1234' });
-		const url = new URL('http://localhost/api/marketing/unsubscribe?email=p%40example.com&type=marketing');
+		const token = await mintUnsubToken({ email: 'p@example.com', bucket: 'marketing', secret: SECRET });
+		const url = new URL(`http://localhost/api/marketing/unsubscribe?email=p%40example.com&type=marketing&token=${token}`);
 		const r = await unsubGet({ url } as never);
 		expect(r.status).toBe(200);
 		const body = (await r.json()) as { ok: boolean; bucket: string };
 		expect(body.ok).toBe(true);
 		expect(body.bucket).toBe('marketing');
 		expect(deps.gate.getContact('p@example.com')?.unsubscribed.marketing).toBe(true);
+	});
+
+	it('GET returns 401 when token is missing (anti-victim-unsub)', async () => {
+		await deps.gate.record({ email: 'p@example.com', shortcode: 'abcd1234' });
+		const url = new URL('http://localhost/api/marketing/unsubscribe?email=p%40example.com&type=marketing');
+		const r = await unsubGet({ url } as never);
+		expect(r.status).toBe(401);
+		const body = (await r.json()) as { error: string };
+		expect(body.error).toBe('missing_token');
+		expect(deps.gate.getContact('p@example.com')?.unsubscribed.marketing).toBe(false);
+	});
+
+	it('GET returns 401 when token is for a different email', async () => {
+		await deps.gate.record({ email: 'victim@example.com', shortcode: 'abcd1234' });
+		const attackerToken = await mintUnsubToken({ email: 'attacker@example.com', bucket: 'marketing', secret: SECRET });
+		const url = new URL(`http://localhost/api/marketing/unsubscribe?email=victim%40example.com&type=marketing&token=${attackerToken}`);
+		const r = await unsubGet({ url } as never);
+		expect(r.status).toBe(401);
+		expect(deps.gate.getContact('victim@example.com')?.unsubscribed.marketing).toBe(false);
 	});
 
 	it('GET returns 400 on invalid bucket', async () => {
@@ -219,22 +242,33 @@ describe('/api/marketing/unsubscribe GET + POST', () => {
 	});
 
 	it('GET returns ok:false but 200 on unknown email (no enumeration)', async () => {
-		const url = new URL('http://localhost/api/marketing/unsubscribe?email=ghost%40x.com&type=marketing');
+		const token = await mintUnsubToken({ email: 'ghost@x.com', bucket: 'marketing', secret: SECRET });
+		const url = new URL(`http://localhost/api/marketing/unsubscribe?email=ghost%40x.com&type=marketing&token=${token}`);
 		const r = await unsubGet({ url } as never);
 		expect(r.status).toBe(200);
 		const body = (await r.json()) as { ok: boolean };
 		expect(body.ok).toBe(false);
 	});
 
-	it('POST body { email, type } unsubscribes', async () => {
+	it('POST body { email, type, token } unsubscribes', async () => {
 		await deps.gate.record({ email: 'p@example.com', shortcode: 'abcd1234' });
+		const token = await mintUnsubToken({ email: 'p@example.com', bucket: 'educational', secret: SECRET });
 		const r = await unsubPost({
-			request: jsonReq({ email: 'p@example.com', type: 'educational' }),
+			request: jsonReq({ email: 'p@example.com', type: 'educational', token }),
 			url: new URL('http://localhost/api/marketing/unsubscribe'),
 		} as never);
 		expect(r.status).toBe(200);
 		const body = (await r.json()) as { ok: boolean };
 		expect(body.ok).toBe(true);
+	});
+
+	it('POST returns 401 when token is missing', async () => {
+		await deps.gate.record({ email: 'p@example.com', shortcode: 'abcd1234' });
+		const r = await unsubPost({
+			request: jsonReq({ email: 'p@example.com', type: 'educational' }),
+			url: new URL('http://localhost/api/marketing/unsubscribe'),
+		} as never);
+		expect(r.status).toBe(401);
 	});
 });
 

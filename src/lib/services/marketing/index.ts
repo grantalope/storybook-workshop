@@ -57,3 +57,4 @@ export {
 	renderEmail,
 } from './EmailRenderer';
 export type { RenderedEmail, RenderEmailOpts } from './EmailRenderer';
+export { mintUnsubToken, verifyUnsubToken } from "./unsubToken";

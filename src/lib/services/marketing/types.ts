@@ -47,6 +47,16 @@ export interface CrmContactTags {
 	lengthTier?: string;
 	/** Anonymized pillar archetype family (no PII). */
 	pillarArchetypeFamily?: string;
+	/**
+	 * First name of the kid the book is for. Used to personalize email
+	 * subjects + bodies (e.g. "<name>s book in print"). Captured at
+	 * email-gate submission so it is opt-in and bound to the same
+	 * consent surface as the email.
+	 *
+	 * Sanitized at capture (< > and control chars stripped) to keep raw
+	 * input out of plain-text email bodies.
+	 */
+	kidFirstName?: string;
 }
 
 /** CRM contact record — never includes kid photo or rendered book interior. */
@@ -74,6 +84,12 @@ export interface CrmSendOpts {
 	vars: Record<string, string>;
 	/** Tags used by the CRM provider for cohort reporting. */
 	tags?: string[];
+	/** Pre-rendered HTML body. When omitted providers send plain-text only. */
+	html?: string;
+	/** Pre-rendered plain-text body. When omitted providers fall back to textFor(). */
+	text?: string;
+	/** Pre-rendered subject. When omitted providers fall back to subjectFor(). */
+	subject?: string;
 }
 
 /** Result of a CRM send. */
@@ -100,6 +116,8 @@ export interface EmailGateRecordOpts {
 	themePicked?: string;
 	lengthTier?: string;
 	pillarArchetypeFamily?: string;
+	/** Kid first name (sanitized at the gate). */
+	kidFirstName?: string;
 }
 
 export interface EmailGateResult {

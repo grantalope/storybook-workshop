@@ -24,6 +24,9 @@ import type {
 	EmailTemplate,
 } from './types';
 import type { PromoCodeService } from './PromoCodeService';
+import { mintUnsubToken } from './unsubToken';
+import { renderEmail } from './EmailRenderer';
+import type { EmailGateService } from './EmailGateService';
 
 const HOUR = 60 * 60 * 1000;
 
@@ -47,6 +50,10 @@ export interface AbandonedCartServiceOpts {
 	publicUrlBase?: string;
 	/** Optional schedule override for tests (shorter ticks). */
 	schedule?: RecoveryStep[];
+	/** HMAC secret used to mint per-recipient unsubscribe tokens. */
+	serverSecret?: string;
+	/** Email-gate registry used to look up kid_name when present. */
+	gate?: EmailGateService;
 }
 
 export interface CartTickReport {
@@ -151,17 +158,33 @@ export class AbandonedCartService {
 					pctOff: step.pctOff,
 					createdAt: now,
 				});
+				const vars: Record<string, string> = {
+					to_email: cart.parentEmail,
+					link: `${this.opts.publicUrlBase ?? ''}/r/${cart.bookId}`,
+					promo_code: promo.code,
+					pct_off: String(step.pctOff),
+					unsubscribe_bucket: 'marketing',
+				};
+				const contact = this.opts.gate?.getContact(cart.parentEmail);
+				if (contact?.tags.kidFirstName) {
+					vars.kid_name = contact.tags.kidFirstName;
+				}
+				if (this.opts.serverSecret) {
+					vars.unsubscribe_token = await mintUnsubToken({
+						email: cart.parentEmail,
+						bucket: 'marketing',
+						secret: this.opts.serverSecret,
+					});
+				}
+				const rendered = renderEmail({ template: step.template, to: cart.parentEmail, vars });
 				const send = await this.opts.crm.send({
 					template: step.template,
 					to: cart.parentEmail,
-					vars: {
-						to_email: cart.parentEmail,
-						link: `${this.opts.publicUrlBase ?? ''}/r/${cart.bookId}`,
-						promo_code: promo.code,
-						pct_off: String(step.pctOff),
-						unsubscribe_bucket: 'marketing',
-					},
+					vars,
 					tags: [`recovery:${step.template}`],
+					subject: rendered.subject,
+					text: rendered.text,
+					html: rendered.html,
 				});
 				if (send.ok) {
 					cart.lastSentTemplate = step.template;

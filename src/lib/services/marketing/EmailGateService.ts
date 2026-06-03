@@ -97,6 +97,7 @@ export class EmailGateService {
 					themePicked: opts.themePicked,
 					lengthTier: opts.lengthTier,
 					pillarArchetypeFamily: opts.pillarArchetypeFamily,
+					kidFirstName: sanitizeName(opts.kidFirstName),
 				},
 				unsubscribed: { ...DEFAULT_UNSUB },
 				lastShortcode: opts.shortcode,
@@ -113,6 +114,9 @@ export class EmailGateService {
 			if (opts.lengthTier) contact.tags.lengthTier = opts.lengthTier;
 			if (opts.pillarArchetypeFamily) {
 				contact.tags.pillarArchetypeFamily = opts.pillarArchetypeFamily;
+			}
+			if (opts.kidFirstName !== undefined) {
+				contact.tags.kidFirstName = sanitizeName(opts.kidFirstName);
 			}
 		}
 
@@ -220,4 +224,17 @@ function constantTimeEqual(a: string, b: string): boolean {
 	let diff = 0;
 	for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
 	return diff === 0;
+}
+
+
+/**
+ * Strip <, >, &, /, \\, control chars and trim. Keeps Unicode letters
+ * and common punctuation. Caps length at 40 chars (a UI hint, not a hard
+ * GDPR limit). Returns undefined for empty input.
+ */
+function sanitizeName(input: string | undefined): string | undefined {
+	if (!input) return undefined;
+	const NAUGHTY = /[<>&\/\\\u0000-\u001f]/g;
+	const clean = input.replace(NAUGHTY, "").trim().slice(0, 40);
+	return clean.length > 0 ? clean : undefined;
 }

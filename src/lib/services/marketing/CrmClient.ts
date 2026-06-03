@@ -87,6 +87,16 @@ export class ResendCrmProvider implements CrmClient {
 
 	async send(opts: CrmSendOpts): Promise<CrmSendResult> {
 		const fetchImpl = this.opts.fetchImpl ?? fetch;
+		const subject = opts.subject ?? subjectFor(opts.template, opts.vars);
+		const text = opts.text ?? textFor(opts.template, opts.vars);
+		const payload: Record<string, unknown> = {
+			from: this.opts.from,
+			to: opts.to,
+			subject,
+			text,
+			tags: (opts.tags ?? []).map((t) => ({ name: 'tag', value: t })),
+		};
+		if (opts.html) payload.html = opts.html;
 		try {
 			const res = await fetchImpl('https://api.resend.com/emails', {
 				method: 'POST',
@@ -94,21 +104,27 @@ export class ResendCrmProvider implements CrmClient {
 					Authorization: `Bearer ${this.opts.apiKey}`,
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({
-					from: this.opts.from,
-					to: opts.to,
-					subject: subjectFor(opts.template, opts.vars),
-					text: textFor(opts.template, opts.vars),
-					tags: (opts.tags ?? []).map((t) => ({ name: 'tag', value: t })),
-				}),
+				body: JSON.stringify(payload),
 			});
 			if (!res.ok) {
-				return { ok: false, error: `Resend HTTP ${res.status}` };
+				const err = `Resend HTTP ${res.status}`;
+				console.warn('[Resend] send failed', {
+					template: opts.template,
+					emailHash: hashEmail(opts.to),
+					error: err,
+				});
+				return { ok: false, error: err };
 			}
 			const body = (await res.json().catch(() => ({}))) as { id?: string };
 			return { ok: true, providerMessageId: body.id };
 		} catch (e) {
-			return { ok: false, error: (e as Error).message };
+			const err = (e as Error).message;
+			console.warn('[Resend] send threw', {
+				template: opts.template,
+				emailHash: hashEmail(opts.to),
+				error: err,
+			});
+			return { ok: false, error: err };
 		}
 	}
 }
@@ -135,6 +151,17 @@ export class PostmarkCrmProvider implements CrmClient {
 
 	async send(opts: CrmSendOpts): Promise<CrmSendResult> {
 		const fetchImpl = this.opts.fetchImpl ?? fetch;
+		const subject = opts.subject ?? subjectFor(opts.template, opts.vars);
+		const text = opts.text ?? textFor(opts.template, opts.vars);
+		const payload: Record<string, unknown> = {
+			From: this.opts.from,
+			To: opts.to,
+			Subject: subject,
+			TextBody: text,
+			MessageStream: 'outbound',
+			Tag: (opts.tags ?? []).join(','),
+		};
+		if (opts.html) payload.HtmlBody = opts.html;
 		try {
 			const res = await fetchImpl('https://api.postmarkapp.com/email', {
 				method: 'POST',
@@ -143,22 +170,27 @@ export class PostmarkCrmProvider implements CrmClient {
 					'Content-Type': 'application/json',
 					'X-Postmark-Server-Token': this.opts.serverToken,
 				},
-				body: JSON.stringify({
-					From: this.opts.from,
-					To: opts.to,
-					Subject: subjectFor(opts.template, opts.vars),
-					TextBody: textFor(opts.template, opts.vars),
-					MessageStream: 'outbound',
-					Tag: (opts.tags ?? []).join(','),
-				}),
+				body: JSON.stringify(payload),
 			});
 			if (!res.ok) {
-				return { ok: false, error: `Postmark HTTP ${res.status}` };
+				const err = `Postmark HTTP ${res.status}`;
+				console.warn('[Postmark] send failed', {
+					template: opts.template,
+					emailHash: hashEmail(opts.to),
+					error: err,
+				});
+				return { ok: false, error: err };
 			}
 			const body = (await res.json().catch(() => ({}))) as { MessageID?: string };
 			return { ok: true, providerMessageId: body.MessageID };
 		} catch (e) {
-			return { ok: false, error: (e as Error).message };
+			const err = (e as Error).message;
+			console.warn('[Postmark] send threw', {
+				template: opts.template,
+				emailHash: hashEmail(opts.to),
+				error: err,
+			});
+			return { ok: false, error: err };
 		}
 	}
 }
@@ -258,16 +290,39 @@ export function textFor(template: EmailTemplate, vars: Record<string, string>): 
 	return `${body}\n\n${baseFooter}`;
 }
 
-/** GDPR + per-bucket unsubscribe footer. */
+/** GDPR + per-bucket unsubscribe footer.
+ *
+ * Per spec section 8.2 + RFC 8058 the unsubscribe URL is per-recipient: it
+ * includes an HMAC token (vars.unsubscribe_token) so an attacker who
+ * scrapes the link cannot replay it for arbitrary other emails. The
+ * token MUST be minted by the sender (LifecycleEmailService etc.)
+ * before the email is dispatched. If the token is missing the link
+ * still renders but the server will reject it with 401.
+ */
 export function footerFor(vars: Record<string, string>): string {
 	const email = vars.to_email ?? vars.email ?? '';
 	const bucket = vars.unsubscribe_bucket ?? 'marketing';
 	const unsubBase = vars.unsubscribe_base ?? '/api/marketing/unsubscribe';
-	const link = `${unsubBase}?email=${encodeURIComponent(email)}&type=${bucket}`;
+	const tokenPart = vars.unsubscribe_token ? `&token=${vars.unsubscribe_token}` : '';
+	const link = `${unsubBase}?email=${encodeURIComponent(email)}&type=${bucket}${tokenPart}`;
 	return [
 		`---`,
 		`Storybook Workshop · privacy on-device · COPPA-K compliant`,
 		`Unsubscribe from ${bucket} emails: ${link}`,
 		`You will continue to receive transactional emails (order confirmations, shipping) unless you delete your account.`,
 	].join('\n');
+}
+
+
+// ---------------------------------------------------------------------------
+// Internal: stable, low-cardinality fingerprint for log lines (no PII)
+// ---------------------------------------------------------------------------
+
+function hashEmail(email: string): string {
+	const lower = (email ?? '').toLowerCase();
+	let h = 5381;
+	for (let i = 0; i < lower.length; i++) {
+		h = ((h << 5) + h + lower.charCodeAt(i)) >>> 0;
+	}
+	return `e_${h.toString(16)}`;
 }

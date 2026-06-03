@@ -30,6 +30,8 @@ import type {
 	CrmClient,
 } from './types';
 import type { EmailGateService } from './EmailGateService';
+import { mintUnsubToken } from './unsubToken';
+import { renderEmail } from './EmailRenderer';
 
 const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
@@ -53,6 +55,8 @@ export interface LifecycleEmailServiceOpts {
 	schedule?: LifecycleStep[];
 	/** Public URL base used to construct read-along share links. */
 	publicUrlBase?: string;
+	/** HMAC secret used to mint per-recipient unsubscribe tokens. */
+	serverSecret?: string;
 }
 
 export interface TickReport {
@@ -152,12 +156,23 @@ export class LifecycleEmailService {
 
 	private async _send(contact: CrmContact, template: EmailTemplate) {
 		const vars = this._buildVars(contact, template);
+		if (this.opts.serverSecret) {
+			vars.unsubscribe_token = await mintUnsubToken({
+				email: contact.email,
+				bucket: vars.unsubscribe_bucket ?? 'marketing',
+				secret: this.opts.serverSecret,
+			});
+		}
+		const rendered = renderEmail({ template, to: contact.email, vars });
 		try {
 			return await this.opts.crm.send({
 				template,
 				to: contact.email,
 				vars,
 				tags: this._tagsForContact(contact),
+				subject: rendered.subject,
+				text: rendered.text,
+				html: rendered.html,
 			});
 		} catch (e) {
 			return { ok: false, error: (e as Error).message };
@@ -174,6 +189,9 @@ export class LifecycleEmailService {
 			link,
 			unsubscribe_bucket: 'marketing',
 		};
+		if (contact.tags.kidFirstName) {
+			vars.kid_name = contact.tags.kidFirstName;
+		}
 		if (template === 'lifecycle_T24h') {
 			vars.promo_code = 'BEDTIME10';
 		}
