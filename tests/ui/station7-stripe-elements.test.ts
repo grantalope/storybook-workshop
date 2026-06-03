@@ -7,6 +7,10 @@
 //   - StripeElementsLoader: lazy script injection, window.Stripe caching,
 //     factory-override test seam, null fallback for malformed inputs and
 //     SSR environments.
+//   - `readPublishableKey()`: live `$env/static/public` import, vitest
+//     `process.env.PUBLIC_STRIPE_PUBLISHABLE_KEY` shim, test-only override.
+//   - `stripeElementsGate`: useRealStripe decision, 3DS / requires_action
+//     classification, retrievePaymentIntent re-poll after 3DS.
 //   - /api/order/[id] POST {action: 'confirm'}: server-side re-fetch of
 //     PaymentIntent before transitioning to 'paid'; idempotent vs webhook;
 //     refuses to transition on non-succeeded statuses.
@@ -17,11 +21,20 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import {
 	loadStripe,
+	readPublishableKey,
+	getLastStripeLoadError,
 	__setStripeFactory,
 	__resetStripeLoader,
+	__setPublishableKeyForTests,
 	type StripeInstance,
 	type StripeCardElement,
+	type StripePaymentIntentResult,
 } from '$lib/workshop/components/StripeElementsLoader';
+import {
+	decideStripePath,
+	handlePaymentIntentResult,
+	pollAfter3DS,
+} from '$lib/workshop/services/stripeElementsGate';
 import {
 	InMemoryOrderStore,
 	OrderLifecycleService,
@@ -58,11 +71,13 @@ describe('StripeElementsLoader.loadStripe', () => {
 	it('returns null when publishableKey is empty', async () => {
 		const stripe = await loadStripe('');
 		expect(stripe).toBeNull();
+		expect(getLastStripeLoadError()?.message).toBe('invalid_publishable_key');
 	});
 
 	it('returns null when publishableKey is not a string', async () => {
 		const stripe = await loadStripe(undefined as unknown as string);
 		expect(stripe).toBeNull();
+		expect(getLastStripeLoadError()?.message).toBe('invalid_publishable_key');
 	});
 
 	it('uses the factory override and returns a Stripe instance', async () => {
@@ -75,10 +90,13 @@ describe('StripeElementsLoader.loadStripe', () => {
 		const fakeStripe: StripeInstance = {
 			elements: () => ({ create: () => fakeCard }),
 			confirmCardPayment: vi.fn(),
+			retrievePaymentIntent: vi.fn(),
 		};
 		__setStripeFactory(() => fakeStripe);
 		const stripe = await loadStripe('pk_test_abc');
 		expect(stripe).toBe(fakeStripe);
+		// Successful load clears the last error.
+		expect(getLastStripeLoadError()).toBeNull();
 	});
 
 	it('caches the instance per publishable key — repeated calls return same ref', async () => {
@@ -93,6 +111,7 @@ describe('StripeElementsLoader.loadStripe', () => {
 				}),
 			}),
 			confirmCardPayment: vi.fn(),
+			retrievePaymentIntent: vi.fn(),
 		};
 		__setStripeFactory(() => {
 			constructed++;
@@ -105,29 +124,178 @@ describe('StripeElementsLoader.loadStripe', () => {
 	});
 
 	it('returns null in non-browser env when no factory override is set', async () => {
-		// vitest default env is jsdom which provides window+document; for
-		// this test we force the SSR branch by deleting the override and
-		// stubbing the global window value to undefined for the duration.
+		// vitest default env is node; force the SSR branch by stubbing
+		// window/document undefined for the duration of the test.
 		__setStripeFactory(null);
-		const origWindow = globalThis.window;
-		const origDoc = globalThis.document;
+		const origWindow = (globalThis as { window?: unknown }).window;
+		const origDoc = (globalThis as { document?: unknown }).document;
 		delete (globalThis as { window?: unknown }).window;
 		delete (globalThis as { document?: unknown }).document;
 		try {
 			const stripe = await loadStripe('pk_test_ssr');
 			expect(stripe).toBeNull();
+			expect(getLastStripeLoadError()?.message).toBe('no_browser_environment');
 		} finally {
 			(globalThis as { window?: unknown }).window = origWindow;
 			(globalThis as { document?: unknown }).document = origDoc;
 		}
 	});
 
-	it('factory throwing returns null (graceful degradation)', async () => {
-		__setStripeFactory(() => {
-			throw new Error('boom');
+	it('factory throwing returns null + captures error (graceful degradation)', async () => {
+		const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		try {
+			__setStripeFactory(() => {
+				throw new Error('boom');
+			});
+			const stripe = await loadStripe('pk_test_throws');
+			expect(stripe).toBeNull();
+			expect(getLastStripeLoadError()?.message).toBe('boom');
+			expect(spy).toHaveBeenCalled();
+		} finally {
+			spy.mockRestore();
+		}
+	});
+});
+
+// ---------------------------------------------------------------------------
+// readPublishableKey — $env/static/public bridge
+// ---------------------------------------------------------------------------
+
+describe('readPublishableKey — $env/static/public bridge', () => {
+	beforeEach(() => {
+		__resetStripeLoader();
+		__setPublishableKeyForTests(null);
+	});
+	afterEach(() => {
+		__setPublishableKeyForTests(null);
+	});
+
+	it('returns the test-override value when set', () => {
+		__setPublishableKeyForTests('pk_test_override_xyz');
+		expect(readPublishableKey()).toBe('pk_test_override_xyz');
+	});
+
+	it("returns '' when the override is null and the env value is missing", () => {
+		// Vitest alias points at src/test-stubs/$env/static/public.ts which
+		// reads process.env.PUBLIC_STRIPE_PUBLISHABLE_KEY. Both should be
+		// unset in the default vitest run.
+		expect(readPublishableKey()).toBe('');
+	});
+
+	it('test override of empty string is honoured (signals devMode-fallback)', () => {
+		__setPublishableKeyForTests('');
+		expect(readPublishableKey()).toBe('');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// decideStripePath — useRealStripe gate
+// ---------------------------------------------------------------------------
+
+describe('stripeElementsGate.decideStripePath', () => {
+	it('returns useRealStripe=true when key is set and devMode is false', () => {
+		const d = decideStripePath({
+			publishableKey: 'pk_test_real',
+			devMode: false,
 		});
-		const stripe = await loadStripe('pk_test_throws');
-		expect(stripe).toBeNull();
+		expect(d).toEqual({ useRealStripe: true, reason: 'real_stripe' });
+	});
+
+	it('returns useRealStripe=false when key is empty', () => {
+		const d = decideStripePath({ publishableKey: '', devMode: false });
+		expect(d).toEqual({ useRealStripe: false, reason: 'no_key' });
+	});
+
+	it('returns useRealStripe=false when devMode=true even if key is set', () => {
+		const d = decideStripePath({
+			publishableKey: 'pk_test_real',
+			devMode: true,
+		});
+		expect(d).toEqual({ useRealStripe: false, reason: 'dev_mode' });
+	});
+});
+
+// ---------------------------------------------------------------------------
+// handlePaymentIntentResult — 3DS / declined / error classification
+// ---------------------------------------------------------------------------
+
+describe('stripeElementsGate.handlePaymentIntentResult', () => {
+	it('returns succeeded for a clean PI', () => {
+		const r: StripePaymentIntentResult = {
+			paymentIntent: { id: 'pi_1', status: 'succeeded' },
+		};
+		expect(handlePaymentIntentResult(r)).toEqual({ kind: 'succeeded' });
+	});
+
+	it('returns requires_action for a 3DS challenge (with UX guidance)', () => {
+		const r: StripePaymentIntentResult = {
+			paymentIntent: { id: 'pi_2', status: 'requires_action' },
+		};
+		const outcome = handlePaymentIntentResult(r);
+		expect(outcome.kind).toBe('requires_action');
+		expect(outcome.kind === 'requires_action' && outcome.userMessage).toContain(
+			'bank verification',
+		);
+	});
+
+	it('returns requires_payment_method for a declined card', () => {
+		const r: StripePaymentIntentResult = {
+			paymentIntent: { id: 'pi_3', status: 'requires_payment_method' },
+		};
+		const outcome = handlePaymentIntentResult(r);
+		expect(outcome.kind).toBe('requires_payment_method');
+		expect(outcome.kind === 'requires_payment_method' && outcome.userMessage).toMatch(
+			/declined/i,
+		);
+	});
+
+	it('returns error when result.error is present', () => {
+		const r: StripePaymentIntentResult = {
+			error: { type: 'card_error', code: 'card_declined', message: 'Your card was declined.' },
+		};
+		const outcome = handlePaymentIntentResult(r);
+		expect(outcome.kind).toBe('error');
+		expect(outcome.kind === 'error' && outcome.userMessage).toBe(
+			'Your card was declined.',
+		);
+	});
+
+	it('returns other_pending for non-terminal statuses', () => {
+		const r: StripePaymentIntentResult = {
+			paymentIntent: { id: 'pi_4', status: 'processing' },
+		};
+		const outcome = handlePaymentIntentResult(r);
+		expect(outcome.kind).toBe('other_pending');
+		expect(outcome.kind === 'other_pending' && outcome.status).toBe('processing');
+	});
+});
+
+describe('stripeElementsGate.pollAfter3DS', () => {
+	it('re-fetches PI via retrievePaymentIntent and returns succeeded after the challenge', async () => {
+		const retrieve = vi.fn().mockResolvedValue({
+			paymentIntent: { id: 'pi_3ds', status: 'succeeded' },
+		});
+		const fakeStripe: StripeInstance = {
+			elements: () => ({ create: () => ({} as StripeCardElement) }),
+			confirmCardPayment: vi.fn(),
+			retrievePaymentIntent: retrieve,
+		};
+		const outcome = await pollAfter3DS(fakeStripe, 'cs_test_secret');
+		expect(retrieve).toHaveBeenCalledWith('cs_test_secret');
+		expect(outcome).toEqual({ kind: 'succeeded' });
+	});
+
+	it('returns requires_payment_method when 3DS challenge failed', async () => {
+		const retrieve = vi.fn().mockResolvedValue({
+			paymentIntent: { id: 'pi_3ds_fail', status: 'requires_payment_method' },
+		});
+		const fakeStripe: StripeInstance = {
+			elements: () => ({ create: () => ({} as StripeCardElement) }),
+			confirmCardPayment: vi.fn(),
+			retrievePaymentIntent: retrieve,
+		};
+		const outcome = await pollAfter3DS(fakeStripe, 'cs_test_secret');
+		expect(outcome.kind).toBe('requires_payment_method');
 	});
 });
 
@@ -295,5 +463,22 @@ describe('POST /api/order/[id] — confirm (real Stripe Elements path)', () => {
 		});
 		expect(r.status).toBe(400);
 		expect(r.data.error).toBe('unknown_action');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// /api/order POST does NOT require client-side bookCostCents (server-as-truth)
+// ---------------------------------------------------------------------------
+
+describe('POST /api/order — server is single source of truth for price', () => {
+	it('creates an order successfully when client omits bookCostCents entirely', async () => {
+		wireDeps({ piStatus: 'succeeded' });
+		const body = { ...validBody() };
+		// validBody() already omits bookCostCents; assert that the create
+		// succeeds with no price drift hazard.
+		expect((body as Record<string, unknown>).bookCostCents).toBeUndefined();
+		const r = await callPost(orderPOST, { body });
+		expect(r.status).toBe(200);
+		expect(r.data.orderId).toBeTruthy();
 	});
 });
