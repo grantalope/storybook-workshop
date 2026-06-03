@@ -228,3 +228,155 @@ helper doesn't expose batch atomicity; acceptable for parent-side ops).
 - `svelte-check` baseline on origin/main shows 96 errors / 22 warnings
   pre-existing (most in `kernel-contracts/helpers/` + `routes/series/`)
   — production-hardening adds 0 new errors. Verified.
+
+## Adversarial review fix-up (2026-06-03)
+
+After the initial production-hardening PR #4 was opened, an adversarial
+code review identified 14 blockers + several minor concerns. All 14
+addressed in fix-up commits on the same branch:
+
+### #1 Latch-before-validate (CRITICAL)
+
+The original `_markValidated()` flipped the latch BEFORE the validator
+ran, so a throw from `ensureProductionConfig()` left the latch in the
+"validated" state. Every subsequent misconfigured-prod request skipped
+the gate entirely, contradicting the documented "server refuses to
+serve traffic until reconfigured" guarantee. Replaced with
+`_ensureValidated(env, opts)` that validates first and only latches on
+success. Legacy `_markValidated` retained as a non-latching deprecated
+shim so any leftover caller fails loud rather than silently bypassing.
+
+### #2 Truthy bypass parsing
+
+`STORYBOOK_DEV_BYPASS_AUTH === '1'` was too strict — operators commonly
+set `=true`, `=yes`, `=on`, `=TRUE`. New `_devBypassEnabled()` accepts
+any non-empty value as enabled unless it's explicitly off (`0`,
+`false`, `no`, `off`, `disable`). Applied to both the boot gate AND
+`resolveParentEmail` for consistency. Negative cases (`'true'`,
+`'yes'`, `'TRUE'`, `'on'`) all covered in
+`tests/production-hardening.test.ts`.
+
+### #3 Order-id Math.random()
+
+SECURITY.md claimed all Math.random() callers were migrated; in fact
+`src/routes/api/order/+server.ts:62` still used Math.random to generate
+order IDs, which are the lookup key for /api/order, /api/order/:id, and
+/api/quality-claim. Migrated to a CSPRNG-backed `_secureOrderIdGen()`
+using `secureRandomString(8, ALPHANUMERIC_ALPHABET)` — ~41 bits of
+entropy, well above the opportunistic-enumeration threshold. Updated
+SECURITY.md audit entry to honestly include this caller.
+
+### #4 README link to SECURITY.md
+
+Goal explicitly required this and it was missing. Added a `## Security`
+section to README.md linking SECURITY.md + docs/production-deploy.md.
+
+### #5 NODE_ENV strict-equality foot-gun
+
+`NODE_ENV === 'production'` silently skipped all gates for misspellings
+like `'Production'`, `'PROD'`, `'prod'`. Now: trim+lowercase canonical
+match for `'production'` (so trailing/leading spaces accepted), AND
+any /^prod/i value emits a loud warn finding
+(`node_env_looks_like_production`) treating it as non-prod so the
+misspelling is visible at boot without accidentally throwing in dev.
+
+### #6 Integration tests for hooks.server.ts handle
+
+Added `tests/production-hardening-hooks.test.ts` that drives `handle`
+with a stubbed RequestEvent + resolve, mutating the test
+`$env/dynamic/private` stub between cases. Covers: (i) misconfigured
+prod env -> first request throws, (ii) second request also throws
+(regression test for blocker #1), (iii) clean prod env -> handle
+resolves and event.locals.user === null, (iv) success-path latch
+behavior, (v) blocker #11 webhook-secret promotions, (vi) blocker #2
+truthy bypass at the integration layer.
+
+### #7 process.env in hooks.server.ts
+
+Original read `process.env` directly with a fallback to `{}` when
+`process` was undefined. This silently degraded to "no env" on
+Cloudflare Workers / Deno Deploy where the boot gate would be a no-op.
+Switched to `import { env } from '$env/dynamic/private'` for proper
+SvelteKit env handling + runtime portability. Added a `$env` test
+stub at `src/test-stubs/$env/dynamic/private.ts` and a matching alias
+in `vitest.config.ts` so tests can mutate the env object directly.
+
+### #8 Deploy doc wording
+
+The §1 "Behavior" text claimed "the server refuses to serve traffic
+until reconfigured." With blocker #1 fixed this is now accurate;
+updated the doc to additionally clarify "throws on EVERY request, not
+just the first" and "there is no half-validated state."
+
+### #9 _resetValidationLatch guard
+
+The function was an underscore-prefixed export with no runtime
+enforcement that it's test-only. Added a runtime guard that throws
+unless `NODE_ENV=test` OR `VITEST` env var is set. Tested both the
+permit-under-vitest path and the throw-outside-test path.
+
+### #10 Session-auth secrets scoping
+
+The gate doesn't validate `JWT_SIGNING_SECRET` / `AUTH0_*` /
+`CLERK_SECRET_KEY` / `SUPABASE_SERVICE_ROLE_KEY` — Recipe-A through
+Recipe-D each need their own secrets verified manually. Documented
+this as "Out of scope" in §1 of production-deploy.md AND added a
+per-recipe verification step in the §3 deploy checklist so operators
+can't ship a recipe without manually verifying its secrets are set.
+
+### #11 Webhook secrets promoted to fatal
+
+`STRIPE_WEBHOOK_SECRET` / `LULU_WEBHOOK_SECRET` were warn-only on the
+justification that "some deploys terminate webhook verification at an
+upstream relay." But the in-process HMAC verifiers ARE the supported
+path — missing secrets means every webhook is rejected, orders stall
+forever at `pending_payment` / `submitted_to_lulu`. Promoted both to
+fatal. If a deploy DOES terminate verification upstream, that's the
+deploy that overrides the gate.
+
+### #12 Tightened warn-finding assertions
+
+Previous tests used `findings.some()` which would silently pass if
+BOTH a warn AND a fatal existed for the same env. New tests assert
+exact-shape findings (toHaveLength + per-field code/level + "no fatal
+findings smuggled in" defensive check). Plus a new mixed-fatal+warn
+test verifying warn fires BEFORE throw for ops dashboard visibility.
+
+### #13 ProductionConfigError message — KEEP verbose, OK to log
+
+Decision: keep the full per-finding message embedded in the error.
+Rationale: (a) the finding codes alone are stable enough for ops
+dashboards, (b) the verbose hints help operators recover faster, (c)
+the messages contain only env-variable NAMES not attacker-controlled
+data, so they're safe to log to aggregators (Sentry, Datadog).
+Documented in a comment above `ProductionConfigError.constructor`.
+
+### #14 Recipe D PUBLIC_/private boundary
+
+Recipe D's code example read `process.env.PUBLIC_SUPABASE_URL!`
+server-side. PUBLIC_ vars are bundled into the BROWSER bundle and
+reading them via raw process.env hides the public/private boundary
+at the import line. Rewritten to use
+`import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from "$env/static/public"`
+and `import { SUPABASE_SERVICE_ROLE_KEY } from "$env/static/private"`
+so the public/private boundary is visible at import time. Same fix
+applied to Recipes A/B/C for JWT_SIGNING_SECRET, Auth0 secrets, Clerk
+secrets.
+
+### Minor concerns also addressed
+
+- `partialProd()` helper in tests replaces the ugly mutate-by-cast
+  pattern.
+- Structured-log-friendly `auth_bypass` JSON payload appended to the
+  warn line in `resolveParentEmail`.
+- Implementation-notes singleton-constraint comment in the test file
+  warning future authors about the `beforeEach(_resetValidationLatch)`
+  contract.
+
+### Verification
+
+- 741 tests green on the fix branch (baseline 698 + 43 new in
+  production-hardening + production-hardening-hooks).
+- No new svelte-check errors over baseline.
+- All 14 blockers resolved with one atomic commit per logical
+  blocker group.
