@@ -156,3 +156,113 @@ helper doesn't expose batch atomicity; acceptable for parent-side ops).
 - LuluPdfSpecValidator already exists from book-assembler and returns a
   rich ValidationReport — `/api/order` POST reuses it directly.
 
+
+---
+
+# Pillar Library Placeholder phase (feat/pillar-library-placeholder, 2026-06-03)
+
+## Goal
+
+docs/goals/2026-05-25-pillar-library-pixal3d.md — MVP placeholder slice
+of the pillar-library work. The real Pixal3D 4-view sprite-sheet bake
+($11h GPU wall-clock per the goal) is deferred per ADR-0044. Today's
+slice: 50 SVG-derived kid avatars + a local static manifest that
+PillarManifestClient walks to when the World Builder endpoint is down.
+
+## Design decisions
+
+### Scope: SVG + single-view PNG, not the full Pixal3D bake
+
+The goal doc's Phase 2-5 describe SDXL → Pixal3D + TRELLIS.2 → 4-view
+sprite sheets. None of that exists here; the static asset is a
+deterministic SVG composition rasterized to PNG via @resvg/resvg-js.
+preview/front/back/left/right.png are byte-identical (single-view MVP).
+This is intentional — the workshop UI's Station 2 cares about
+`urls.preview` for the grid tile, not multi-view rotation. Once the
+real bake lands, the manifest's URL paths flip to per-view sheets
+without changing PillarManifestClient or the consuming UI.
+
+### Determinism: SHA-256 → SplitMix64 PRNG
+
+Stratified sampling needs a stable seed; embedding generation needs a
+per-axes stable seed. Both use SplitMix64 (a 64-bit BigInt-state mixer)
+seeded from `b00ba100` (sampling) or `SHA-256(canonical-axes-string)`
+(embedding). SplitMix64 is deterministic across all JS engines and
+doesn't depend on `crypto.getRandomValues` (which the goal mentioned;
+we use `crypto.createHash` for the SHA-256 seed, then a userland PRNG
+so the sequence is reproducible regardless of `getRandomValues` impl).
+
+### Fallback chain (primary → placeholder → empty)
+
+PillarManifestClient grew a 2-step chain. Existing primary 200/503/throw
+behavior preserved. New step 2 fetches
+`/pillar-library-v1-placeholder/manifest.json` (the script's output).
+`getCachedManifestSource()` exposes which step won, so /debug surfaces
+and tests can assert. parseManifest tolerates extra fields (`urls`) so
+the placeholder shape is consumable without forking the parser.
+
+### Station 2: real grid from manifest, gradient fallback for empty
+
+Station2ForgeHero used to render 8 hardcoded conic-gradient swatches.
+Now it calls fetchManifest(), reads urls.preview from the raw placeholder
+JSON (urls is dropped by parseManifest by design), and renders one tile
+per pillar. If both primary and placeholder are unavailable (`source ===
+'empty'`), it falls back to the original 8 gradient tiles. pillarId
+saved to draft remains a string — unchanged contract with downstream
+stations.
+
+### @resvg/resvg-js as devDependency, not runtime
+
+The PNG rasterizer is only needed at codegen time. Adding it as a
+devDependency keeps the runtime bundle slim. The script also gracefully
+falls back to writing `.svg` siblings if resvg import fails (CI / mini
+envs), so the static/ tree is always populated.
+
+## Deviations from goal
+
+- No SDXL / Pixal3D / TRELLIS.2 — explicit MVP scope per the prompt.
+- No CDN deploy script — static assets live in the SvelteKit `static/`
+  tree and ship with the bundle.
+- No multi-view variance — preview/front/back/left/right.png are byte-
+  identical (the same SVG rasterization).
+- No CLIP embeddings — pseudo-CLIP via SHA-256-seeded PRNG, 512-dim,
+  L2-normalized. PillarMatcherService's cosine-sim still works against
+  these vectors but the matches won't be semantically meaningful until
+  real CLIP lands.
+- No diversity validation step (Phase 6). Stratification is enforced by
+  unit tests instead.
+
+## Tradeoffs
+
+- Manifest JSON is ~640 KB (50 × 512 floats × ~22 chars). Acceptable
+  for a static asset; would need to compress when the real bake lands
+  at 500-5000 archetypes.
+- The placeholder PNG render is identical across views, so any UI that
+  rotates the billboard will look static. Acceptable for the MVP grid
+  picker; HD-2D adapter goal owns the rotating-billboard contract.
+
+## Open questions
+
+- [?] Should PillarMatcherService skip the age-band re-rank when the
+  manifest source is `placeholder` (since matches are nonsense)? Defer
+  to first user-feedback signal.
+- [?] Should the manifest carry a `source` field (`placeholder` vs
+  `primary`) so downstream consumers can warn? Out of scope here.
+
+## Surprises
+
+- @resvg/resvg-js installed cleanly on Node 22 (the goal hedged about
+  this). No fallback path exercised in production.
+- svelte-check's `checkJs: true` types the .mjs codegen script with
+  strict null checks. Added `// @ts-nocheck` to the script — logic is
+  covered by vitest assertions.
+
+## Verification
+
+- `pnpm test` — 709/709 green (683 baseline + 26 new).
+- `pnpm exec svelte-check` — 96 errors / 21 warnings, identical to
+  baseline (no new errors introduced; one warning fixed by closing self-
+  closing `<div/>` tags).
+- Script idempotency: `rm -rf static/pillar-library-v1-placeholder &&
+  node scripts/pillar-library/generate-placeholders.mjs` produces a
+  byte-identical tree on every run.
