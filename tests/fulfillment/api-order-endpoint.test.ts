@@ -41,7 +41,6 @@ const validBody = () => ({
 	pdfHash: 'sha256-abcdefgh',
 	shippingAddress: makeAddress(),
 	shippingOption: makeShippingOption(),
-	bookCostCents: 2999,
 	consentLog: makeConsent(),
 });
 
@@ -56,7 +55,7 @@ describe('POST /api/order — happy path', () => {
 		expect(data.orderId).toBeDefined();
 		expect(data.clientSecret).toMatch(/_secret_/);
 		expect(data.paymentIntentId).toMatch(/^pi_/);
-		expect(data.amountCents).toBe(2999 + 899);
+		expect(data.amountCents).toBe(3499 + 899); // server-derived: 40pp hardcover = adventure tier ($34.99); per 2026-06-03 price-tampering fix
 	});
 });
 
