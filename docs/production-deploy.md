@@ -15,34 +15,52 @@ This document covers:
 
 ## 1. Boot-time deploy contract
 
-`src/lib/env/production-config.ts` exports `ensureProductionConfig(env)`,
-called once per process from `src/hooks.server.ts` on the very first request.
+`src/lib/env/production-config.ts` exports `ensureProductionConfig(env)` plus a
+latch helper `_ensureValidated(env)`, called from `src/hooks.server.ts` on
+every request.
 
 ### Behavior
 
-- `NODE_ENV !== "production"` → no checks run; returns empty findings.
+- `NODE_ENV !== "production"` (after trim) → no gates run; returns empty findings.
+- NODE_ENV variants that LOOK like production (`Production`, `PROD`, `prod`,
+  `/^prod/i`) → treated as non-production but emit a loud warn finding
+  (`node_env_looks_like_production`) so misspellings are visible at boot.
 - `NODE_ENV === "production"`:
-  - **Fatal** findings throw `ProductionConfigError` and the server refuses
-    to serve. Restart it with the offending variable fixed.
+  - **Fatal** findings throw `ProductionConfigError`. The latch only flips on
+    a successful validation, so misconfigured deploys throw on **every
+    request** until the operator fixes the env and restarts the process.
+    There is no partial-failure mode where the server starts serving after
+    the first throw.
   - **Warn** findings are logged via the injected sink (`console.warn` by
-    default) and execution continues with degraded behavior.
+    default). Execution continues with degraded behavior.
 
 ### Fatal findings (server WILL NOT start)
 
 | Code | Cause |
 |---|---|
-| `dev_bypass_in_production` | `STORYBOOK_DEV_BYPASS_AUTH=1` set with `NODE_ENV=production`. This flag accepts attacker-controlled `parentEmail` from request bodies. NEVER set it in production. |
+| `dev_bypass_in_production` | `STORYBOOK_DEV_BYPASS_AUTH` set to ANY truthy value (`1`, `true`, `yes`, `TRUE`, `on`, etc.) with `NODE_ENV=production`. This flag accepts attacker-controlled `parentEmail` from request bodies. NEVER set it in production. Only explicit-off values (`0`, `false`, `no`, `off`, `disable`) are treated as not-set. |
 | `missing_stripe_secret` | `STRIPE_SECRET_KEY` is empty/unset. Payment creation is impossible. |
+| `missing_stripe_webhook_secret` | `STRIPE_WEBHOOK_SECRET` is empty/unset. All incoming Stripe webhooks would be rejected, stalling every order at `pending_payment`. |
 | `missing_lulu_client_id` | `LULU_CLIENT_ID` is empty/unset. Lulu OAuth2 token acquisition will fail. |
 | `missing_lulu_client_secret` | `LULU_CLIENT_SECRET` is empty/unset. Same impact as above. |
+| `missing_lulu_webhook_secret` | `LULU_WEBHOOK_SECRET` is empty/unset. All incoming Lulu webhooks would fail HMAC verification and be rejected, stalling every order at `submitted_to_lulu`. |
 
 ### Warn findings (server starts, functionality degrades)
 
 | Code | Cause | Impact |
 |---|---|---|
 | `missing_resend_api_key` | `RESEND_API_KEY` empty/unset | Order/shipment emails not delivered; falls back to `LoggingEmailProvider` in-memory. |
-| `missing_stripe_webhook_secret` | `STRIPE_WEBHOOK_SECRET` empty/unset | All incoming Stripe webhooks are REJECTED. Order state stalls in `pending_payment`. |
-| `missing_lulu_webhook_secret` | `LULU_WEBHOOK_SECRET` empty/unset | All incoming Lulu webhooks fail HMAC verification and are REJECTED. Order state never advances past `submitted_to_lulu`. |
+| `node_env_looks_like_production` | `NODE_ENV=Production` / `PROD` / `prod` / etc. | Production-like NODE_ENV that does not exactly match `production` skips ALL gates. Misspelling caught by a loud warn so it's visible at boot. |
+
+### Out of scope
+
+The gate **does not** validate the session-auth integration's secrets
+(`JWT_SIGNING_SECRET`, `AUTH0_*`, `CLERK_SECRET_KEY`,
+`SUPABASE_SERVICE_ROLE_KEY`). The §3 deploy checklist below explicitly
+includes per-recipe auth-secret verification. A follow-up goal will add an
+`AUTH_PROVIDER` env var that lets the gate verify the chosen recipe's
+required secrets automatically — until then it is the operator's
+responsibility per Recipe A/B/C/D.
 
 ---
 
@@ -52,24 +70,36 @@ called once per process from `src/hooks.server.ts` on the very first request.
 
 | Variable | Used by | Format | Notes |
 |---|---|---|---|
-| `NODE_ENV` | All | `production` \| `development` \| `test` | Set to `production` on the deploy host. |
+| `NODE_ENV` | All | exactly `production` | Misspellings (`Production`, `PROD`, `prod`) emit a loud warn but skip gates — use exactly `production` to enable. |
 | `STRIPE_SECRET_KEY` | `StripeCheckoutService` | `sk_live_...` | Use the **live** key — `sk_test_...` is fine for staging only. |
+| `STRIPE_WEBHOOK_SECRET` | `/api/stripe-webhook` | `whsec_...` | Required to accept ANY Stripe webhook. Without it, every webhook is rejected. |
 | `LULU_CLIENT_ID` | `LuluFulfillmentService` | OAuth2 client id | From Lulu Direct dashboard → API credentials. |
 | `LULU_CLIENT_SECRET` | `LuluFulfillmentService` | OAuth2 client secret | Same source as above. Rotate every 90 days. |
+| `LULU_WEBHOOK_SECRET` | `/api/lulu-webhook` | hex string | Required to accept ANY Lulu webhook. Without it, every webhook fails HMAC. |
 
 ### Strongly recommended (warns if missing)
 
 | Variable | Used by | Format | Notes |
 |---|---|---|---|
-| `STRIPE_WEBHOOK_SECRET` | `/api/stripe-webhook` | `whsec_...` | Required to accept ANY Stripe webhook. Without it, every webhook is rejected. |
-| `LULU_WEBHOOK_SECRET` | `/api/lulu-webhook` | hex string | Required to accept ANY Lulu webhook. Without it, every webhook fails HMAC. |
 | `RESEND_API_KEY` | `ResendEmailProvider` | `re_...` | Optional but parents won't get order confirmations without it. `POSTMARK_API_KEY` is an equivalent alternative. |
 
 ### Dev / test only — MUST NOT be set in production
 
 | Variable | Effect |
 |---|---|
-| `STORYBOOK_DEV_BYPASS_AUTH` | Set to `1` to accept `parentEmail` from request bodies. Production gate refuses to start if both this AND `NODE_ENV=production` are set. |
+| `STORYBOOK_DEV_BYPASS_AUTH` | Any truthy value (`1`, `true`, `yes`, `on`, etc.) accepts `parentEmail` from request bodies. Production gate refuses to start if both this AND `NODE_ENV=production` are set. Explicit-off (`0`, `false`, `no`, `off`) is treated as not-set. |
+
+### Session-auth recipe secrets (gate does NOT validate; YOU must)
+
+Each Recipe in §4 has its own required env vars. The boot gate does not
+inspect these — the §3 checklist below has a per-recipe verification step.
+
+| Recipe | Required env vars |
+|---|---|
+| Recipe A — Cookie JWT | `JWT_SIGNING_SECRET` (≥ 256 bits) |
+| Recipe B — Auth0 | `AUTH0_DOMAIN`, `AUTH0_CLIENT_ID`, `AUTH0_AUDIENCE` |
+| Recipe C — Clerk | `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` |
+| Recipe D — Supabase | `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
 
 ### Optional / runtime tunables
 
@@ -88,15 +118,30 @@ Run this top-to-bottom before flipping DNS or accepting the first paying custome
 ### Pre-deploy
 
 - [ ] `pnpm install --frozen-lockfile` succeeds.
-- [ ] `pnpm test` is green (≥ 698 tests).
+- [ ] `pnpm test` is green (≥ 741 tests).
 - [ ] `pnpm exec svelte-check` produces no new errors over baseline.
 - [ ] `pnpm build` produces a clean `.svelte-kit/output/`.
-- [ ] All four **fatal** env vars set (`STRIPE_SECRET_KEY`, `LULU_CLIENT_ID`, `LULU_CLIENT_SECRET`, `NODE_ENV=production`).
-- [ ] `STORYBOOK_DEV_BYPASS_AUTH` is **unset** (or absent from the env).
-- [ ] All three **warn** env vars set OR explicit decision to ship without them logged in the deploy ticket.
+- [ ] All **six** fatal env vars set: `NODE_ENV=production`,
+      `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `LULU_CLIENT_ID`,
+      `LULU_CLIENT_SECRET`, `LULU_WEBHOOK_SECRET`.
+- [ ] `STORYBOOK_DEV_BYPASS_AUTH` is **unset** OR explicitly set to a
+      no-value (`0` / `false` / `no` / `off`).
+- [ ] `NODE_ENV` is exactly `production` (lowercase, no whitespace). If
+      you see a `node_env_looks_like_production` warn in logs, fix the
+      value — gates are NOT enforcing yet.
+- [ ] `RESEND_API_KEY` set OR explicit decision to ship without emails
+      logged in the deploy ticket.
 - [ ] Stripe dashboard webhook endpoint configured + `STRIPE_WEBHOOK_SECRET` matches.
 - [ ] Lulu Direct dashboard webhook endpoint configured + `LULU_WEBHOOK_SECRET` matches.
-- [ ] Session auth wired in `src/hooks.server.ts` (see Recipes below). `event.locals.user` populated on every authenticated request.
+- [ ] Session auth wired in `src/hooks.server.ts` (see Recipes below).
+      `event.locals.user` populated on every authenticated request.
+- [ ] **Per-recipe auth secret verification (gate doesn't catch this):**
+  - [ ] Recipe A — `JWT_SIGNING_SECRET` set and ≥ 256 bits; verify with a
+        smoke-test JWT round-trip.
+  - [ ] Recipe B — all three Auth0 secrets set; verify by completing a
+        login + checking `event.locals.user.email` is populated on `/api/order`.
+  - [ ] Recipe C — Clerk publishable + secret keys set; verify the same way.
+  - [ ] Recipe D — Supabase URL/anon-key/service-role-key set; verify the same way.
 
 ### Post-deploy smoke
 
@@ -121,6 +166,11 @@ chosen identity provider, replace the stub `handle`, and verify
 `event.locals.user` is set before any `/api/order` or `/api/quality-claim`
 hits the handler.
 
+All recipes use SvelteKit's `$env/static/private` / `$env/static/public`
+imports rather than raw `process.env` access — this makes the
+PUBLIC_/private boundary visible at the import statement and gives you a
+build-time error if a private secret accidentally appears in a public bundle.
+
 ### Recipe A — Cookie JWT (self-hosted)
 
 For deploys that own their own user table and want a minimal-dependency setup.
@@ -128,16 +178,17 @@ For deploys that own their own user table and want a minimal-dependency setup.
 ```ts
 // src/hooks.server.ts
 import { verify } from "jsonwebtoken"; // add as a dep
+import { JWT_SIGNING_SECRET } from "$env/static/private";
 import type { Handle } from "@sveltejs/kit";
 
 export const handle: Handle = async ({ event, resolve }) => {
-  // (production-config gate still runs — keep _markValidated/ensureProductionConfig)
+  // (production-config gate still runs — keep _ensureValidated)
 
   const token = event.cookies.get("session");
   event.locals.user = null;
   if (token) {
     try {
-      const claims = verify(token, process.env.JWT_SIGNING_SECRET!) as { email: string; sub: string };
+      const claims = verify(token, JWT_SIGNING_SECRET) as { email: string; sub: string };
       event.locals.user = { email: claims.email, parentId: claims.sub };
     } catch {
       // tampered / expired token → leave user=null and let endpoint reject
@@ -153,6 +204,7 @@ Required env vars: `JWT_SIGNING_SECRET` (≥ 256 bits, rotated quarterly).
 
 ```ts
 // src/hooks.server.ts
+import { AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_AUDIENCE } from "$env/static/private";
 import { auth0Client } from "$lib/auth0"; // wrapper around @auth0/auth0-spa-js or node-jsonwebtoken + jwks-rsa
 import type { Handle } from "@sveltejs/kit";
 
@@ -182,6 +234,7 @@ Clerk ships SvelteKit middleware via `@clerk/sveltekit`.
 ```ts
 // src/hooks.server.ts
 import { withClerkHandler } from "@clerk/sveltekit/server";
+import { CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY } from "$env/static/private";
 import type { Handle } from "@sveltejs/kit";
 
 const clerk: Handle = withClerkHandler();
@@ -201,15 +254,22 @@ Clerk dashboard for webhook setup if you want sync events.
 
 ### Recipe D — Supabase auth
 
+PUBLIC_ env vars are imported from `$env/static/public` so the public-ness
+is visible at the import line (critical: the `PUBLIC_` prefix makes these
+available to the BROWSER bundle, so server code that reads them needs the
+explicit boundary marker). Private secrets come from `$env/static/private`.
+
 ```ts
 // src/hooks.server.ts
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from "$env/static/public";
+import { SUPABASE_SERVICE_ROLE_KEY } from "$env/static/private";
 import { createServerClient } from "@supabase/ssr";
 import type { Handle } from "@sveltejs/kit";
 
 export const handle: Handle = async ({ event, resolve }) => {
   event.locals.supabase = createServerClient(
-    process.env.PUBLIC_SUPABASE_URL!,
-    process.env.PUBLIC_SUPABASE_ANON_KEY!,
+    PUBLIC_SUPABASE_URL,
+    PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll: () => event.cookies.getAll(),
@@ -268,6 +328,19 @@ or restart the process to invalidate the cache.
 - Resend: 10 req/s for new accounts; batch confirmation emails if you
   approach this volume.
 
+### Supported runtimes
+
+Validated on **Node 20+**. The boot gate reads env vars via
+`$env/dynamic/private`, which works on:
+
+- Node + adapter-node — primary supported target.
+- Vercel / Netlify adapter — same Node runtime under the hood.
+- Cloudflare Workers / Deno Deploy — `$env/dynamic/private` is supported
+  by the SvelteKit adapter; runtime not yet validated by us. The previous
+  raw-`process.env` shape silently degraded to empty env on these
+  runtimes (skipping all gates); the `$env/dynamic/private` shape forces
+  the adapter to surface env vars correctly.
+
 ### Logs to monitor
 
 - `[production-config] *` — env misconfig warnings; should be zero in prod.
@@ -282,7 +355,7 @@ or restart the process to invalidate the cache.
 
 | Scenario | Recovery |
 |---|---|
-| Server won't start, throws `ProductionConfigError` | Read `err.findings` from logs; set the missing env vars; restart. |
+| Server won't start, throws `ProductionConfigError` on every request | Read `err.findings` from logs; set the missing env vars; restart. The gate re-fires on every request until validation succeeds — there is no half-validated state. |
 | Stripe webhook rejecting all events | Rotate `STRIPE_WEBHOOK_SECRET`; replay last 24h of events from Stripe dashboard. |
 | Lulu print jobs never submit | Check `lulu_oauth_failure` in logs; rotate `LULU_CLIENT_SECRET` if creds compromised. |
 | Order stuck in `pending_payment` for > 1hr | Stripe webhook never fired; check Stripe webhook delivery in dashboard + retry. |
