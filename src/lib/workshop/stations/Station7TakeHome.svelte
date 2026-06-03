@@ -1,13 +1,22 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onDestroy } from 'svelte';
 	import type { WorkshopOrchestrator } from '$lib/workshop/services/WorkshopOrchestrator';
 	import type { BookFormat } from '$lib/services/assemble/types';
 	import type {
 		ShippingAddress,
 		ShippingOption,
 	} from '$lib/services/fulfillment';
+	import {
+		loadStripe,
+		readPublishableKey,
+		type StripeCardElement,
+		type StripeInstance,
+	} from '$lib/workshop/components/StripeElementsLoader';
 
-	const { orchestrator }: { orchestrator: WorkshopOrchestrator } = $props();
+	const {
+		orchestrator,
+		devMode = false,
+	}: { orchestrator: WorkshopOrchestrator; devMode?: boolean } = $props();
 	const dispatch = createEventDispatcher<{ done: void }>();
 
 	type Phase =
@@ -27,6 +36,18 @@
 	const s1 = orchestrator.draft.outputs.s1;
 	const shortcode = s6?.bookShortcode ?? 'unknown';
 	const targetPages = computeOrderPages();
+
+	// Real Stripe Elements lazy-load gate. When PUBLIC_STRIPE_PUBLISHABLE_KEY
+	// is set AND devMode is false we mount the real card element; otherwise
+	// fall back to the test-mode card-number input.
+	const _publishableKey = readPublishableKey();
+	const useRealStripe = !devMode && _publishableKey.length > 0;
+	let _stripe: StripeInstance | null = null;
+	let _cardElement: StripeCardElement | null = null;
+	let _stripeMountNode: HTMLDivElement | null = $state(null);
+	let _stripeReady = $state(false);
+	let _stripeLoadError = $state<string | null>(null);
+	let clientSecret = $state<string | null>(null);
 
 	function computeOrderPages(): number {
 		// Spreads x 2 pages per spread, rounded up to format multiple downstream.
@@ -137,10 +158,39 @@
 				return;
 			}
 			orderId = data.orderId;
+			clientSecret = data.clientSecret ?? null;
 			phase = 'pay';
+			if (useRealStripe) {
+				// Kick off Elements mount in the background — UI shows the
+				// card-input div in the same phase render.
+				void mountStripeElements();
+			}
 		} catch (e) {
 			errorMsg = (e as Error).message;
 			phase = 'error';
+		}
+	}
+
+	async function mountStripeElements(): Promise<void> {
+		if (_stripeReady) return;
+		_stripeLoadError = null;
+		try {
+			_stripe = await loadStripe(_publishableKey);
+			if (!_stripe) {
+				_stripeLoadError = 'stripe_load_failed';
+				return;
+			}
+			const elements = _stripe.elements();
+			_cardElement = elements.create('card');
+			// Wait a microtask for Svelte to flush the {#if phase === 'pay'}
+			// branch so the mount node exists.
+			await Promise.resolve();
+			if (_stripeMountNode && _cardElement) {
+				_cardElement.mount(_stripeMountNode);
+				_stripeReady = true;
+			}
+		} catch (e) {
+			_stripeLoadError = (e as Error).message;
 		}
 	}
 
@@ -156,21 +206,73 @@
 	}
 
 	async function submitPayment() {
+		errorMsg = '';
+		if (useRealStripe) {
+			await submitRealStripe();
+		} else {
+			await submitTestModeCard();
+		}
+	}
+
+	async function submitTestModeCard() {
 		if (cardNumber.replace(/\s+/g, '') !== '4242424242424242') {
 			errorMsg = 'use the test card number 4242 4242 4242 4242';
 			return;
 		}
 		phase = 'paying';
-		// Simulate Stripe confirm + poll the order status until paid/submitted.
-		// In a real Elements flow we would confirmCardPayment + listen for the
-		// stripe-webhook to advance the order. Test-mode bypasses Elements.
+		// In test-mode the order is advanced via the Stripe webhook
+		// `payment_intent.succeeded`. We poll the order status; the
+		// /api/order POST default-mock-Stripe returns `succeeded`.
 		try {
 			const res = await fetch(`/api/order/${orderId}`);
 			const data = await res.json();
-			trackingInfo = {
-				luluJobId: data.luluJobId,
-				state: data.state,
-			};
+			trackingInfo = { luluJobId: data.luluJobId, state: data.state };
+			phase = 'success';
+		} catch (e) {
+			errorMsg = (e as Error).message;
+			phase = 'error';
+		}
+	}
+
+	async function submitRealStripe() {
+		if (!_stripe || !_cardElement || !clientSecret || !orderId) {
+			errorMsg = 'stripe_not_ready';
+			return;
+		}
+		phase = 'paying';
+		try {
+			// confirmCardPayment is CLIENT-SIDE ONLY by Stripe design.
+			// The secret key never leaves the server; the publishable key +
+			// clientSecret + card iframe stay in the browser.
+			const result = await _stripe.confirmCardPayment(clientSecret, {
+				payment_method: { card: _cardElement },
+			});
+			if (result.error) {
+				errorMsg = result.error.message;
+				phase = 'pay';
+				return;
+			}
+			if (result.paymentIntent?.status !== 'succeeded') {
+				errorMsg = `payment_${result.paymentIntent?.status ?? 'unknown'}`;
+				phase = 'pay';
+				return;
+			}
+			// Tell the server the client-side confirmation succeeded.
+			// The webhook is the ultimate source of truth, but {action: confirm}
+			// lets the parent see "paid" immediately rather than waiting for
+			// the async webhook to round-trip.
+			const confirmRes = await fetch(`/api/order/${orderId}`, {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ action: 'confirm' }),
+			});
+			const confirmData = await confirmRes.json();
+			if (!confirmRes.ok) {
+				errorMsg = confirmData.error ?? 'confirm_failed';
+				phase = 'error';
+				return;
+			}
+			trackingInfo = { state: confirmData.state };
 			phase = 'success';
 		} catch (e) {
 			errorMsg = (e as Error).message;
@@ -182,6 +284,15 @@
 		phase = 'choose';
 		errorMsg = '';
 	}
+
+	onDestroy(() => {
+		try {
+			_cardElement?.unmount();
+			_cardElement?.destroy();
+		} catch {
+			// element may already be destroyed by Stripe on payment success
+		}
+	});
 </script>
 
 <section class="station">
@@ -279,18 +390,34 @@
 		</div>
 	{:else if phase === 'pay'}
 		<div class="print-form">
-			<h3>Test-mode card</h3>
-			<p class="hint">
-				Stripe Elements integration ships in v2. For now enter the test card
-				<code>4242 4242 4242 4242</code>.
-			</p>
-			<label>
-				Card number
-				<input bind:value={cardNumber} placeholder="4242 4242 4242 4242" />
-			</label>
+			{#if useRealStripe}
+				<h3>Card details</h3>
+				<p class="hint">Secured by Stripe. Card data never touches our servers.</p>
+				<div class="stripe-card-host" bind:this={_stripeMountNode} data-testid="stripe-card-element"></div>
+				{#if !_stripeReady && !_stripeLoadError}
+					<p class="hint">Loading secure card form…</p>
+				{/if}
+				{#if _stripeLoadError}
+					<p class="error">Couldn't load Stripe ({_stripeLoadError}). Refresh to retry.</p>
+				{/if}
+			{:else}
+				<h3>Test-mode card</h3>
+				<p class="hint">
+					Real Stripe Elements activates when <code>PUBLIC_STRIPE_PUBLISHABLE_KEY</code>
+					is set. For now enter the test card <code>4242 4242 4242 4242</code>.
+				</p>
+				<label>
+					Card number
+					<input bind:value={cardNumber} placeholder="4242 4242 4242 4242" />
+				</label>
+			{/if}
 			<div class="actions">
 				<button class="back" on:click={() => (phase = 'quote')}>Back</button>
-				<button class="primary" on:click={submitPayment}>Pay & print →</button>
+				<button
+					class="primary"
+					on:click={submitPayment}
+					disabled={useRealStripe && !_stripeReady}
+				>Pay & print →</button>
 			</div>
 			{#if errorMsg}<p class="error">{errorMsg}</p>{/if}
 		</div>
@@ -425,6 +552,13 @@
 	.hint {
 		font-size: 0.85rem;
 		color: #555;
+	}
+	.stripe-card-host {
+		padding: 0.6rem 0.8rem;
+		border: 1px solid #bbb;
+		border-radius: 6px;
+		background: #fff;
+		min-height: 2.6rem;
 	}
 	code {
 		background: #f4f4f4;
