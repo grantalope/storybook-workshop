@@ -238,3 +238,121 @@ helper doesn't expose batch atomicity; acceptable for parent-side ops).
   (`order.state !== 'pending_payment'` → ignored) — the new confirm
   action piggybacks on that guard, so both paths are race-safe by
   construction without any additional locking.
+
+---
+
+# Stripe Elements review-fix pass (feat/stripe-elements-real, 2026-06-03 PM)
+
+Adversarial review of PR #5 surfaced 10 blockers. All 10 addressed in
+this follow-up pass on the same branch (no new PR). Summary of changes:
+
+## Blockers resolved
+
+1. **readPublishableKey() now imports `$env/static/public` directly.**
+   The previous `globalThis.__PUBLIC_STRIPE_PUBLISHABLE_KEY__` indirection
+   was never wired (no `hooks.client.ts` / app-shell script tag existed in
+   the repo to write the global), so the production code path was dead in
+   every build. Replaced with
+   `import { PUBLIC_STRIPE_PUBLISHABLE_KEY } from '$env/static/public';`
+   which SvelteKit statically resolves at build time. For vitest the
+   virtual module is aliased to `src/test-stubs/$env/static/public.ts`
+   (returns `process.env.PUBLIC_STRIPE_PUBLISHABLE_KEY` or `''`) — see
+   `vitest.config.ts::resolve.alias`. `__setPublishableKeyForTests()` is
+   the new test-only override surface.
+2. **Gate logic extracted to `src/lib/workshop/services/stripeElementsGate.ts`**
+   so it is unit-testable without mounting the Svelte component (the
+   repo's vitest env is `node` and `@testing-library/svelte` would require
+   jsdom + Svelte 5 effect runtime gymnastics for marginal extra
+   coverage). New tests cover: `decideStripePath` (real-Stripe vs
+   no-key vs dev-mode), `handlePaymentIntentResult` (succeeded /
+   requires_action 3DS / requires_payment_method / error / other_pending),
+   `pollAfter3DS` (retrievePaymentIntent re-poll after 3DS challenge).
+   `Station7TakeHome.svelte` now imports those helpers; only the DOM-mount
+   shimmying stays in `.svelte`.
+3. **Race condition in `mountStripeElements` fixed.** Replaced
+   `await Promise.resolve()` (which runs BEFORE Svelte 5's effect-flush
+   pass) with `await tick()` (the canonical Svelte flush primitive). Added
+   a bounded 5-iteration retry of `await tick()` for safety, and a final
+   `_stripeLoadError = 'mount_node_missing'` set when the bind target is
+   still null afterward — so the user sees a real error instead of a
+   silently-disabled Pay button.
+4. **SSR / hydration hazard removed.** `readPublishableKey()` is no longer
+   called at module top-level; resolution + `useRealStripe` decision moves
+   into `onMount(() => { ... })` so SSR-rendered HTML always uses the
+   safe test-mode shape and hydration cannot diverge. `downloadDigital()`
+   also gains an `if (!browser) return;` guard (from `$app/environment`)
+   as defense in depth.
+5. **`script.crossOrigin = 'anonymous'` removed** from the Stripe.js
+   script tag. Stripe's official `@stripe/stripe-js` loader does not set
+   it; deviating from upstream risks future CDN cache-key / credentials
+   behavior changes silently breaking payments. Inline comment updated to
+   match Stripe's actual guidance (CSP issues addressed via header
+   directive, not the script attribute). Stripe.js continues to load
+   without SRI per Stripe's published guidance (in-place CDN updates for
+   live anti-fraud + 3DS layers forbid pinning).
+6. **Error swallow surfaces eliminated.** New module-scoped `_lastError`
+   in `StripeElementsLoader` captures the underlying `Error` on every
+   null-return path; exposed via `getLastStripeLoadError(): Error | null`.
+   `Station7TakeHome.mountStripeElements()` reads it to set
+   `_stripeLoadError` with the real cause instead of the generic
+   `stripe_load_failed`. Every catch block now also `console.error`s the
+   underlying error so production debugging surfaces have signal. The
+   `onDestroy` catch in the component now `console.debug`s the cause as
+   well — no silent swallow.
+7. **Script-load Promise lifecycle fixed.** Renamed `_scriptPromise` →
+   `_scriptLoadedPromise` for clarity, and moved the `_scriptLoadedPromise
+   = null` clear into the inner Promise's `.catch()` so it ONLY fires on
+   the error path. The success path keeps the cached Promise across HMR /
+   retries — preventing the double-script-tag race when a retry runs
+   while the original script is still loading.
+8. **`bookCostCents` removed from the client `/api/order` POST body.**
+   The server already documents `bookCostCents` as OPTIONAL and computes
+   the authoritative price via `priceForBook(format, pages)` (see
+   `src/routes/api/order/+server.ts` line ~213). Sending a client value
+   was creating a price-drift hazard: a server-side price hike would
+   400 every cached client with `price_mismatch`. The client now sends no
+   price claim. `bookCostFor()` remains in the component for display-only
+   UI hint copy.
+9. **3DS / `requires_action` handled correctly.** New
+   `handlePaymentIntentResult` classifies `requires_action` separately
+   from terminal errors (per https://docs.stripe.com/payments/payment-intents/web-manual#handle-redirect).
+   `Station7TakeHome.submitRealStripe` now: (a) shows the "complete bank
+   verification" guidance, (b) sets `_requiresAction = true` so the UI
+   surfaces the challenge state, (c) calls `pollAfter3DS()` which invokes
+   `stripe.retrievePaymentIntent(clientSecret)` to detect the
+   post-challenge `succeeded` state. The user can also see the post-poll
+   message + retry via the Pay button if the challenge failed. Stripe.js
+   continues to own the inline 3DS modal — we only classify + re-poll.
+10. **Implementation notes updated** (this section). The previous
+    "Deviations" entry that acknowledged the dead production path is
+    superseded by blocker #1's fix — no Rule 15 kill condition remains.
+
+## New / changed files
+
+- `src/lib/workshop/components/StripeElementsLoader.ts` — env-static-public
+  import; `_lastError` + `getLastStripeLoadError()`; success-only Promise
+  cache; `crossOrigin` removed; `retrievePaymentIntent` added to
+  `StripeInstance`.
+- `src/lib/workshop/services/stripeElementsGate.ts` — NEW. Pure
+  DOM-free gate + 3DS classification + `pollAfter3DS` helper.
+- `src/lib/workshop/stations/Station7TakeHome.svelte` — `onMount`-gated
+  publishable-key resolution; `await tick()` + bounded retry; client
+  no longer sends `bookCostCents`; 3DS / requires_action path wired.
+- `src/test-stubs/$env/static/public.ts` — NEW. Vitest stub for
+  `$env/static/public` that surfaces `process.env.PUBLIC_STRIPE_PUBLISHABLE_KEY`
+  or `''`.
+- `vitest.config.ts` — new `$env/static/public` alias entry.
+- `tests/ui/station7-stripe-elements.test.ts` — gate decision tests,
+  payment-outcome classification tests, `pollAfter3DS` test,
+  `readPublishableKey` env-bridge test, and a regression that the
+  `/api/order` POST succeeds without a client `bookCostCents`.
+
+## Notes
+
+- The Svelte-component-mount path (DOM mount of `Station7TakeHome.svelte`
+  with `@testing-library/svelte`) is intentionally NOT added; the cheaper
+  refactor in blocker #2 (extract gate to a plain TS service) gets the
+  same correctness coverage without configuring jsdom + Svelte 5 effects
+  in the node-env vitest run. The blocker explicitly allowed this path.
+- No new runtime deps. `@testing-library/svelte` + `jsdom` remain
+  devDeps already (used by other tests / future Playwright surfaces).
