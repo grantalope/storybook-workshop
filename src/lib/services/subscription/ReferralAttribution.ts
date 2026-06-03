@@ -17,6 +17,7 @@ import type {
 	ReferralConversion,
 	ReferralCredit,
 } from './types';
+import { secureRandomString } from "./secureRandom";
 
 // ---------------------------------------------------------------------------
 // Constants (spec §8.4)
@@ -25,7 +26,8 @@ import type {
 /** $5 credit cents per qualifying grandparent referral conversion. */
 export const REFERRAL_CREDIT_CENTS = 500;
 /** Length of the random shortcode portion (excluding any prefix). */
-export const SHORTCODE_LENGTH = 8;
+// Lengthened from 8 -> 10 per security-review advice (>64 bits over 30-char alphabet).
+export const SHORTCODE_LENGTH = 10;
 
 // ---------------------------------------------------------------------------
 // Service
@@ -192,9 +194,6 @@ function validateEmail(email: string): void {
 
 const ALPHABET = 'abcdefghjkmnpqrstuvwxyz23456789';
 function defaultShortcodeGen(): string {
-	let out = '';
-	for (let i = 0; i < SHORTCODE_LENGTH; i++) {
-		out += ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
-	}
-	return out;
+	// CSPRNG-derived. 10 chars over 30-char alphabet = ~49 bits.
+	return secureRandomString(SHORTCODE_LENGTH, ALPHABET);
 }

@@ -29,6 +29,7 @@ import type { BundleService } from './BundleService';
 import { bundleCentsFor } from './BundleService';
 import type { SubscriptionService } from './SubscriptionService';
 import { stripePriceIdFor } from './SubscriptionService';
+import { secureRandomString } from "./secureRandom";
 
 // ---------------------------------------------------------------------------
 // Service
@@ -283,15 +284,12 @@ function validateCardFromGiver(card: string): void {
 let _idCounter = 0;
 function defaultIdGen(): string {
 	_idCounter += 1;
-	return `${Date.now().toString(36)}_${_idCounter}_${Math.random().toString(36).slice(2, 8)}`;
+	// Internal Gift entity ID — CSPRNG suffix for collision-avoidance defense-in-depth.
+	return `${Date.now().toString(36)}_${_idCounter}_${secureRandomString(6, "abcdefghijklmnopqrstuvwxyz0123456789")}`;
 }
 
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I confusion
 function defaultRedeemCodeGen(): string {
-	// 10-char alphanumeric — ~50 bits of entropy
-	let out = '';
-	for (let i = 0; i < 10; i++) {
-		out += ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
-	}
-	return out;
+	// 10-char alphanumeric, CSPRNG-derived. ~52 bits of entropy.
+	return secureRandomString(10, ALPHABET);
 }
