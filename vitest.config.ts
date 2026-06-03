@@ -8,6 +8,7 @@ export default defineConfig({
 		alias: {
 			"$lib": path.resolve(__dirname, "src/lib"),
 			"$app": path.resolve(__dirname, "src/test-stubs/$app"),
+			"$env": path.resolve(__dirname, "src/test-stubs/$env"),
 		},
 	},
 	test: {
