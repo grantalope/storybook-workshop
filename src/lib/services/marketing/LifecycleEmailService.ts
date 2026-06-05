@@ -105,6 +105,23 @@ export class LifecycleEmailService {
 				report.skippedUnsubscribed += 1;
 				continue;
 			}
+			// Gate-unlock retry: the welcome email is fire-and-forget from the
+			// email-gate POST endpoint. If the CRM provider quota was exhausted
+			// or threw at that moment, the contact unlocked but never received
+			// the welcome. The tick detects that gap (gate_unlocked stage + no
+			// gate_unlock entry in templateLastSentAt) and retries here.
+			if (
+				contact.lifecycleStage === 'gate_unlocked' &&
+				contact.templateLastSentAt['gate_unlock'] === undefined
+			) {
+				const result = await this._send(contact, 'gate_unlock');
+				if (result.ok) {
+					contact.templateLastSentAt['gate_unlock'] = now;
+					report.sent += 1;
+				} else {
+					report.failed += 1;
+				}
+			}
 			const due = this._dueSteps(contact, now);
 			for (const step of due) {
 				if (contact.templateLastSentAt[step.template] !== undefined) {

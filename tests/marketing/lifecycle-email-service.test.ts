@@ -9,7 +9,12 @@ import {
 const SECRET = 'test-secret-1234567890';
 
 async function setupContact(gate: EmailGateService, email = 'p@example.com') {
-	return gate.record({ email, shortcode: 'abcd1234', kidAgeBand: '4-6', themePicked: 'forest' });
+	const rec = await gate.record({ email, shortcode: 'abcd1234', kidAgeBand: '4-6', themePicked: 'forest' });
+	// Simulate the email-gate POST endpoint successfully having sent the
+	// gate_unlock welcome — these tests focus on later lifecycle steps,
+	// not the gate_unlock retry path (covered in gate-unlock-retry.test.ts).
+	rec.contact.templateLastSentAt['gate_unlock'] = 0;
+	return rec;
 }
 
 describe('LifecycleEmailService', () => {

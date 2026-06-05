@@ -147,7 +147,10 @@ describe('/api/marketing/lifecycle-tick POST', () => {
 	});
 
 	it('runs tick and returns report', async () => {
-		await deps.gate.record({ email: 'p@example.com', shortcode: 'abcd1234' });
+		const rec = await deps.gate.record({ email: 'p@example.com', shortcode: 'abcd1234' });
+		// Simulate the email-gate POST endpoint successfully sending gate_unlock
+		// — this test scopes the tick report to lifecycle_T0 only, not retry.
+		rec.contact.templateLastSentAt['gate_unlock'] = 0;
 		const r = await lifecycleTickPost({
 			request: new Request('http://localhost/x', { method: 'POST' }),
 		} as never);
