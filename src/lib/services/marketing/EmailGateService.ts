@@ -37,6 +37,19 @@ export interface EmailGateServiceOpts {
 	nowSource?: () => number;
 	/** Optional override for the default Web Crypto subtle. */
 	subtle?: SubtleCrypto;
+	/**
+	 * Hard deadline (epoch ms) after which legacy (un-prefixed) cookies
+	 * are REJECTED. Used during HMAC-secret rotation: callers set this to
+	 * (rotationStart + graceWindow) so legacy cookies stop validating once
+	 * the grace window elapses. Default is undefined which means "no
+	 * legacy acceptance" — only v1:-prefixed cookies validate.
+	 *
+	 * This is a launch deployment so there are NO pre-existing legacy
+	 * cookies in the wild; the default is to reject them. The dual-path
+	 * code stays in place so a future rotation can set this in opts
+	 * without touching the verify path.
+	 */
+	legacyCookieAcceptUntilMs?: number;
 }
 
 /**
@@ -143,15 +156,32 @@ export class EmailGateService {
 		return this._contacts.get(email.toLowerCase());
 	}
 
-	/** Verify a cookie value matches the expected HMAC (handles legacy + v1 prefix). */
+	/**
+	 * Verify a cookie value matches the expected HMAC.
+	 *
+	 * Two formats are accepted:
+	 *   - "v1:<32 hex>" — current format. ALWAYS validated.
+	 *   - bare 32-hex (legacy, pre-v1 prefix) — ONLY accepted while
+	 *     `now < opts.legacyCookieAcceptUntilMs`. If the opt is unset (the
+	 *     default for a fresh launch) or the deadline has passed, legacy
+	 *     cookies are rejected.
+	 *
+	 * Rationale: launch deployments have no legacy cookies in the wild so
+	 * the default is to reject them. A future HMAC-secret rotation can
+	 * widen the dual-path window by setting `legacyCookieAcceptUntilMs`
+	 * to `rotationStartMs + 30 * 86400_000` (30-day grace) without code
+	 * changes.
+	 */
 	async verifyCookie(email: string, shortcode: string, cookieValue: string): Promise<boolean> {
 		if (!email || !shortcode || !cookieValue) return false;
 		const expected = await this._mintCookie(email, shortcode);
 		if (constantTimeEqual(expected, cookieValue)) return true;
 		// Legacy (pre-v1 prefix) cookies are plain 32-hex with no version byte.
-		// Accept them for backwards compatibility until the rotation grace window
-		// elapses; this lets users keep their session across the deploy.
+		// Accept them ONLY while the rotation grace window is open.
 		if (!cookieValue.startsWith("v1:")) {
+			const deadline = this.opts.legacyCookieAcceptUntilMs;
+			if (deadline === undefined) return false; // launch default: no legacy
+			if (this._now() > deadline) return false; // grace window elapsed
 			const legacy = expected.startsWith("v1:") ? expected.slice(3) : expected;
 			if (constantTimeEqual(legacy, cookieValue)) return true;
 		}
@@ -256,7 +286,7 @@ function constantTimeEqual(a: string, b: string): boolean {
 
 
 /**
- * Strip <, >, &, /, \\, control chars and trim. Keeps Unicode letters
+ * Strip <, >, &, /, \, control chars and trim. Keeps Unicode letters
  * and common punctuation. Caps length at 40 chars (a UI hint, not a hard
  * GDPR limit). Returns undefined for empty input.
  */
