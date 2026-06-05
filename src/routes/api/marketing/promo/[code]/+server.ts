@@ -5,12 +5,17 @@
 // determine the discount. This HTTP surface is for the on-checkout
 // promo-code field; it is GATED by:
 //
-//  1. Per-IP rate-limit (30/IP/hour). Bounds online brute-force enumeration
-//     of per-parent codes.
+//  1. Two-tier per-IP rate-limit (bounds online brute-force enumeration
+//     of per-parent codes):
+//       - Cookie-PRESENT requests (caller proved knowledge of a gated email):
+//         30/IP/hour via promoRateLimit.
+//       - Cookie-ABSENT requests (anonymous code enumeration probe):
+//         10/IP/hour via anonymousPromoRateLimit.
+//     The anonymous limiter is consulted FIRST so anonymous traffic does
+//     not exhaust the cookie-bearing pool; the cookie-bearing limiter is
+//     also consulted to bound a compromised gated-session as well.
 //  2. parentEmail must match the email bound to the swEmailGate_<shortcode>
-//     cookie when the request carries one. Requests WITHOUT a gate cookie
-//     are still allowed (the field is publicly editable) but rate-limited
-//     more aggressively.
+//     cookie when the request carries one.
 //
 // Anonymous request flow is unchanged — the cross-call from /api/order
 // stays server-internal and does not hit this surface.
@@ -23,7 +28,7 @@
 
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { getMarketingDeps } from '../../_shared';
-import { promoRateLimit } from '$lib/services/marketing/rateLimit';
+import { anonymousPromoRateLimit, promoRateLimit } from '$lib/services/marketing/rateLimit';
 
 interface Body {
 	parentEmail?: string;
@@ -55,7 +60,29 @@ function readGateCookie(cookieHeader: string | null, shortcode: string): string 
 export const POST: RequestHandler = async ({ params, request, getClientAddress }) => {
 	const code = params.code as string | undefined;
 	if (!code) return json({ error: 'missing_code' }, { status: 400 });
-	const rl = promoRateLimit.allow(ipOf(getClientAddress));
+
+	// Probe the cookie first (cheap header scan) so we know which limiter
+	// to consult. Body is still parsed below for the actual validation.
+	const cookieHeader = request.headers.get('cookie');
+	const ip = ipOf(getClientAddress);
+
+	// Tier 1: anonymous probe limiter. Bounds pure enumeration.
+	// We don't yet know the shortcode (it's in the body), but the cookie
+	// name is shortcode-scoped — if NO swEmailGate_* cookie is present at
+	// all, the caller is fully anonymous and gets the tight limit.
+	const hasAnyGateCookie = cookieHeader != null && /(?:^|;\s*)swEmailGate_/.test(cookieHeader);
+	if (!hasAnyGateCookie) {
+		const rlAnon = anonymousPromoRateLimit.allow(ip);
+		if (!rlAnon.ok) {
+			return json(
+				{ error: 'rate_limited', retryAfterMs: rlAnon.retryAfterMs },
+				{ status: 429 },
+			);
+		}
+	}
+
+	// Tier 2: cookie-bearing limiter. Bounds a compromised gated session.
+	const rl = promoRateLimit.allow(ip);
 	if (!rl.ok) {
 		return json(
 			{ error: 'rate_limited', retryAfterMs: rl.retryAfterMs },
@@ -79,7 +106,6 @@ export const POST: RequestHandler = async ({ params, request, getClientAddress }
 	// Optional binding check: if the request carries a gate cookie for the
 	// shortcode it references, verify the parentEmail matches.
 	if (body.shortcode) {
-		const cookieHeader = request.headers.get('cookie');
 		const cookie = readGateCookie(cookieHeader, body.shortcode);
 		if (cookie) {
 			const deps0 = getMarketingDeps();
