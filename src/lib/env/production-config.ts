@@ -346,6 +346,8 @@ export function _resetValidationLatch(): void {
  */
 export function _markValidated(): boolean {
 	return !_validatedOnce;
+}
+
 // @graph-layer: private
 // @rationale: private (env-var discipline; fail-closed in production)
 //

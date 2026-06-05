@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
 	import { browser } from '$app/environment';
-	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import type { WorkshopOrchestrator } from '$lib/workshop/services/WorkshopOrchestrator';
 	import type { BookFormat } from '$lib/services/assemble/types';
 	import type {
@@ -60,15 +59,7 @@
 	let _requiresAction = $state(false);
 	let clientSecret = $state<string | null>(null);
 
-	onMount(() => {
-		_publishableKey = readPublishableKey();
-		const decision = decideStripePath({
-			publishableKey: _publishableKey,
-			devMode,
-		});
-		useRealStripe = decision.useRealStripe;
-	});
-	// -- Abandoned-cart tracking (blocker 5 wiring) -----------------------
+	// -- Abandoned-cart tracking (marketing-funnel blocker 5 wiring) -----
 	// Per spec section 8.3, Station 7 abandonment must register a cart
 	// after a debounce window so the recovery chain fires at T+1h/24h/72h.
 	// We trigger the registration when the parent has set their email AND
@@ -116,8 +107,21 @@
 			// best-effort
 		}
 	}
-	onMount(() => scheduleAbandonedCartCheck());
-	onDestroy(() => { if (_cartTimer) clearTimeout(_cartTimer); });
+
+	onMount(() => {
+		// Stripe Elements lazy-load decision
+		_publishableKey = readPublishableKey();
+		const decision = decideStripePath({
+			publishableKey: _publishableKey,
+			devMode,
+		});
+		useRealStripe = decision.useRealStripe;
+		// Marketing-funnel: schedule abandoned-cart registration
+		scheduleAbandonedCartCheck();
+	});
+	onDestroy(() => {
+		if (_cartTimer) clearTimeout(_cartTimer);
+	});
 
 
 	function computeOrderPages(): number {
