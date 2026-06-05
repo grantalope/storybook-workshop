@@ -135,7 +135,7 @@ export interface EmailGateResult {
 export interface AbandonedCart {
 	parentEmail: string;
 	kidId: string;
-	bookId: string;
+	shortcode: string;
 	abandonedAt: number;
 	/** Anonymized snapshot of cart total at abandonment. */
 	bookCostCents: number;

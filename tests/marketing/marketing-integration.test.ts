@@ -195,7 +195,7 @@ describe('production-config helper (env-var discipline)', () => {
 	});
 });
 
-describe('AbandonedCartService.track accepts shortcode (blocker 24)', () => {
+describe('AbandonedCartService.track accepts shortcode', () => {
 	let deps: MarketingDeps & { crm: MockCrmClient };
 	beforeEach(() => {
 		__resetRateLimitersForTests();
@@ -203,27 +203,17 @@ describe('AbandonedCartService.track accepts shortcode (blocker 24)', () => {
 		__setMarketingApiDeps(deps);
 	});
 
-	it('track({shortcode}) stores shortcode in bookId field for link composition', () => {
+	it('track({shortcode}) stores it on the cart for link composition', () => {
 		const cart = deps.abandonedCart.track({
 			parentEmail: 'p@example.com',
 			kidId: 'kid-1',
 			shortcode: 'abcd1234',
 			bookCostCents: 3499,
 		});
-		expect(cart.bookId).toBe('abcd1234');
+		expect(cart.shortcode).toBe('abcd1234');
 	});
 
-	it('track({bookId}) still works for legacy callers', () => {
-		const cart = deps.abandonedCart.track({
-			parentEmail: 'p@example.com',
-			kidId: 'kid-2',
-			bookId: 'wxyz5678',
-			bookCostCents: 3499,
-		});
-		expect(cart.bookId).toBe('wxyz5678');
-	});
-
-	it('track without shortcode/bookId throws', () => {
+	it('track without shortcode throws', () => {
 		expect(() =>
 			deps.abandonedCart.track({
 				parentEmail: 'p@example.com',

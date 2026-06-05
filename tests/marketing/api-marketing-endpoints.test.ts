@@ -169,7 +169,7 @@ describe('/api/marketing/abandoned-cart-tick POST', () => {
 		deps.abandonedCart.track({
 			parentEmail: 'p@example.com',
 			kidId: 'k',
-			bookId: 'b',
+			shortcode: 'b',
 			bookCostCents: 3499,
 		});
 		const r = await abandonedCartTickPost({

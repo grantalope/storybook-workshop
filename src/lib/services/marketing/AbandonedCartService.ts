@@ -9,7 +9,7 @@
 //
 // Per-kid abandonment respected — multiple incomplete drafts from the
 // same parent for the SAME kid don't spam (we identify by `kidId` +
-// `parentEmail` + most recent `bookId`). A different kid's draft DOES
+// `parentEmail` + most recent `shortcode`). A different kid's draft DOES
 // receive its own recovery chain.
 //
 // Terminates on `resolve()` — caller (order POST endpoint webhook) calls
@@ -81,26 +81,28 @@ export class AbandonedCartService {
 		return `${parentEmail.toLowerCase()}::${kidId}`;
 	}
 
-	/** Track a fresh Station-7 abandonment. Idempotent on quick re-entry. */
-	/** Track a fresh Station-7 abandonment. shortcode is preferred; bookId is accepted for back-compat. */
-	track(opts: { parentEmail: string; kidId: string; bookId?: string; shortcode?: string; bookCostCents: number }): AbandonedCart {
-		const shortcode = opts.shortcode ?? opts.bookId;
-		if (!shortcode) {
-			throw new Error("AbandonedCartService.track: shortcode or bookId is required");
+	/**
+	 * Track a fresh Station-7 abandonment. Idempotent on quick re-entry —
+	 * if the same parent+kid hits within 5 minutes, keeps the original
+	 * abandonedAt so the recovery cadence doesn't reset.
+	 */
+	track(opts: { parentEmail: string; kidId: string; shortcode: string; bookCostCents: number }): AbandonedCart {
+		if (!opts.shortcode) {
+			throw new Error("AbandonedCartService.track: shortcode is required");
 		}
 		const key = this._key(opts.parentEmail, opts.kidId);
 		const now = this._now();
 		const existing = this._carts.get(key);
 		if (existing && !existing.resolved && now - existing.abandonedAt < 5 * 60 * 1000) {
 			// recent re-entry — keep original abandonedAt to avoid spamming reset
-			existing.bookId = shortcode;
+			existing.shortcode = opts.shortcode;
 			existing.bookCostCents = opts.bookCostCents;
 			return existing;
 		}
 		const cart: AbandonedCart = {
 			parentEmail: opts.parentEmail,
 			kidId: opts.kidId,
-			bookId: shortcode,
+			shortcode: opts.shortcode,
 			abandonedAt: now,
 			bookCostCents: opts.bookCostCents,
 			resolved: false,
@@ -165,7 +167,7 @@ export class AbandonedCartService {
 				});
 				const vars: Record<string, string> = {
 					to_email: cart.parentEmail,
-					link: `${this.opts.publicUrlBase ?? ''}/r/${cart.bookId}`,
+					link: `${this.opts.publicUrlBase ?? ''}/r/${cart.shortcode}`,
 					promo_code: promo.code,
 					pct_off: String(step.pctOff),
 					unsubscribe_bucket: 'marketing',

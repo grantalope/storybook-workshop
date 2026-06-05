@@ -37,7 +37,7 @@ describe('AbandonedCartService', () => {
 		const cart = ctx.svc.track({
 			parentEmail: 'p@example.com',
 			kidId: 'kid1',
-			bookId: 'book1',
+			shortcode: 'book1',
 			bookCostCents: 3499,
 		});
 		expect(cart.resolved).toBe(false);
@@ -49,14 +49,14 @@ describe('AbandonedCartService', () => {
 		const a = ctx.svc.track({
 			parentEmail: 'p@example.com',
 			kidId: 'kid1',
-			bookId: 'book1',
+			shortcode: 'book1',
 			bookCostCents: 3499,
 		});
 		ctx.setNow(2 * 60 * 1000);
 		const b = ctx.svc.track({
 			parentEmail: 'p@example.com',
 			kidId: 'kid1',
-			bookId: 'book1',
+			shortcode: 'book1',
 			bookCostCents: 3499,
 		});
 		expect(b.abandonedAt).toBe(a.abandonedAt);
@@ -67,7 +67,7 @@ describe('AbandonedCartService', () => {
 		ctx.svc.track({
 			parentEmail: 'p@example.com',
 			kidId: 'k',
-			bookId: 'b',
+			shortcode: 'b',
 			bookCostCents: 3499,
 		});
 		ctx.setNow(60 * 60 * 1000 + 1);
@@ -85,7 +85,7 @@ describe('AbandonedCartService', () => {
 		ctx.svc.track({
 			parentEmail: 'p@example.com',
 			kidId: 'k',
-			bookId: 'b',
+			shortcode: 'b',
 			bookCostCents: 3499,
 		});
 		ctx.setNow(72 * 60 * 60 * 1000 + 1);
@@ -100,7 +100,7 @@ describe('AbandonedCartService', () => {
 		ctx.svc.track({
 			parentEmail: 'p@example.com',
 			kidId: 'k',
-			bookId: 'b',
+			shortcode: 'b',
 			bookCostCents: 3499,
 		});
 		ctx.setNow(60 * 60 * 1000 + 1);
@@ -117,7 +117,7 @@ describe('AbandonedCartService', () => {
 		ctx.svc.track({
 			parentEmail: 'p@example.com',
 			kidId: 'k',
-			bookId: 'b',
+			shortcode: 'b',
 			bookCostCents: 3499,
 		});
 		ctx.setNow(60 * 60 * 1000 + 1);
@@ -131,7 +131,7 @@ describe('AbandonedCartService', () => {
 		ctx.svc.track({
 			parentEmail: 'p@example.com',
 			kidId: 'k',
-			bookId: 'b',
+			shortcode: 'b',
 			bookCostCents: 3499,
 		});
 		ctx.setNow(72 * 60 * 60 * 1000 + 1);
@@ -146,13 +146,13 @@ describe('AbandonedCartService', () => {
 		ctx.svc.track({
 			parentEmail: 'p@example.com',
 			kidId: 'kid1',
-			bookId: 'b1',
+			shortcode: 'b1',
 			bookCostCents: 3499,
 		});
 		ctx.svc.track({
 			parentEmail: 'p@example.com',
 			kidId: 'kid2',
-			bookId: 'b2',
+			shortcode: 'b2',
 			bookCostCents: 3499,
 		});
 		ctx.setNow(60 * 60 * 1000 + 1);
@@ -166,7 +166,7 @@ describe('AbandonedCartService', () => {
 		ctx.svc.track({
 			parentEmail: 'p@example.com',
 			kidId: 'k',
-			bookId: 'b',
+			shortcode: 'b',
 			bookCostCents: 3499,
 		});
 		ctx.setNow(60 * 60 * 1000 + 1);

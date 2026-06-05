@@ -98,7 +98,7 @@ describe('/api/marketing/cart-abandoned (blocker 5 wiring)', () => {
 		expect(r.status).toBe(200);
 		const cart = deps.abandonedCart.getCart('p@example.com', 'kid-1');
 		expect(cart).toBeDefined();
-		expect(cart?.bookId).toBe('abcd1234');
+		expect(cart?.shortcode).toBe('abcd1234');
 		expect(cart?.bookCostCents).toBe(3499);
 	});
 
@@ -114,7 +114,7 @@ describe('/api/marketing/cart-abandoned (blocker 5 wiring)', () => {
 		deps.abandonedCart.track({
 			parentEmail: 'p@example.com',
 			kidId: 'kid-1',
-			bookId: 'abcd1234',
+			shortcode: 'abcd1234',
 			bookCostCents: 3499,
 		});
 		const url = new URL(

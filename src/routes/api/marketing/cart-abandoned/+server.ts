@@ -6,14 +6,14 @@
 // fire.
 //
 // Request body: { parentEmail, kidId, shortcode, bookCostCents }
-//   (shortcode used as bookId — see Stories link convention)
+//   (shortcode is the canonical id — see Stories link convention)
 // Response 200: { ok: true, abandonedAt }
 // Response 400: missing field / invalid body
 // Response 429: rate-limited
 //
 // Auth: relies on per-IP rate limit; no session cookie required since
 // the parent has not yet completed gating. The risk surface is bounded
-// by the limiter (10/IP/hour) + the requirement that bookId+kidId match
+// by the limiter (10/IP/hour) + the requirement that shortcode+kidId match
 // a real workshop draft (caller verifies upstream).
 
 import { json, type RequestHandler } from '@sveltejs/kit';
@@ -66,7 +66,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 	const cart = deps.abandonedCart.track({
 		parentEmail: body.parentEmail,
 		kidId: body.kidId,
-		bookId: body.shortcode,
+		shortcode: body.shortcode,
 		bookCostCents: body.bookCostCents,
 	});
 	return json({ ok: true, abandonedAt: cart.abandonedAt });
