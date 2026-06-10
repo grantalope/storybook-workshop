@@ -40,6 +40,7 @@ import {
   type BeatBudgetMap,
   type BeatId,
   type DialogicPrompt,
+  type GrammarValidationResult,
   type SceneTree,
   type SceneTreeMeta,
   type StoryInput,
@@ -104,6 +105,21 @@ interface LlmGateRunArgs {
   initialCorrection?: string;
 }
 
+/** Outcome of one gated attempt loop. */
+interface LlmGateOutcome {
+  /** First tree that cleared every gate, or null when retries exhausted. */
+  tree: SceneTree | null;
+  /**
+   * Best SALVAGEABLE draft seen across attempts: a real-LLM tree that cleared
+   * safety + privacy and has ALL six Stein-Glenn elements present
+   * (no element at confidence 0) but missed the grammar pass bar — or passed
+   * grammar and only missed calibration. Preferred over the deterministic
+   * template when retries exhaust (real prose beats a canned skeleton; the
+   * e2e run proved gemma3 drafts were good stories killed by gate brittleness).
+   */
+  salvage: { tree: SceneTree; grammar: GrammarValidationResult } | null;
+}
+
 export class StoryAuthorService {
   constructor(
     private readonly planner: Tier2VocabPlanner = tier2VocabPlanner,
@@ -146,7 +162,23 @@ export class StoryAuthorService {
       chat,
       maxRetries,
     };
-    let passedTree = await this._runLlmGates(gateArgs);
+    const firstRun = await this._runLlmGates(gateArgs);
+    let passedTree = firstRun.tree;
+    let salvageUsed = false;
+
+    if (!passedTree && firstRun.salvage) {
+      // SALVAGE MODE (first-class, replaces the e2e script's ad-hoc raw-draft
+      // rescue): every retry missed the gate bar, but a draft exists whose six
+      // Stein-Glenn elements are all present. Ship the real prose instead of
+      // the template; telemetry (meta.grammarGate.salvaged) records it.
+      passedTree = firstRun.salvage.tree;
+      salvageUsed = true;
+      // eslint-disable-next-line no-console
+      console.warn('[StoryAuthorService] gates not green — salvaging best real draft', {
+        avgScore: firstRun.salvage.grammar.avgScore,
+        elementScores: firstRun.salvage.grammar.elementScores,
+      });
+    }
 
     if (!passedTree) {
       return this._finalizeFallback(input, vocab.words, budget, meta, 'gates-not-passed');
@@ -164,14 +196,15 @@ export class StoryAuthorService {
         ...report.feedback.map((f) => `- ${f}`),
       ].join('\n');
       const second = await this._runLlmGates({ ...gateArgs, initialCorrection: rubricCorrection });
-      if (second) {
-        const secondReport = scoreSceneTree(second, {
+      if (second.tree) {
+        const secondReport = scoreSceneTree(second.tree, {
           ageBand: input.ageBand,
           theme: input.theme,
         });
         if (secondReport.total > report.total) {
-          passedTree = second;
+          passedTree = second.tree;
           report = secondReport;
+          salvageUsed = false; // fully-passing regen replaced the salvaged draft
         }
       }
     }
@@ -203,6 +236,16 @@ export class StoryAuthorService {
       passedTree.dialogic_prompts = undefined;
     }
 
+    // Grammar-gate telemetry on the SHIPPED tree — re-validated after
+    // redistribute so it reflects the prose that actually lands on the page.
+    const finalGrammar = this.grammar.validate(passedTree);
+    meta.grammarGate = {
+      passed: finalGrammar.passed,
+      elementScores: finalGrammar.elementScores,
+      avgScore: finalGrammar.avgScore,
+      salvaged: salvageUsed,
+    };
+
     // Final guarantees on top-level fields
     passedTree.page_budget = input.targetSpreads;
     passedTree.tier2_words = mergeTier2Words(passedTree.tier2_words, vocab.words);
@@ -216,12 +259,22 @@ export class StoryAuthorService {
   /**
    * One full pass through the gated attempt loop (parse → safety → privacy →
    * grammar → calibration), retrying up to maxRetries with correctives.
-   * Returns the first tree that clears every gate, or null when retries are
-   * exhausted. Mutates the shared meta counters.
+   * Returns the first tree that clears every gate (plus the best salvageable
+   * near-miss seen along the way). Mutates the shared meta counters.
    */
-  private async _runLlmGates(args: LlmGateRunArgs): Promise<SceneTree | null> {
+  private async _runLlmGates(args: LlmGateRunArgs): Promise<LlmGateOutcome> {
     const { input, vocabWords, budget, meta, safety, chat, maxRetries } = args;
     let correction = args.initialCorrection ?? '';
+    let salvage: LlmGateOutcome['salvage'] = null;
+    // Rank: calibration-only failures (grammar fully green) always beat
+    // grammar-weak drafts; within a tier, higher grammar average wins.
+    const salvageRank = (g: GrammarValidationResult) => (g.passed ? 1 : 0) + g.avgScore;
+    const considerSalvage = (tree: SceneTree, grammar: GrammarValidationResult) => {
+      if (grammar.missing.length > 0) return; // an absent element = structurally broken
+      if (!salvage || salvageRank(grammar) > salvageRank(salvage.grammar)) {
+        salvage = { tree, grammar };
+      }
+    };
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       let parsed: SceneTree;
@@ -276,6 +329,9 @@ export class StoryAuthorService {
       const grammarResult = this.grammar.validate(parsed);
       if (!grammarResult.passed) {
         meta.grammar_retries = (meta.grammar_retries ?? 0) + 1;
+        considerSalvage(parsed, grammarResult);
+        // Coached corrective: names each zero-confidence element with a
+        // 1-line example of satisfying it (see StoryGrammarValidator).
         correction = this.grammar.correctionPrompt(grammarResult);
         continue;
       }
@@ -284,15 +340,16 @@ export class StoryAuthorService {
       const calibResult = this.calibrator.calibrate(parsed, input.ageBand);
       if (!calibResult.passed) {
         meta.calibration_retries = (meta.calibration_retries ?? 0) + 1;
+        considerSalvage(parsed, grammarResult);
         correction = this.calibrator.correctionPrompt(calibResult, input.ageBand);
         continue;
       }
 
       // All gates passed
-      return parsed;
+      return { tree: parsed, salvage };
     }
 
-    return null;
+    return { tree: null, salvage };
   }
 
   private async _scanSafety(
@@ -502,6 +559,7 @@ export class StoryAuthorService {
     reason: string,
   ): SceneTree {
     const tree = synthesizeTemplateTree(input, tier2Words, budget);
+    const templateGrammar = this.grammar.validate(tree);
     tree.meta = {
       ...meta,
       template_fallback: true,
@@ -509,6 +567,12 @@ export class StoryAuthorService {
       // Score the hand-written template too — the inspector surfaces it and
       // tests pin the templates above the quality bar.
       quality_score: scoreSceneTree(tree, { ageBand: input.ageBand, theme: input.theme }).total,
+      grammarGate: {
+        passed: templateGrammar.passed,
+        elementScores: templateGrammar.elementScores,
+        avgScore: templateGrammar.avgScore,
+        salvaged: false,
+      },
     };
     if (input.dialogicPromptsEnabled) {
       tree.dialogic_prompts = this.prompts.generate(tree, input);
