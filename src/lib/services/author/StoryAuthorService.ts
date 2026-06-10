@@ -5,7 +5,7 @@
 //
 // Main orchestrator: StoryInput → SceneTree.
 //
-// Pipeline (per goal markdown Phase 7):
+// Pipeline (per goal markdown Phase 7 + storyteller-quality overhaul):
 //   1. Tier2VocabPlanner picks 3-5 words. StoryBudgetAllocator computes beat budget.
 //   2. Build system+user messages (system cached per kid profile per Stage 7+ rules).
 //   3. kernel.connect('inference.generate', 'storybook-workshop-author').chat(...)
@@ -14,9 +14,11 @@
 //   5. privacyFilterService.scrub(every sceneBrief, purpose 'scene_render') — strip leaked PII.
 //   6. StoryGrammarValidator.validate(tree) — retry once with corrective.
 //   7. AgeBandCalibrator.calibrate(tree, input) — regen once for overflowing spreads.
-//   8. DialogicPromptGenerator.normalize(or generate) if dialogicPromptsEnabled.
-//   9. StoryBudgetAllocator.validate — deterministic redistribute if 2 LLM retries miss.
-//   10. 2-retry final → template fallback (deterministic Pixar skeleton). Telemetry counter.
+//   8. StoryQualityScorer (pure rubric): score < threshold → ONE regeneration
+//      with the rubric feedback injected → accept best-of-2.
+//   9. DialogicPromptGenerator.normalize(or generate) if dialogicPromptsEnabled.
+//   10. StoryBudgetAllocator.validate — deterministic redistribute if 2 LLM retries miss.
+//   11. 2-retry final → template fallback (deterministic craft-rule skeleton). Telemetry counter.
 
 import { createInferenceClient } from '../../inference/inferenceClient';
 import type { ChatRequest, ChatResponse } from '$lib/kernel-contracts/helpers/llr-fallback';
@@ -32,6 +34,7 @@ import {
 import { buildSystemPrompt } from './prompts/system-prompt-template';
 import { buildUserMessage } from './prompts/user-message-template';
 import { synthesizeTemplateTree } from './templateFallback';
+import { DEFAULT_QUALITY_THRESHOLD, scoreSceneTree } from './StoryQualityScorer';
 import {
   BEAT_NAMES,
   type BeatBudgetMap,
@@ -78,6 +81,27 @@ export interface StoryAuthorOptions {
   safetyOverride?: KidsContentSafetyLike;
   /** Disable LLM entirely — force template fallback (for headless smoke). */
   forceTemplate?: boolean;
+  /**
+   * Prose-quality acceptance bar (0-100, default DEFAULT_QUALITY_THRESHOLD).
+   * A structurally valid draft scoring below this triggers ONE regeneration
+   * with the rubric feedback injected; the better of the two drafts wins.
+   */
+  qualityThreshold?: number;
+  /** Skip the post-gen quality gate entirely (score still recorded). */
+  skipQualityGate?: boolean;
+}
+
+/** Args bundle for one full run through the gated LLM attempt loop. */
+interface LlmGateRunArgs {
+  input: StoryInput;
+  vocabWords: string[];
+  budget: BeatBudgetMap;
+  meta: SceneTreeMeta;
+  safety: KidsContentSafetyLike;
+  chat: (req: ChatRequest) => Promise<ChatResponse>;
+  maxRetries: number;
+  /** Seed correction for the first attempt (rubric feedback on the regen run). */
+  initialCorrection?: string;
 }
 
 export class StoryAuthorService {
@@ -113,8 +137,91 @@ export class StoryAuthorService {
     }
 
     // Phase 2-3: LLM call (with retries on safety / grammar / calibration)
-    let correction = '';
-    let passedTree: SceneTree | null = null;
+    const gateArgs: Omit<LlmGateRunArgs, 'initialCorrection'> = {
+      input,
+      vocabWords: vocab.words,
+      budget,
+      meta,
+      safety,
+      chat,
+      maxRetries,
+    };
+    let passedTree = await this._runLlmGates(gateArgs);
+
+    if (!passedTree) {
+      return this._finalizeFallback(input, vocab.words, budget, meta, 'gates-not-passed');
+    }
+
+    // Quality gate (best-of-2): a structurally valid draft can still be flat.
+    // Score it with the pure rubric; below threshold → ONE regeneration with
+    // the rubric feedback injected as the corrective addendum, keep the better.
+    let report = scoreSceneTree(passedTree, { ageBand: input.ageBand, theme: input.theme });
+    const threshold = opts.qualityThreshold ?? DEFAULT_QUALITY_THRESHOLD;
+    if (!opts.skipQualityGate && report.total < threshold) {
+      meta.quality_regenerated = true;
+      const rubricCorrection = [
+        `Your previous draft passed structural validation but scored ${report.total}/100 on the prose-quality rubric (acceptance bar ${threshold}). Keep the same story and fix these specific points:`,
+        ...report.feedback.map((f) => `- ${f}`),
+      ].join('\n');
+      const second = await this._runLlmGates({ ...gateArgs, initialCorrection: rubricCorrection });
+      if (second) {
+        const secondReport = scoreSceneTree(second, {
+          ageBand: input.ageBand,
+          theme: input.theme,
+        });
+        if (secondReport.total > report.total) {
+          passedTree = second;
+          report = secondReport;
+        }
+      }
+    }
+    meta.quality_score = report.total;
+
+    // Budget validation + deterministic redistribute if mismatched
+    const budgetResult = this.allocator.validate(passedTree.beats, input.targetSpreads);
+    if (!budgetResult.passed) {
+      meta.budget_redistributed = true;
+      this._redistributeIntoTree(passedTree, input.targetSpreads, budgetResult.perBeat);
+    }
+
+    // Final structural sanity post-redistribute
+    const finalBudgetCheck = this.allocator.validate(passedTree.beats, input.targetSpreads);
+    if (!finalBudgetCheck.passed) {
+      // Last-resort fallback (very rare)
+      return this._finalizeFallback(input, vocab.words, budget, meta, 'budget-irrecoverable');
+    }
+
+    // Dialogic prompts
+    if (input.dialogicPromptsEnabled) {
+      const llmPrompts = passedTree.dialogic_prompts;
+      if (Array.isArray(llmPrompts) && llmPrompts.length > 0) {
+        passedTree.dialogic_prompts = this.prompts.normalize(llmPrompts, passedTree);
+      } else {
+        passedTree.dialogic_prompts = this.prompts.generate(passedTree, input);
+      }
+    } else {
+      passedTree.dialogic_prompts = undefined;
+    }
+
+    // Final guarantees on top-level fields
+    passedTree.page_budget = input.targetSpreads;
+    passedTree.tier2_words = mergeTier2Words(passedTree.tier2_words, vocab.words);
+    passedTree.meta = { ...meta };
+
+    return passedTree;
+  }
+
+  // ─── Private helpers ──────────────────────────────────────────────────────
+
+  /**
+   * One full pass through the gated attempt loop (parse → safety → privacy →
+   * grammar → calibration), retrying up to maxRetries with correctives.
+   * Returns the first tree that clears every gate, or null when retries are
+   * exhausted. Mutates the shared meta counters.
+   */
+  private async _runLlmGates(args: LlmGateRunArgs): Promise<SceneTree | null> {
+    const { input, vocabWords, budget, meta, safety, chat, maxRetries } = args;
+    let correction = args.initialCorrection ?? '';
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       let parsed: SceneTree;
@@ -134,7 +241,7 @@ export class StoryAuthorService {
               role: 'user',
               content: buildUserMessage({
                 input,
-                tier2Words: vocab.words,
+                tier2Words: vocabWords,
                 beatBudget: budget,
                 correction,
               }),
@@ -182,49 +289,11 @@ export class StoryAuthorService {
       }
 
       // All gates passed
-      passedTree = parsed;
-      break;
+      return parsed;
     }
 
-    if (!passedTree) {
-      return this._finalizeFallback(input, vocab.words, budget, meta, 'gates-not-passed');
-    }
-
-    // Budget validation + deterministic redistribute if mismatched
-    const budgetResult = this.allocator.validate(passedTree.beats, input.targetSpreads);
-    if (!budgetResult.passed) {
-      meta.budget_redistributed = true;
-      this._redistributeIntoTree(passedTree, input.targetSpreads, budgetResult.perBeat);
-    }
-
-    // Final structural sanity post-redistribute
-    const finalBudgetCheck = this.allocator.validate(passedTree.beats, input.targetSpreads);
-    if (!finalBudgetCheck.passed) {
-      // Last-resort fallback (very rare)
-      return this._finalizeFallback(input, vocab.words, budget, meta, 'budget-irrecoverable');
-    }
-
-    // Dialogic prompts
-    if (input.dialogicPromptsEnabled) {
-      const llmPrompts = passedTree.dialogic_prompts;
-      if (Array.isArray(llmPrompts) && llmPrompts.length > 0) {
-        passedTree.dialogic_prompts = this.prompts.normalize(llmPrompts, passedTree);
-      } else {
-        passedTree.dialogic_prompts = this.prompts.generate(passedTree, input);
-      }
-    } else {
-      passedTree.dialogic_prompts = undefined;
-    }
-
-    // Final guarantees on top-level fields
-    passedTree.page_budget = input.targetSpreads;
-    passedTree.tier2_words = mergeTier2Words(passedTree.tier2_words, vocab.words);
-    passedTree.meta = { ...meta };
-
-    return passedTree;
+    return null;
   }
-
-  // ─── Private helpers ──────────────────────────────────────────────────────
 
   private async _scanSafety(
     tree: SceneTree,
@@ -279,15 +348,24 @@ export class StoryAuthorService {
           /* noop */
         }
         scene.sceneBrief = brief;
+
+        // Same privacy posture for per-spread illustration briefs — they are
+        // written for the image model and may leave the device.
+        for (const spread of scene.spreads) {
+          if (typeof spread.illustration_brief === 'string' && nameRe) {
+            spread.illustration_brief = spread.illustration_brief.replace(nameRe, 'the hero');
+          }
+        }
       }
     }
   }
 
   /**
    * Public, awaitable scene-brief scrub (called separately by orchestrator)
-   * — replaces literal kidName + runs PrivacyFilterService.scrub('scene_render').
+   * — replaces literal kidName + runs PrivacyFilterService.scrub('scene_render')
+   * over both sceneBrief and every spread's illustration_brief.
    *
-   * Returns the count of scenes whose scrub hard-failed (caller decides what to do).
+   * Returns the count of briefs whose scrub hard-failed (caller decides what to do).
    */
   async scrubSceneBriefsAsync(tree: SceneTree, input: StoryInput): Promise<number> {
     const nameLiteral = (input.kidName || '').trim();
@@ -309,6 +387,21 @@ export class StoryAuthorService {
           if (report.hardFail) hardFails++;
         } catch {
           scene.sceneBrief = brief;
+        }
+
+        for (const spread of scene.spreads) {
+          if (typeof spread.illustration_brief !== 'string') continue;
+          let ib = spread.illustration_brief;
+          if (nameRe) ib = ib.replace(nameRe, 'the hero');
+          try {
+            const report = await privacyFilterService.scrub(ib, {
+              purpose: 'scene_render' as any,
+            });
+            spread.illustration_brief = report.redactedText;
+            if (report.hardFail) hardFails++;
+          } catch {
+            spread.illustration_brief = ib;
+          }
         }
       }
     }
@@ -413,6 +506,9 @@ export class StoryAuthorService {
       ...meta,
       template_fallback: true,
       generated_at_iso: meta.generated_at_iso,
+      // Score the hand-written template too — the inspector surfaces it and
+      // tests pin the templates above the quality bar.
+      quality_score: scoreSceneTree(tree, { ageBand: input.ageBand, theme: input.theme }).total,
     };
     if (input.dialogicPromptsEnabled) {
       tree.dialogic_prompts = this.prompts.generate(tree, input);

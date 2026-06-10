@@ -115,6 +115,14 @@ export interface Spread {
   spread_text: string; // the prose that lands on the page
   /** Where text lives on the spread (PreText adapter consumes this). */
   text_focus: 'left' | 'right' | 'wraps' | 'spot';
+  /**
+   * Scene brief co-generated FOR AN IMAGE MODEL: character positions, facial
+   * emotion, setting, lighting, focal action — plain declarative fragments,
+   * no prose flourishes. Says "the hero", never the kid's name (briefs may
+   * leave the device; the prose does not). Optional for back-compat with
+   * pre-overhaul trees in IDB drafts.
+   */
+  illustration_brief?: string;
 }
 
 /** A scene = one beat-internal moment, rendered as 1..5 spreads for continuity. */
@@ -179,6 +187,10 @@ export interface SceneTreeMeta {
   grammar_retries?: number;
   calibration_retries?: number;
   budget_redistributed?: boolean;
+  /** StoryQualityScorer weighted total (0-100) of the ACCEPTED tree. */
+  quality_score?: number;
+  /** True when the post-gen quality gate triggered the one-shot regeneration. */
+  quality_regenerated?: boolean;
 }
 
 // ─── Tier-2 vocab corpus ────────────────────────────────────────────────────
