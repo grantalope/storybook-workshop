@@ -59,6 +59,14 @@ export type LocaleBiome =
 export interface SupportingCastEntry {
   id: string; // settler ID or opaque pillar ID
   role: string; // "best friend", "mom", "the dog Otis" — free-text
+  /**
+   * Explicit story-internal display name for this cast member (e.g. "Otis").
+   * Optional. When present it joins the PrivacyFilter `allowNames` list so
+   * the name can appear in scene/illustration briefs un-redacted. This is
+   * the ONLY cast-name source the allowlist consumes — the free-text `role`
+   * field is never parsed for names.
+   */
+  name?: string;
 }
 
 /** Parent-side input bundle gathered across Stations 1–5. */
@@ -69,6 +77,13 @@ export interface StoryInput {
   theme: StoryTheme;
   occasion: StoryOccasion;
   sidekickSettlerId: string; // public settler ID from AgentRegistryService
+  /**
+   * Story-internal fictional display name for the sidekick (e.g. "Pip").
+   * Parent-chosen at Station 4. Joins the PrivacyFilter `allowNames` list
+   * for brief scrubs so the sidekick's name survives PII redaction in
+   * scene/illustration briefs. Never derived from free text.
+   */
+  sidekickName?: string;
   supportingCast: SupportingCastEntry[];
   localeBiome: LocaleBiome;
   /** 16 / 24 / 32 / 48 — picked at Station 1. Allocator distributes across 7 beats. */

@@ -75,6 +75,7 @@ export async function buildStoryInput(
 		theme: outputs.s1.theme,
 		occasion: outputs.s1.occasion,
 		sidekickSettlerId: outputs.s4.sidekickSettlerId,
+		sidekickName: outputs.s4.sidekickName,
 		supportingCast: outputs.s4.supportingCast,
 		localeBiome: outputs.s4.localeBiome,
 		targetSpreads: outputs.s1.targetSpreads,

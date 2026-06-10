@@ -53,6 +53,34 @@ import {
  * for once goal #2 ships; failing OPEN here keeps this worker independently
  * useful + lets goal #2 land non-destructively.
  */
+/**
+ * Build the PrivacyFilter `allowNames` list for brief scrubs from EXPLICIT
+ * StoryInput cast fields ONLY:
+ *
+ *   - `kidName` (the Station-4 hero name — may be fictional or the kid's
+ *     real name; either way the kidName→"the hero" pre-replacement runs
+ *     BEFORE any scrub, so allowlisting it here cannot leak it into briefs)
+ *   - `sidekickName` (parent-chosen fictional sidekick, e.g. "Pip")
+ *   - `supportingCast[].name` (explicit per-entry display names, e.g. "Otis")
+ *
+ * Free text is NEVER consulted: the cast `role` field, dedicationText, and
+ * story prose contribute nothing. That keeps real-kid PII protection intact —
+ * the allowlist can only contain names the parent typed into dedicated
+ * cast-name fields. (fix/privacy-fictional-names)
+ */
+export function castAllowNames(input: StoryInput): string[] {
+  const out: string[] = [];
+  const push = (v: unknown): void => {
+    if (typeof v !== 'string') return;
+    const t = v.trim();
+    if (t.length > 0 && !out.includes(t)) out.push(t);
+  };
+  push(input.kidName);
+  push(input.sidekickName);
+  for (const entry of input.supportingCast ?? []) push(entry?.name);
+  return out;
+}
+
 export interface KidsContentSafetyLike {
   scan(text: string): Promise<{ passed: boolean; categories: string[]; confidence: number }>;
 }
@@ -374,6 +402,10 @@ export class StoryAuthorService {
         ? new RegExp(`\\b${escapeRegExp(nameLiteral)}\\b`, 'g')
         : null;
 
+    // Story-internal fictional cast names (explicit StoryInput fields only)
+    // pass the PII name detector un-redacted — see castAllowNames docs.
+    const allowNames = castAllowNames(input);
+
     let hardFails = 0;
     for (const beat of tree.beats) {
       for (const scene of beat.scenes) {
@@ -382,6 +414,7 @@ export class StoryAuthorService {
         try {
           const report = await privacyFilterService.scrub(brief, {
             purpose: 'scene_render' as any,
+            allowNames,
           });
           scene.sceneBrief = report.redactedText;
           if (report.hardFail) hardFails++;
@@ -396,6 +429,7 @@ export class StoryAuthorService {
           try {
             const report = await privacyFilterService.scrub(ib, {
               purpose: 'scene_render' as any,
+              allowNames,
             });
             spread.illustration_brief = report.redactedText;
             if (report.hardFail) hardFails++;

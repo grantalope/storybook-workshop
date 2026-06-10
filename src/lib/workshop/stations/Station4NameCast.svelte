@@ -8,11 +8,14 @@
 	export let orchestrator: WorkshopOrchestrator;
 	const dispatch = createEventDispatcher<{ advance: void }>();
 
+	// `name` is the story-internal display name — it flows into
+	// Station4Output.sidekickName → StoryInput.sidekickName → PrivacyFilter
+	// allowNames so the sidekick's name survives brief scrubs.
 	const SIDEKICKS = [
-		{ id: 'ada', label: 'Ada (curious)' },
-		{ id: 'rumi', label: 'Rumi (gentle)' },
-		{ id: 'jules', label: 'Jules (silly)' },
-		{ id: 'nico', label: 'Nico (brave)' },
+		{ id: 'ada', label: 'Ada (curious)', name: 'Ada' },
+		{ id: 'rumi', label: 'Rumi (gentle)', name: 'Rumi' },
+		{ id: 'jules', label: 'Jules (silly)', name: 'Jules' },
+		{ id: 'nico', label: 'Nico (brave)', name: 'Nico' },
 	];
 
 	const BIOMES: LocaleBiome[] = [
@@ -44,7 +47,13 @@
 		if (!newCastName.trim() || !newCastRole.trim()) return;
 		castEntries = [
 			...castEntries,
-			{ id: `cast-${crypto.randomUUID().slice(0, 8)}`, role: `${newCastRole} (${newCastName})` },
+			{
+				id: `cast-${crypto.randomUUID().slice(0, 8)}`,
+				role: `${newCastRole} (${newCastName})`,
+				// Explicit name field — the ONLY cast-name source the privacy
+				// allowlist consumes (role free-text is never parsed).
+				name: newCastName.trim(),
+			},
 		];
 		newCastName = '';
 		newCastRole = '';
@@ -59,6 +68,7 @@
 		await orchestrator.saveOutput('s4', {
 			heroName,
 			sidekickSettlerId,
+			sidekickName: SIDEKICKS.find((s) => s.id === sidekickSettlerId)?.name,
 			supportingCast: castEntries,
 			localeBiome,
 		});

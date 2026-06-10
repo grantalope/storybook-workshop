@@ -91,6 +91,12 @@ export interface Station3Output {
 export interface Station4Output {
 	heroName: string;
 	sidekickSettlerId: string;
+	/**
+	 * Story-internal fictional display name for the sidekick (e.g. "Pip").
+	 * Flows into StoryInput.sidekickName → PrivacyFilter allowNames so the
+	 * sidekick's name survives PII redaction in scene/illustration briefs.
+	 */
+	sidekickName?: string;
 	supportingCast: SupportingCastEntry[];
 	localeBiome: LocaleBiome;
 }
