@@ -191,6 +191,12 @@ export interface SceneTreeMeta {
   quality_score?: number;
   /** True when the post-gen quality gate triggered the one-shot regeneration. */
   quality_regenerated?: boolean;
+  /**
+   * Grammar-gate telemetry for the SHIPPED tree (validated post-assembly so
+   * it reflects what actually lands on the page). `salvaged: true` = a
+   * real-LLM draft was shipped despite not fully passing the gate.
+   */
+  grammarGate?: GrammarGateTelemetry;
 }
 
 // ─── Tier-2 vocab corpus ────────────────────────────────────────────────────
@@ -210,10 +216,31 @@ export interface Tier2WordEntry {
 
 export interface GrammarValidationResult {
   passed: boolean;
-  /** Missing top-level elements across the entire book. */
+  /** Elements at confidence 0 across the entire book (hard-missing). */
   missing: StoryGrammarElement[];
-  /** Per-beat element gaps. Empty array on the BeatId key = beat passed. */
+  /** Per-beat element gaps (confidence 0 within that beat's own prose). */
   beatGaps: Record<BeatId, StoryGrammarElement[]>;
+  /**
+   * Per-element heuristic confidence 0-1 — max across the element's allowed
+   * beats of the capped sum of matched signal-family weights.
+   */
+  elementScores: Record<StoryGrammarElement, number>;
+  /** Mean of the six element scores. Pass bar: >= 0.6 with no element at 0. */
+  avgScore: number;
+}
+
+/**
+ * Grammar-gate telemetry recorded on the SHIPPED tree (`SceneTreeMeta.grammarGate`).
+ * `salvaged` = true when the orchestrator shipped a real-LLM draft that did
+ * not fully pass the gate (all 6 elements present but weak average) instead
+ * of falling back to the deterministic template. Surfaced by
+ * WorkshopBookPipeline so the e2e path no longer needs an ad-hoc salvage hack.
+ */
+export interface GrammarGateTelemetry {
+  passed: boolean;
+  elementScores: Record<StoryGrammarElement, number>;
+  avgScore: number;
+  salvaged: boolean;
 }
 
 export type CalibrationMetric =
