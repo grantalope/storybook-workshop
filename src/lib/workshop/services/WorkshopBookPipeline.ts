@@ -19,7 +19,7 @@ import type {
 	SidekickSettlerInfo,
 } from '$lib/services/assemble/types';
 import { storyAuthorService } from '$lib/services/author/StoryAuthorService';
-import type { SceneTree, StoryInput } from '$lib/services/author/types';
+import type { GrammarGateTelemetry, SceneTree, StoryInput } from '$lib/services/author/types';
 import { getKidProfileStore } from '$lib/workshop/services/KidProfileStore';
 import { mockRenderAllScenes } from '$lib/workshop/services/MockSceneRenderer';
 import type {
@@ -37,6 +37,14 @@ export interface PipelineResult {
 	book: AssembledBook;
 	pdfHash: string;
 	pageCount: number;
+	/**
+	 * Grammar-gate telemetry from the author stage (mirrors
+	 * `tree.meta.grammarGate`). `salvaged: true` = the shipped story is a
+	 * real-LLM draft that did not fully pass the deterministic Stein-Glenn
+	 * gate; surfaced here so operators/inspectors see it without digging
+	 * through tree meta.
+	 */
+	grammarGate?: GrammarGateTelemetry;
 }
 
 export interface PipelineOpts {
@@ -97,6 +105,18 @@ export async function runWorkshopPipeline(
 		forceTemplate: opts.forceTemplate,
 	});
 
+	// Surface grammar-gate telemetry (incl. salvage mode) instead of burying it
+	// in tree meta — operators should see when a draft shipped under salvage.
+	const grammarGate = tree.meta?.grammarGate;
+	if (grammarGate?.salvaged) {
+		emit({
+			stage: 'author',
+			message: `Story salvaged: grammar gate not fully green (avg ${grammarGate.avgScore.toFixed(2)})`,
+		});
+		// eslint-disable-next-line no-console
+		console.warn('[WorkshopBookPipeline] salvage mode shipped draft', grammarGate);
+	}
+
 	emit({ stage: 'render', message: 'Rendering scenes…' });
 	const { wbPngsByScene } = await mockRenderAllScenes(tree, outputs.s5!.artStyle);
 
@@ -123,5 +143,5 @@ export async function runWorkshopPipeline(
 	const pdfHash = await blobHash(book.pdfBlob);
 
 	emit({ stage: 'done', message: 'Done!' });
-	return { tree, book, pdfHash, pageCount: bundle.pages };
+	return { tree, book, pdfHash, pageCount: bundle.pages, grammarGate };
 }
