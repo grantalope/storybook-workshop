@@ -46,14 +46,6 @@ import {
 } from './types';
 
 /**
- * Subset of KidsContentSafetyService the orchestrator depends on. The actual
- * service ships from goal #2 (storybook-workshop-kids-content-safety). Until
- * it's wired by AppOrchestrator, the orchestrator falls back to a permissive
- * stub that accepts every input — failing CLOSED in production is reserved
- * for once goal #2 ships; failing OPEN here keeps this worker independently
- * useful + lets goal #2 land non-destructively.
- */
-/**
  * Build the PrivacyFilter `allowNames` list for brief scrubs from EXPLICIT
  * StoryInput cast fields ONLY:
  *
@@ -81,6 +73,14 @@ export function castAllowNames(input: StoryInput): string[] {
   return out;
 }
 
+/**
+ * Subset of KidsContentSafetyService the orchestrator depends on. The actual
+ * service ships from goal #2 (storybook-workshop-kids-content-safety). Until
+ * it's wired by AppOrchestrator, the orchestrator falls back to a permissive
+ * stub that accepts every input — failing CLOSED in production is reserved
+ * for once goal #2 ships; failing OPEN here keeps this worker independently
+ * useful + lets goal #2 land non-destructively.
+ */
 export interface KidsContentSafetyLike {
   scan(text: string): Promise<{ passed: boolean; categories: string[]; confidence: number }>;
 }
