@@ -1020,3 +1020,80 @@ prevent email-enumeration via the unsubscribe endpoint.
 pnpm test          # 800/800 (683 baseline + 117 new marketing)
 pnpm exec svelte-check  # 96 errors (== baseline; 0 NEW)
 ```
+
+
+---
+
+# Implementation Notes — StoryLLM Provider (feat/story-llm-provider)
+
+## Goal
+Real StoryLLM provider: Ollama now, Anthropic-swappable. Before this branch the
+story path (StoryAuthorService → inferenceClient → kernel.connect (absent) →
+llrChatFallback) dead-ended in the `$lib/llr` stub that THREW on every chat —
+stories were never LLM-written, always template-fallback.
+
+## Design decisions
+- **Provider seam at `src/lib/services/storyllm/`** — `StoryLlmProvider`
+  interface (`chat({ system, messages, json?, temperature?, maxTokens? })`),
+  `OllamaProvider` (POST `{STORY_LLM_OLLAMA_URL}/api/chat`, default
+  `http://localhost:11434`, model `STORY_LLM_MODEL` default `gemma3:12b`,
+  `format:"json"` for json mode), `AnthropicProvider` (real Messages API:
+  `x-api-key` + `anthropic-version: 2023-06-01`, model
+  `STORY_LLM_ANTHROPIC_MODEL` default `claude-sonnet-4-6`, required
+  `max_tokens` defaulted to 4096), `StubStoryLlmProvider` (legacy throwing
+  behavior).
+- **Injectable HTTP boundary** — providers take `fetchImpl` (repo convention,
+  see StripeCheckoutService); resolved at call time from `globalThis.fetch`
+  when not injected so `vi.stubGlobal('fetch', ...)` works.
+- **Retry policy** — bounded retries (default 2 after first attempt) on
+  network errors / timeout / 429 / 5xx only; 4xx throw immediately (retrying a
+  caller bug can never succeed). Hard per-attempt timeout 120s via
+  AbortController (`StoryLlmTimeoutError`).
+- **Wiring point** — rewired `$lib/llr/index.ts` `llm.chat` (=== the
+  `llrChatFallback` export of the kernel-contracts hub) to route through
+  `resolveStoryLlmProvider()`. The kernel.connect path stays first in
+  inferenceClient (no-op here, no kernel boots in this repo);
+  StoryAuthorService's deterministic template fallback remains the last
+  resort. `embedding` stays a throwing stub (no embedder in scope).
+- **JSON mode on Anthropic** — the Messages API has no bare `json_object`
+  format (structured outputs need a schema this seam doesn't have), so
+  `json: true` appends a hard "ONLY a single valid JSON object" system
+  instruction; the downstream SceneTree schema validator defends regardless.
+- **Fail-loud factory** — unknown `STORY_LLM_PROVIDER` value throws (matches
+  `$lib/env/production-config` fail-closed convention). Default is `ollama`.
+- **Missing ANTHROPIC_API_KEY** surfaces at `chat()` time, not construction,
+  so `resolveStoryLlmProvider()` stays throw-free for known kinds (safe eager
+  resolution in boot/test paths).
+
+## Deviations
+- None from the task spec. `system`-role entries inside `req.messages` are
+  merged into the provider-level system prompt (Anthropic rejects system-role
+  messages in `messages[]`; Ollama gets one merged system message prepended).
+
+## Tradeoffs
+- `$lib/llr` now imports from `$lib/services/storyllm` (lib → services edge).
+  Acceptable in this standalone repo: `$lib/llr` is explicitly the
+  storybook-workshop seam for "wire a real LLM client" per its own docblock,
+  and storyllm imports nothing from llr (no cycle).
+- Default provider is `ollama` (not `stub`): the point of the branch is that
+  stories become LLM-written by default on dev boxes with Ollama; boxes
+  without Ollama degrade exactly as before (provider errors → template
+  fallback), just ~3 quick connection-refused attempts later.
+
+## Open questions
+- [?] Should production deploys default `STORY_LLM_PROVIDER=anthropic` once an
+  org key is provisioned? (Flag exists; decision is operational.)
+
+## Surprises
+- Fresh worktrees fail the whole vitest suite (79 files, "no tests") until
+  `pnpm exec svelte-kit sync` generates `.svelte-kit/tsconfig.json`.
+- Baseline `svelte-check` has 102 pre-existing errors (incl. `llr-fallback.ts`
+  referencing `runtime`/`llmStatusStore` that the llr stub never exported);
+  branch keeps the identical 102/20/33 counts — 0 NEW errors.
+
+## Verification (actual output)
+- Scoped: `pnpm exec vitest run tests/storyllm` → 4 files, **23/23 passed**.
+- Full: `pnpm test` → **83 files / 1006 tests passed** (baseline main:
+  79 files / 983 tests passed; +4 files / +23 tests, no regressions).
+- `pnpm exec svelte-check --tsconfig ./tsconfig.json` → 102 errors / 20
+  warnings / 33 files — byte-identical counts to clean main baseline (0 NEW).
