@@ -13,7 +13,7 @@ export interface UserMessageArgs {
   input: StoryInput;
   tier2Words: string[];
   beatBudget: BeatBudgetMap;
-  /** Optional corrective text from validator/calibrator retry path. */
+  /** Optional corrective text from validator/calibrator/quality-rubric retry path. */
   correction?: string;
 }
 
@@ -40,7 +40,7 @@ export function buildUserMessage(args: UserMessageArgs): string {
     `locale_biome: ${input.localeBiome}`,
     `sidekick_settler_id: ${input.sidekickSettlerId}`,
     `supporting_cast: ${supportingCast}`,
-    `tier2_words_to_use (≥2 uses each, varied contexts): ${tier2Words.join(', ')}`,
+    `tier2_words_to_use (≥2 uses each, landed naturally in dialogue/action): ${tier2Words.join(', ')}`,
     `dialogic_prompts_enabled: ${input.dialogicPromptsEnabled ? 'yes' : 'no'}`,
     ``,
     `beat_budget (you MUST hit each beat's spread count exactly):`,
@@ -48,6 +48,13 @@ export function buildUserMessage(args: UserMessageArgs): string {
     ``,
     `spread indices: 0 through ${input.targetSpreads - 1}, contiguous, beat-ordered.`,
   ];
+
+  if (input.theme === 'silly-quest') {
+    lines.push('');
+    lines.push(
+      `craft note: theme is silly-quest — tongue-twisters, absurd onomatopoeia, and giggle-rhythm are WELCOME here (the only theme where they are).`,
+    );
+  }
 
   if (input.dedicationText && input.dedicationText.length > 0) {
     lines.push('');
