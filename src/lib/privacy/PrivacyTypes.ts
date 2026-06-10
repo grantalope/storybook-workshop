@@ -79,6 +79,19 @@ export interface ScrubOptions {
     purpose?: Purpose;
     /** Agent context for audit. */
     agentId?: string;
+    /**
+     * Names explicitly allowed to pass the `name` detector un-redacted.
+     *
+     * Intended ONLY for story-internal fictional cast names the user
+     * explicitly chose via structured fields (e.g. the hero / sidekick /
+     * supporting-cast names a parent typed for a storybook). Matching is
+     * exact (trimmed, case-sensitive, trailing possessive `'s` stripped)
+     * and applies to the `name` category ONLY — email, phone, address,
+     * account_number, secret, coords, url, date detections are never
+     * affected. Callers MUST populate this from explicit structured fields,
+     * never from free text.
+     */
+    allowNames?: string[];
 }
 
 import type { Purpose } from '$lib/kernel-contracts/purpose/PurposeTypes';

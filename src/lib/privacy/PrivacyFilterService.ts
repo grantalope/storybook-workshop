@@ -266,9 +266,21 @@ export class PrivacyFilterService {
 
         // Categories considered for hard fail / redaction. Anything outside the
         // union of hard ∪ soft is ignored entirely.
-        const considered = detections.filter(
-            (d) => hardSet.has(d.category) || softSet.has(d.category),
-        );
+        //
+        // Fictional-cast allowlist (fix/privacy-fictional-names, 2026-06):
+        // `name` detections whose matched text is an explicitly allowlisted
+        // story-internal name (opts.allowNames) are dropped BEFORE redaction /
+        // hardFail so chosen cast names (hero / sidekick / supporting cast)
+        // survive the gate. Applies to the `name` category ONLY; every other
+        // category ignores `allowNames` entirely.
+        const allowNameSet = buildAllowNameSet(opts?.allowNames);
+        const considered = detections.filter((d) => {
+            if (!hardSet.has(d.category) && !softSet.has(d.category)) return false;
+            if (allowNameSet && d.category === 'name' && isAllowedName(d.text, allowNameSet)) {
+                return false;
+            }
+            return true;
+        });
 
         const redactedText = redact(safeText, considered);
         const hardFail = considered.some((d) => hardSet.has(d.category));
@@ -635,6 +647,44 @@ function redact(text: string, detections: PIIDetection[]): string {
     }
     out += text.slice(cursor);
     return out;
+}
+
+/**
+ * Normalize a caller-supplied `allowNames` list into a Set of trimmed,
+ * non-empty names. Returns null when the list is absent/empty so the hot
+ * path can skip the per-detection check entirely.
+ */
+function buildAllowNameSet(allowNames?: string[]): Set<string> | null {
+    if (!Array.isArray(allowNames) || allowNames.length === 0) return null;
+    const set = new Set<string>();
+    for (const raw of allowNames) {
+        if (typeof raw !== 'string') continue;
+        const trimmed = raw.trim();
+        if (trimmed.length > 0) set.add(trimmed);
+    }
+    return set.size > 0 ? set : null;
+}
+
+function stripPossessive(token: string): string {
+    return token.replace(/(?:'s|’s)$/u, '');
+}
+
+/**
+ * A `name` detection is allowlisted when the full matched span (trimmed,
+ * possessive-stripped) equals an allowlisted name, OR when the span is
+ * multi-word and EVERY word is individually allowlisted ("Pip Wiggins"
+ * passes only when both "Pip" and "Wiggins" were explicitly allowed).
+ * Comparison is case-sensitive — conservative by design: only the exact
+ * literal forms the user typed pass through.
+ */
+function isAllowedName(detectedText: string, allow: Set<string>): boolean {
+    const span = stripPossessive(detectedText.trim());
+    if (allow.has(span)) return true;
+    const tokens = span.split(/\s+/).filter((t) => t.length > 0);
+    if (tokens.length > 1) {
+        return tokens.every((t) => allow.has(stripPossessive(t)));
+    }
+    return false;
 }
 
 // ── Singleton ────────────────────────────────────────────────────────────
