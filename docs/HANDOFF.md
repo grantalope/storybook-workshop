@@ -57,6 +57,7 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 |---|---|---|---:|---:|---|---|---:|---|
 | 2026-06-11 | feat/wfc-scene-grammar | T1 | 28 passed / 6 files | 1125 passed, 4 skipped / 98 files | `pnpm check`: unable to open database file; direct `svelte-check`: 102 existing errors / 20 warnings | `pnpm lint`: unable to open database file; direct `eslint`: binary absent | 0 matches in `src/lib/services/scenegrammar` | no |
 | 2026-06-11 | feat/scene-render-service | scene-service LANE-DONE | scenerender 22 passed / 3 files | 1188 passed, 4 skipped / 107 files | `pnpm check`: 102 existing errors / 20 warnings (no new vs baseline 102) | `pnpm lint`: `eslint` binary absent | 0 matches in `src/lib/services/scenerender` | no |
+| 2026-06-11 | feat/scene-render-service | scene-service LANE-DONE | scenerender+imagegen 62 passed / 6 files | 1188 passed, 4 skipped / 107 files | `pnpm check`: 102 existing errors / 20 warnings (no new vs baseline 102) | `pnpm lint`: `eslint` binary absent | 0 matches in `src/lib/services/scenerender` | no |
 | date | lane | branch | check errors | tests | lint | banned-name grep | commit | push |
 |---|---|---|---:|---|---|---|---|---|
 | 2026-06-11 | T4 art-history-styles | feat/art-history-styles | 102 → 102 | 1114 passed / 4 skipped | pnpm launcher: unable to open database file; local eslint binary missing | CLEAN | blocked: git metadata read-only | not pushed |
