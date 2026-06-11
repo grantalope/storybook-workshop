@@ -9,6 +9,8 @@
 // assemble/ folder must treat these fields as `book_fulfillment`-purpose data
 // (kernel purpose.check allowlist) and never persist them past assembly.
 
+import type { EduOverlayBundle } from '$lib/services/readaloud/types';
+
 /** Format SKUs the v1 product ships. Lulu Direct catalogue. */
 export type BookFormat = 'hardcover-8x8' | 'softcover-8x8' | 'saddlestitch-8x8';
 
@@ -177,4 +179,5 @@ export interface ReadAlongBundle {
 	}>;
 	voiceOver?: Blob;
 	dedicationAudio?: Blob;
+	edu?: EduOverlayBundle;
 }

@@ -32,6 +32,9 @@ import { validatePdf } from './LuluPdfSpecValidator';
 import { buildEpub } from './EpubBuilder';
 import { buildReadAlongBundle } from './ReadAlongBundleBuilder';
 import { getStylePack, StylePackError, type StylePack } from '$lib/services/stylepacks';
+import { extendReadAlongBundle } from '$lib/services/readaloud/ReadAloudBundleExtender';
+import type { SceneTree } from '$lib/services/author/types';
+import type { WordTiming } from '$lib/services/readaloud/types';
 
 export interface AssembleOptions {
 	/** Optional spread-text source: spreadIndex → text containing {HERO_NAME}. */
@@ -47,6 +50,8 @@ export interface AssembleOptions {
 	rng?: () => number;
 	/** Optional registrar called with the ReadAlongBundle once minted. */
 	registerBundle?: (bundle: ReadAlongBundle) => Promise<string | undefined>;
+	/** Optional educational overlays for the public read-aloud bundle. */
+	eduOverlays?: { sceneTree: SceneTree; wordTimings?: Record<number, WordTiming[]> };
 	/** Optional art-history backmatter page. Defaults to true for non-legacy style packs. */
 	includeStyleCard?: boolean;
 	/** Optional override for the selected style pack id. */
@@ -231,9 +236,12 @@ export async function assemble(
 		isShortcodeFree: options.isShortcodeFree,
 		rng: options.rng
 	});
+	const readAlongBundle = options.eduOverlays
+		? extendReadAlongBundle(readAlong.bundle, options.eduOverlays)
+		: readAlong.bundle;
 	const readAlongBundleUrl = options.registerBundle
-		? await options.registerBundle(readAlong.bundle)
-		: `/storybook-workshop/preview/${readAlong.bundle.shortcode}`;
+		? await options.registerBundle(readAlongBundle)
+		: `/storybook-workshop/preview/${readAlongBundle.shortcode}`;
 
 	// ── (g) sha-256 PDF hash ───────────────────────────────────────────────
 	const pdfHash = await sha256Hex(pdf.pdfBlob);
@@ -246,7 +254,7 @@ export async function assemble(
 		fontEmbedSummary: pdf.fontEmbedSummary,
 		bleedValidated: pdf.bleedMarkCount >= 8,
 		cmykValidated: pdf.cmykMarkerPresent,
-		shortcode: readAlong.bundle.shortcode,
+		shortcode: readAlongBundle.shortcode,
 		spineWidthIn: computeSpineWidthIn(assemblyBundle.pages, assemblyBundle.format)
 	};
 
@@ -254,7 +262,7 @@ export async function assemble(
 		pdfBlob: pdf.pdfBlob,
 		epubBlob: epub.epubBlob,
 		readAlongBundleUrl,
-		shortcode: readAlong.bundle.shortcode,
+		shortcode: readAlongBundle.shortcode,
 		audit
 	};
 }

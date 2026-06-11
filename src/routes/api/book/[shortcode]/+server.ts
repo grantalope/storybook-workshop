@@ -14,6 +14,8 @@
 
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
+import type { DialogicPrompt } from '$lib/services/author/types';
+import type { EduOverlayBundle, PhonicsMap, QuizQuestion, Tier2Annotation, WordTiming } from '$lib/services/readaloud/types';
 
 /** Pluggable store — replaced at runtime by the fulfillment backend. */
 export interface BundleStore {
@@ -27,9 +29,13 @@ export interface PublicBundleSnapshot {
 	spreads: Array<{ index: number; text: string; framePngBase64: string; effect: string }>;
 	hasVoiceOver: boolean;
 	hasDedicationAudio: boolean;
+	edu?: EduOverlayBundle;
 }
 
+type PublicEduOverlayBundle = Omit<EduOverlayBundle, 'quiz'> & { quiz?: QuizQuestion[] };
+
 const EMAIL_GATE_THRESHOLD = 4; // visible up to + including spread index 4
+const WORD_RE = /[\p{L}\p{N}]+(?:['-][\p{L}\p{N}]+)*/gu;
 
 let _store: BundleStore = {
 	async get() {
@@ -83,9 +89,11 @@ export const GET: RequestHandler = async ({ params, request }) => {
 	}
 	const gated = readSessionCookie(request.headers.get('cookie'), shortcode);
 	if (!gated) {
+		const visibleSpreads = snap.spreads.filter(s => s.index <= EMAIL_GATE_THRESHOLD);
 		const truncated = {
 			...snap,
-			spreads: snap.spreads.filter(s => s.index <= EMAIL_GATE_THRESHOLD),
+			spreads: visibleSpreads,
+			edu: snap.edu ? truncateEdu(snap.edu, visibleSpreads) : undefined,
 			emailGateRequired: true,
 			emailGateAfter: EMAIL_GATE_THRESHOLD
 		};
@@ -122,3 +130,52 @@ export const POST: RequestHandler = async ({ params, request }) => {
 		}
 	);
 };
+
+function truncateEdu(
+	edu: EduOverlayBundle,
+	spreads: PublicBundleSnapshot['spreads']
+): PublicEduOverlayBundle {
+	const visibleSpreadIndexes = new Set(spreads.map((spread) => spread.index));
+	const visibleWords = wordsFromSpreads(spreads);
+	const truncated: PublicEduOverlayBundle = {
+		phonicsMap: filterPhonicsMap(edu.phonicsMap, visibleWords),
+		tier2Annotations: filterBySpread(edu.tier2Annotations, visibleSpreadIndexes),
+		dialogicPrompts: filterBySpread(edu.dialogicPrompts, visibleSpreadIndexes)
+	};
+	if (edu.wordTimings) {
+		truncated.wordTimings = filterWordTimings(edu.wordTimings, visibleSpreadIndexes);
+	}
+	return truncated;
+}
+
+function wordsFromSpreads(spreads: PublicBundleSnapshot['spreads']): Set<string> {
+	const words = new Set<string>();
+	for (const spread of spreads) {
+		for (const match of spread.text.matchAll(WORD_RE)) {
+			words.add(match[0].toLocaleLowerCase('en-US'));
+		}
+	}
+	return words;
+}
+
+function filterPhonicsMap(phonicsMap: PhonicsMap, visibleWords: Set<string>): PhonicsMap {
+	return Object.fromEntries(
+		Object.entries(phonicsMap).filter(([word]) => visibleWords.has(word.toLocaleLowerCase('en-US')))
+	);
+}
+
+function filterBySpread<T extends Tier2Annotation | DialogicPrompt>(
+	items: T[],
+	visibleSpreadIndexes: Set<number>
+): T[] {
+	return items.filter((item) => visibleSpreadIndexes.has(item.spreadIndex));
+}
+
+function filterWordTimings(
+	wordTimings: Record<number, WordTiming[]>,
+	visibleSpreadIndexes: Set<number>
+): Record<number, WordTiming[]> {
+	return Object.fromEntries(
+		Object.entries(wordTimings).filter(([spreadIndex]) => visibleSpreadIndexes.has(Number(spreadIndex)))
+	);
+}
