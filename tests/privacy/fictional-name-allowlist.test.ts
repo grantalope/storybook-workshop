@@ -1,20 +1,23 @@
 // tests/privacy/fictional-name-allowlist.test.ts
 //
 // fix/privacy-fictional-names — story-internal fictional cast names must
-// survive the PII gate when (and ONLY when) they were explicitly chosen via
-// structured StoryInput cast fields and passed to scrub() as `allowNames`.
+// survive the scene-render PII gate when (and ONLY when) they come from
+// trusted fictionalCastNames / explicitly-fictional cast entries and are
+// passed to scrub() as `allowNames`.
 //
 // Covers:
 //   - allowlisted name passes through scrub un-redacted
 //   - non-allowlisted names are still redacted (hardFail intact)
 //   - missing / empty allowNames == today's behavior (safe default)
 //   - allowlist applies to the `name` category ONLY (email etc. unaffected)
-//   - multi-word spans require every token (or the full span) allowlisted
+//   - multi-word spans require the exact full span allowlisted
 //   - possessive forms ("Pip's") are stripped before comparison
 //   - matching is case-sensitive (exact literal forms only)
-//   - castAllowNames() consumes ONLY explicit cast fields, never free text
+//   - castAllowNames() consumes ONLY trusted fictional fields, never free text
 //   - StoryAuthorService.scrubSceneBriefsAsync end-to-end (sceneBrief +
 //     illustration_brief keep cast names; kidName still becomes "the hero")
+//   - StoryAuthorService.author uses the awaitable scene-brief privacy gate
+//   - buildStoryInput derives sidekick allow names from the catalog id
 //   - allowlist does not leak into other scrub call sites (per-call opt-in;
 //     gift dedications / publishToUniversal chokepoint unchanged)
 
