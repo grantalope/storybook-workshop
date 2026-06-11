@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
+	import { listStylePacks } from '$lib/services/stylepacks';
 	import type { WorkshopOrchestrator } from '$lib/workshop/services/WorkshopOrchestrator';
 	import { currentOrchestrator } from '$lib/workshop/stores';
-	import { ART_STYLES, type ArtStyle } from '$lib/workshop/types';
+	import type { ArtStyle, StyleSelectionId } from '$lib/workshop/types';
 
 	export let orchestrator: WorkshopOrchestrator;
 	const dispatch = createEventDispatcher<{ advance: void }>();
 
-	// Per hd2d-renderer-pivot: 3 styles only (down from 12 in original spec).
+	const STYLE_PACKS = listStylePacks();
 	const STYLE_PREVIEW: Record<ArtStyle, { label: string; blurb: string; gradient: string }> = {
 		'octopath-hd2d': {
 			label: 'Octopath HD-2D',
@@ -26,10 +27,14 @@
 		},
 	};
 
-	let artStyle: ArtStyle = orchestrator.draft.outputs.s5?.artStyle ?? 'octopath-hd2d';
+	let artStyle: StyleSelectionId = orchestrator.draft.outputs.s5?.artStyle ?? 'octopath-hd2d';
 	let authorByline = orchestrator.draft.outputs.s5?.authorByline ?? '';
 	let easierReadingMode = orchestrator.draft.outputs.s5?.easierReadingMode ?? false;
 	let dialogicPromptsEnabled = orchestrator.draft.outputs.s5?.dialogicPromptsEnabled ?? true;
+
+	function legacyPreview(id: string) {
+		return STYLE_PREVIEW[id as ArtStyle];
+	}
 
 	async function next() {
 		await orchestrator.saveOutput('s5', {
@@ -48,16 +53,25 @@
 
 	<h3>Art style</h3>
 	<div class="grid">
-		{#each ART_STYLES as s (s)}
+		{#each STYLE_PACKS as pack (pack.id)}
 			<button
 				class="style"
-				class:selected={artStyle === s}
-				on:click={() => (artStyle = s)}
-				style:--g={STYLE_PREVIEW[s].gradient}
+				class:selected={artStyle === pack.id}
+				on:click={() => (artStyle = pack.id)}
+				style:--g={legacyPreview(pack.id)?.gradient}
+				title={pack.educationalCard?.kidExplainer ?? legacyPreview(pack.id)?.blurb}
 			>
-				<div class="preview" />
-				<strong>{STYLE_PREVIEW[s].label}</strong>
-				<small>{STYLE_PREVIEW[s].blurb}</small>
+				{#if pack.promptRecipe}
+					<div class="palette" aria-hidden="true">
+						{#each pack.promptRecipe.palette as color}
+							<span class="swatch" style:background={color}></span>
+						{/each}
+					</div>
+				{:else}
+					<div class="preview" />
+				{/if}
+				<strong>{pack.displayName}</strong>
+				<small>{pack.educationalCard?.kidExplainer ?? legacyPreview(pack.id)?.blurb}</small>
 			</button>
 		{/each}
 	</div>
@@ -90,7 +104,7 @@
 		padding: 0.5rem;
 		background: #fff;
 		border: 2px solid #ddd;
-		border-radius: 10px;
+		border-radius: 8px;
 		cursor: pointer;
 		display: flex;
 		flex-direction: column;
@@ -107,6 +121,18 @@
 		aspect-ratio: 16 / 9;
 		border-radius: 6px;
 		background: var(--g);
+	}
+	.palette {
+		width: 100%;
+		aspect-ratio: 16 / 9;
+		border-radius: 6px;
+		display: grid;
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+		overflow: hidden;
+		border: 1px solid #e5e5e5;
+	}
+	.swatch {
+		min-width: 0;
 	}
 	.check {
 		display: flex;

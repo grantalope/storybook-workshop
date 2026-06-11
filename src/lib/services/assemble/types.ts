@@ -110,6 +110,8 @@ export interface BookAssetBundle {
 	endpaper?: EndpaperPattern;
 	/** Optional author byline ("By Eli, age 5"). */
 	authorByline?: string;
+	/** Optional style pack selected at Station 5; public-safe registry id. */
+	stylePackId?: string;
 	/** Optional ordered scene IDs — sets canonical spread order. If absent, Map insertion order. */
 	sceneOrder?: string[];
 }
@@ -165,6 +167,7 @@ export interface ReadAlongBundle {
 		spreadCount: number;
 		hasVoiceOver: boolean;
 		hasDedicationAudio: boolean;
+		stylePackId?: string;
 	};
 	spreads: Array<{
 		index: number;

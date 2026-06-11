@@ -21,7 +21,7 @@
  * /OutputIntent dictionary so the print RIP sees a CMYK-targeted PDF.
  */
 
-import { PDFDocument, PDFName, PDFString, StandardFonts, rgb } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFString, StandardFonts, rgb, type PDFFont } from 'pdf-lib';
 import type { BookAssetBundle, BookFormat } from './types';
 import { FORMAT_DIMENSIONS } from './types';
 
@@ -36,6 +36,17 @@ export interface PdfBuildInput {
 	titlePagePng?: Blob;
 	dedicationPagePng?: Blob;
 	spineWidthIn: number;
+	styleCard?: PdfStyleCardContent;
+	blankPageCount?: number;
+}
+
+export interface PdfStyleCardContent {
+	displayName: string;
+	kidExplainer: string;
+	funFact: string;
+	lookFor: string;
+	tryItYourself: string;
+	respectNote?: string;
 }
 
 export interface PdfBuildOutput {
@@ -135,6 +146,102 @@ async function addPngPage(
 	return { bleedMarks: m };
 }
 
+function addBlankPage(doc: PDFDocument, format: BookFormat): { bleedMarks: number } {
+	const dims = FORMAT_DIMENSIONS[format];
+	const w = inToPt(dims.trimWidthIn + 2 * dims.bleedIn);
+	const h = inToPt(dims.trimHeightIn + 2 * dims.bleedIn);
+	const page = doc.addPage([w, h]);
+	const m = drawBleedMarks(page, dims.trimWidthIn, dims.trimHeightIn, dims.bleedIn);
+	return { bleedMarks: m };
+}
+
+function wrapText(text: string, font: PDFFont, size: number, maxWidth: number): string[] {
+	const words = text.split(/\s+/).filter(Boolean);
+	const lines: string[] = [];
+	let line = '';
+	for (const word of words) {
+		const next = line ? `${line} ${word}` : word;
+		if (font.widthOfTextAtSize(next, size) > maxWidth && line) {
+			lines.push(line);
+			line = word;
+		} else {
+			line = next;
+		}
+	}
+	if (line) lines.push(line);
+	return lines;
+}
+
+function drawWrappedText(
+	page: any,
+	text: string,
+	opts: { x: number; y: number; maxWidth: number; size: number; lineHeight: number; font: PDFFont },
+): number {
+	let y = opts.y;
+	for (const line of wrapText(text, opts.font, opts.size, opts.maxWidth)) {
+		page.drawText(line, {
+			x: opts.x,
+			y,
+			size: opts.size,
+			font: opts.font,
+			color: rgb(0.15, 0.13, 0.1),
+		});
+		y -= opts.lineHeight;
+	}
+	return y;
+}
+
+function addStyleCardPage(
+	doc: PDFDocument,
+	card: PdfStyleCardContent,
+	format: BookFormat,
+	font: PDFFont,
+): { bleedMarks: number } {
+	const dims = FORMAT_DIMENSIONS[format];
+	const w = inToPt(dims.trimWidthIn + 2 * dims.bleedIn);
+	const h = inToPt(dims.trimHeightIn + 2 * dims.bleedIn);
+	const page = doc.addPage([w, h]);
+	const x = inToPt(dims.bleedIn + 0.55);
+	const maxWidth = inToPt(dims.trimWidthIn - 1.1);
+	let y = h - inToPt(dims.bleedIn + 0.8);
+
+	page.drawText('About this art style', {
+		x,
+		y,
+		size: 18,
+		font,
+		color: rgb(0.12, 0.1, 0.08),
+	});
+	y -= 30;
+	page.drawText(card.displayName, {
+		x,
+		y,
+		size: 15,
+		font,
+		color: rgb(0.3, 0.23, 0.16),
+	});
+	y -= 34;
+
+	y = drawWrappedText(page, card.kidExplainer, { x, y, maxWidth, size: 12, lineHeight: 16, font }) - 18;
+	for (const [label, value] of [
+		['Fun fact', card.funFact],
+		['Look for', card.lookFor],
+		['Try it yourself', card.tryItYourself],
+	] as const) {
+		page.drawText(label, { x, y, size: 11, font, color: rgb(0.08, 0.2, 0.25) });
+		y -= 15;
+		y = drawWrappedText(page, value, { x, y, maxWidth, size: 10, lineHeight: 14, font }) - 12;
+	}
+	if (card.respectNote) {
+		page.drawText('Respect note', { x, y, size: 11, font, color: rgb(0.08, 0.2, 0.25) });
+		y -= 15;
+		drawWrappedText(page, card.respectNote, { x, y, maxWidth, size: 9, lineHeight: 13, font });
+	}
+
+	const m = drawBleedMarks(page, dims.trimWidthIn, dims.trimHeightIn, dims.bleedIn);
+	return { bleedMarks: m };
+}
+
 export async function buildPdf(input: PdfBuildInput): Promise<PdfBuildOutput> {
 	const doc = await PDFDocument.create();
 
@@ -165,6 +272,11 @@ export async function buildPdf(input: PdfBuildInput): Promise<PdfBuildOutput> {
 		{ label: 'title', png: input.titlePagePng },
 		{ label: 'dedication', png: input.dedicationPagePng },
 		...input.composedSpreadPngs.map((png, i) => ({ label: `spread-${i}`, png })),
+		...(input.styleCard ? [{ label: 'style-card', png: undefined }] : []),
+		...Array.from({ length: input.blankPageCount ?? 0 }, (_, i) => ({
+			label: `blank-${i}`,
+			png: undefined,
+		})),
 		{ label: 'back-blurb', png: undefined },
 		{ label: 'endpaper-back', png: input.endpaperPng },
 		{ label: 'cover-back', png: input.coverBackPng }
@@ -189,6 +301,12 @@ export async function buildPdf(input: PdfBuildInput): Promise<PdfBuildOutput> {
 				lineHeight: 18
 			});
 			bleedMarkCount += drawBleedMarks(page, dims.trimWidthIn, dims.trimHeightIn, dims.bleedIn);
+		} else if (item.label === 'style-card' && input.styleCard) {
+			const r = addStyleCardPage(doc, input.styleCard, fmt, helv);
+			bleedMarkCount += r.bleedMarks;
+		} else if (item.label.startsWith('blank-')) {
+			const r = addBlankPage(doc, fmt);
+			bleedMarkCount += r.bleedMarks;
 		}
 	}
 
