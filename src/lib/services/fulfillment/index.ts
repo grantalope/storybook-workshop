@@ -23,6 +23,22 @@ export {
 } from './OrderLifecycleService';
 export type { LifecycleHandlers } from './OrderLifecycleService';
 export {
+	SqliteOrderStore,
+	SqliteQualityClaimStore,
+	createSqliteStores,
+	sqliteAvailable,
+} from './SqliteOrderStore';
+export type { SqliteStoreOptions, SqliteStores } from './SqliteOrderStore';
+export {
+	createDefaultFulfillmentStores,
+	detectStoreRuntime,
+} from './storeFactory';
+export type {
+	DefaultFulfillmentStoreOptions,
+	DefaultFulfillmentStores,
+	StoreRuntime,
+} from './storeFactory';
+export {
 	ShippingQuoteService,
 	ShippingAddressError,
 	validateShippingAddress,

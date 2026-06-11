@@ -12,7 +12,7 @@ import { json, type RequestHandler } from '@sveltejs/kit';
 import {
 	OrderLifecycleService,
 	StripeCheckoutService,
-	InMemoryOrderStore,
+	createDefaultFulfillmentStores,
 	validateShippingAddress,
 	ShippingAddressError,
 	FORMAT_SPECS,
@@ -21,6 +21,8 @@ import {
 	type ShippingOption,
 	type StripeHttpClient,
 	type Order,
+	type OrderStore,
+	type QualityClaimStore,
 	type FulfillmentEnv,
 } from '$lib/services/fulfillment';
 import { priceForBook, verifyClientPriceClaim } from '$lib/services/fulfillment/pricing';
@@ -38,7 +40,8 @@ import type { BookFormat } from '$lib/services/assemble/types';
 interface OrderApiDeps {
 	lifecycle: OrderLifecycleService;
 	stripe: StripeCheckoutService;
-	store: InMemoryOrderStore;
+	store: OrderStore;
+	qualityClaimStore?: QualityClaimStore;
 	idGen: () => string;
 	nowSource: () => number;
 }
@@ -63,9 +66,10 @@ export function __setOrderApiDeps(deps: OrderApiDeps): void {
 
 export function __getOrderApiDeps(): OrderApiDeps {
 	if (_deps) return _deps;
-	// Default test-mode wiring: in-memory store + mock Stripe. Production
-	// swap-in will replace this via __setOrderApiDeps from a server hook.
-	const store = new InMemoryOrderStore();
+	// Default wiring: vitest/browser stay in-memory; Node production tries
+	// SQLite through the factory and falls back loudly if unavailable.
+	const stores = createDefaultFulfillmentStores();
+	const store = stores.orderStore;
 	const stripeHttp: StripeHttpClient = createMockStripeHttp();
 	const lifecycle = new OrderLifecycleService({ store });
 	const stripe = new StripeCheckoutService({
@@ -76,6 +80,7 @@ export function __getOrderApiDeps(): OrderApiDeps {
 		lifecycle,
 		stripe,
 		store,
+		qualityClaimStore: stores.qualityClaimStore,
 		idGen: _secureOrderIdGen,
 		nowSource: () => Date.now(),
 	};
