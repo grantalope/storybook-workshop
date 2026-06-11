@@ -59,6 +59,7 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | date | lane | branch | check errors | tests | lint | banned-name grep | commit | push |
 |---|---|---|---:|---|---|---|---|---|
 | 2026-06-11 | T4 art-history-styles | feat/art-history-styles | 102 → 102 | 1114 passed / 4 skipped | pnpm launcher: unable to open database file; local eslint binary missing | CLEAN | blocked: git metadata read-only | not pushed |
+| 2026-06-11 | T2 story-wfc-grammar | feat/story-wfc-grammar | 102 → 102 | 1165 passed / 4 skipped | `pnpm lint`: eslint not found | CLEAN (`Math.random`/`Date.now`/`rescuer`) | 8b78556/f51adb2/e699b05 | not pushed; LANE-DONE |
 
 ## Architect log 2026-06-11 (Fable)
 
