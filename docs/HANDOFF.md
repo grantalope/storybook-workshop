@@ -52,3 +52,7 @@ green in WSL clone; restart-persistence test proves orders survive store reopen;
 default untouched for vitest/browser; `better-sqlite3` optionalDependency; no consumer churn.
 
 ## Session log (builder appends below — RAW results only)
+
+| date | lane | branch | check errors | tests | lint | banned-name grep | commit | push |
+|---|---|---|---:|---|---|---|---|---|
+| 2026-06-11 | T4 art-history-styles | feat/art-history-styles | 102 → 102 | 1114 passed / 4 skipped | pnpm launcher: unable to open database file; local eslint binary missing | CLEAN | blocked: git metadata read-only | not pushed |

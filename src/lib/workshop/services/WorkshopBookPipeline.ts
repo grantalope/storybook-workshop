@@ -118,7 +118,8 @@ export async function runWorkshopPipeline(
 	}
 
 	emit({ stage: 'render', message: 'Rendering scenes…' });
-	const { wbPngsByScene } = await mockRenderAllScenes(tree, outputs.s5!.artStyle);
+	const stylePackId = outputs.s5!.artStyle;
+	const { wbPngsByScene } = await mockRenderAllScenes(tree, stylePackId);
 
 	emit({ stage: 'assemble', message: 'Binding the book…' });
 	const spreadCount = Array.from(wbPngsByScene.values()).reduce((n, arr) => n + arr.length, 0);
@@ -138,10 +139,11 @@ export async function runWorkshopPipeline(
 		format: pickFormat(input.targetSpreads),
 		pages: Math.max(spreadCount * 2, 4),
 		authorByline: outputs.s5!.authorByline,
+		stylePackId,
 	};
-	const book = await assemble(bundle, { skipValidation: true });
+	const book = await assemble(bundle, { skipValidation: true, stylePackId });
 	const pdfHash = await blobHash(book.pdfBlob);
 
 	emit({ stage: 'done', message: 'Done!' });
-	return { tree, book, pdfHash, pageCount: bundle.pages, grammarGate };
+	return { tree, book, pdfHash, pageCount: book.audit.pageCount, grammarGate };
 }
