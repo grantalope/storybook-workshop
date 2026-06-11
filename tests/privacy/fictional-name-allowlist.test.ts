@@ -32,6 +32,8 @@ import type { SceneTree, StoryInput } from '$lib/services/author/types';
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
+const SCENE_RENDER_PURPOSE = 'scene_render' as any;
+
 /** Fresh service pinned to the deterministic regex stub backend. */
 function freshStubService(): PrivacyFilterService {
   const svc = new PrivacyFilterService();
@@ -95,7 +97,7 @@ describe('PrivacyFilterService.scrub — allowNames', () => {
     const svc = freshStubService();
     const report = await svc.scrub(
       'The fox Pip packed a red drum for the journey.',
-      { allowNames: ['Pip'] },
+      { purpose: SCENE_RENDER_PURPOSE, allowNames: ['Pip'] },
     );
     expect(report.redactedText).toContain('Pip');
     expect(report.redactedText).not.toContain('[REDACTED:name]');
@@ -107,7 +109,7 @@ describe('PrivacyFilterService.scrub — allowNames', () => {
     const svc = freshStubService();
     const report = await svc.scrub(
       'The fox Pip waved at Sarah near the den.',
-      { allowNames: ['Pip'] },
+      { purpose: SCENE_RENDER_PURPOSE, allowNames: ['Pip'] },
     );
     expect(report.redactedText).toContain('Pip');
     expect(report.redactedText).not.toContain('Sarah');
@@ -137,7 +139,7 @@ describe('PrivacyFilterService.scrub — allowNames', () => {
     const svc = freshStubService();
     const report = await svc.scrub(
       'Write to pip@forest.example about Pip.',
-      { allowNames: ['Pip', 'pip@forest.example'] },
+      { purpose: SCENE_RENDER_PURPOSE, allowNames: ['Pip', 'pip@forest.example'] },
     );
     expect(report.redactedText).toContain('[REDACTED:email]');
     expect(report.redactedText).not.toContain('pip@forest.example');
@@ -145,19 +147,21 @@ describe('PrivacyFilterService.scrub — allowNames', () => {
     expect(report.hardFail).toBe(true); // email is HARD regardless of allowNames
   });
 
-  it('multi-word span passes when EVERY token is allowlisted', async () => {
+  it('separate allowlisted tokens do not compose into a multi-word name', async () => {
     const svc = freshStubService();
     const report = await svc.scrub('She met Pip Wiggins at the pond.', {
+      purpose: SCENE_RENDER_PURPOSE,
       allowNames: ['Pip', 'Wiggins'],
     });
-    expect(report.redactedText).toContain('Pip Wiggins');
-    expect(report.redactedText).not.toContain('[REDACTED:name]');
-    expect(report.hardFail).toBe(false);
+    expect(report.redactedText).not.toContain('Pip Wiggins');
+    expect(report.redactedText).toContain('[REDACTED:name]');
+    expect(report.hardFail).toBe(true);
   });
 
   it('multi-word span is still redacted when only one token is allowlisted', async () => {
     const svc = freshStubService();
     const report = await svc.scrub('She met Pip Wiggins at the pond.', {
+      purpose: SCENE_RENDER_PURPOSE,
       allowNames: ['Pip'],
     });
     expect(report.redactedText).not.toContain('Wiggins');
@@ -168,6 +172,7 @@ describe('PrivacyFilterService.scrub — allowNames', () => {
   it('full-span allowlist entry matches a multi-word detection', async () => {
     const svc = freshStubService();
     const report = await svc.scrub('She met Pip Wiggins at the pond.', {
+      purpose: SCENE_RENDER_PURPOSE,
       allowNames: ['Pip Wiggins'],
     });
     expect(report.redactedText).toContain('Pip Wiggins');
@@ -190,6 +195,7 @@ describe('PrivacyFilterService.scrub — allowNames', () => {
     });
     const report = await svc.scrub("Hold the drum, Pip's friend said.", {
       forceBackend: 'wasm',
+      purpose: SCENE_RENDER_PURPOSE,
       allowNames: ['Pip'],
     });
     expect(report.redactedText).toContain("Pip's");
@@ -199,6 +205,7 @@ describe('PrivacyFilterService.scrub — allowNames', () => {
   it('matching is case-sensitive — lowercase allowlist entry does not free-pass', async () => {
     const svc = freshStubService();
     const report = await svc.scrub('The fox Pip packed a red drum.', {
+      purpose: SCENE_RENDER_PURPOSE,
       allowNames: ['pip'],
     });
     expect(report.redactedText).not.toContain('Pip');
@@ -208,6 +215,7 @@ describe('PrivacyFilterService.scrub — allowNames', () => {
   it('allowNames is per-call — it does not stick to the service instance', async () => {
     const svc = freshStubService();
     const first = await svc.scrub('The fox Pip packed a red drum.', {
+      purpose: SCENE_RENDER_PURPOSE,
       allowNames: ['Pip'],
     });
     expect(first.hardFail).toBe(false);
@@ -215,6 +223,27 @@ describe('PrivacyFilterService.scrub — allowNames', () => {
     const dedication = await svc.scrub('For my dearest Pip, love always.');
     expect(dedication.redactedText).not.toContain('Pip');
     expect(dedication.hardFail).toBe(true);
+  });
+
+  it('allowNames is ignored without the scene_render purpose', async () => {
+    const svc = freshStubService();
+    const report = await svc.scrub('The fox Pip packed a red drum.', {
+      allowNames: ['Pip'],
+    });
+    expect(report.redactedText).not.toContain('Pip');
+    expect(report.redactedText).toContain('[REDACTED:name]');
+    expect(report.hardFail).toBe(true);
+  });
+
+  it('allowNames is ignored for non-scene privacy purposes', async () => {
+    const svc = freshStubService();
+    const report = await svc.scrub('The fox Pip packed a red drum.', {
+      purpose: 'agent_prompt',
+      allowNames: ['Pip'],
+    });
+    expect(report.redactedText).not.toContain('Pip');
+    expect(report.redactedText).toContain('[REDACTED:name]');
+    expect(report.hardFail).toBe(true);
   });
 });
 

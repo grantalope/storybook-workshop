@@ -82,14 +82,12 @@ export interface ScrubOptions {
     /**
      * Names explicitly allowed to pass the `name` detector un-redacted.
      *
-     * Intended ONLY for story-internal fictional cast names the user
-     * explicitly chose via structured fields (e.g. the hero / sidekick /
-     * supporting-cast names a parent typed for a storybook). Matching is
-     * exact (trimmed, case-sensitive, trailing possessive `'s` stripped)
-     * and applies to the `name` category ONLY — email, phone, address,
-     * account_number, secret, coords, url, date detections are never
-     * affected. Callers MUST populate this from explicit structured fields,
-     * never from free text.
+     * Intended ONLY for scene-render scrubs carrying story-internal fictional
+     * catalog names. Matching is exact (trimmed, case-sensitive, trailing
+     * possessive `'s` stripped) and applies to the `name` category ONLY —
+     * email, phone, address, account_number, secret, coords, url, date
+     * detections are never affected. Non-scene-render purposes ignore this
+     * option even if supplied.
      */
     allowNames?: string[];
 }

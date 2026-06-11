@@ -270,10 +270,12 @@ export class PrivacyFilterService {
         // Fictional-cast allowlist (fix/privacy-fictional-names, 2026-06):
         // `name` detections whose matched text is an explicitly allowlisted
         // story-internal name (opts.allowNames) are dropped BEFORE redaction /
-        // hardFail so chosen cast names (hero / sidekick / supporting cast)
-        // survive the gate. Applies to the `name` category ONLY; every other
-        // category ignores `allowNames` entirely.
-        const allowNameSet = buildAllowNameSet(opts?.allowNames);
+        // hardFail so catalog fictional cast names survive the gate. This is
+        // intentionally scoped to scene-render scrubs only. Other privacy
+        // call sites ignore allowNames even if a caller supplies it.
+        const allowNameSet = isSceneRenderPurpose(opts?.purpose)
+            ? buildAllowNameSet(opts?.allowNames)
+            : null;
         const considered = detections.filter((d) => {
             if (!hardSet.has(d.category) && !softSet.has(d.category)) return false;
             if (allowNameSet && d.category === 'name' && isAllowedName(d.text, allowNameSet)) {
@@ -670,21 +672,19 @@ function stripPossessive(token: string): string {
 }
 
 /**
- * A `name` detection is allowlisted when the full matched span (trimmed,
- * possessive-stripped) equals an allowlisted name, OR when the span is
- * multi-word and EVERY word is individually allowlisted ("Pip Wiggins"
- * passes only when both "Pip" and "Wiggins" were explicitly allowed).
- * Comparison is case-sensitive — conservative by design: only the exact
- * literal forms the user typed pass through.
+ * A `name` detection is allowlisted only when the full matched span
+ * (trimmed, possessive-stripped) equals an allowlisted name. Comparison is
+ * case-sensitive — conservative by design: only exact literal fictional
+ * catalog names pass through. Separate allowed tokens do not compose into a
+ * new multi-word name.
  */
 function isAllowedName(detectedText: string, allow: Set<string>): boolean {
     const span = stripPossessive(detectedText.trim());
-    if (allow.has(span)) return true;
-    const tokens = span.split(/\s+/).filter((t) => t.length > 0);
-    if (tokens.length > 1) {
-        return tokens.every((t) => allow.has(stripPossessive(t)));
-    }
-    return false;
+    return allow.has(span);
+}
+
+function isSceneRenderPurpose(purpose: unknown): boolean {
+    return purpose === 'scene_render';
 }
 
 // ── Singleton ────────────────────────────────────────────────────────────
