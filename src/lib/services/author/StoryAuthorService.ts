@@ -32,11 +32,22 @@ import {
   dialogicPromptGenerator,
 } from './DialogicPromptGenerator';
 import { buildSystemPrompt } from './prompts/system-prompt-template';
+import { appendSkeletonSection } from './prompts/skeleton-section';
 import { buildUserMessage } from './prompts/user-message-template';
 import { synthesizeTemplateTree } from './templateFallback';
 import { DEFAULT_QUALITY_THRESHOLD, scoreSceneTree } from './StoryQualityScorer';
 import {
+  collapseSkeleton,
+  renderBeatBriefs,
+  skeletonHash,
+  type BeatBrief,
+  type SceneTreeCacheStore,
+  type StorySkeleton,
+} from '$lib/services/storygrammar';
+import {
+  AGE_BAND_CAPS,
   BEAT_NAMES,
+  type Beat,
   type BeatBudgetMap,
   type BeatId,
   type DialogicPrompt,
@@ -90,6 +101,32 @@ export interface StoryAuthorOptions {
   qualityThreshold?: number;
   /** Skip the post-gen quality gate entirely (score still recorded). */
   skipQualityGate?: boolean;
+  /** Enable narrative skeleton collapse for the monolithic prompt path. */
+  storyGrammar?: boolean;
+  /** Optional deterministic seed for the skeleton collapse layer. */
+  skeletonSeed?: number;
+  /** Optional cache for `authorPerBeat`; defaults to this service's in-memory store. */
+  sceneTreeCache?: SceneTreeCacheStore;
+}
+
+export function isStoryGrammarEnabled(opts: StoryAuthorOptions = {}): boolean {
+  if (opts.storyGrammar !== undefined) return opts.storyGrammar;
+  const maybeProcess = globalThis as typeof globalThis & {
+    process?: { env?: Record<string, string | undefined> };
+  };
+  return maybeProcess.process?.env?.STORY_GRAMMAR === '1';
+}
+
+class InMemorySceneTreeCacheStore implements SceneTreeCacheStore {
+  private readonly entries = new Map<string, SceneTree>();
+
+  async get(hash: string): Promise<SceneTree | null> {
+    return this.entries.get(hash) ?? null;
+  }
+
+  async put(hash: string, tree: SceneTree): Promise<void> {
+    this.entries.set(hash, tree);
+  }
 }
 
 /** Args bundle for one full run through the gated LLM attempt loop. */
@@ -103,6 +140,8 @@ interface LlmGateRunArgs {
   maxRetries: number;
   /** Seed correction for the first attempt (rubric feedback on the regen run). */
   initialCorrection?: string;
+  /** Optional collapsed skeleton briefs appended to every monolithic user prompt. */
+  skeletonBriefs?: BeatBrief[];
 }
 
 /** Outcome of one gated attempt loop. */
@@ -121,6 +160,8 @@ interface LlmGateOutcome {
 }
 
 export class StoryAuthorService {
+  private readonly defaultSceneTreeCache = new InMemorySceneTreeCacheStore();
+
   constructor(
     private readonly planner: Tier2VocabPlanner = tier2VocabPlanner,
     private readonly allocator: StoryBudgetAllocator = storyBudgetAllocator,
@@ -138,6 +179,13 @@ export class StoryAuthorService {
     // Phase 1: vocab + budget
     const vocab = this.planner.pickWords(input);
     const budget = this.allocator.allocate(input.targetSpreads);
+    const skeletonBriefs = isStoryGrammarEnabled(opts)
+      ? renderBeatBriefs(
+          collapseSkeleton(input, { seed: opts.skeletonSeed }),
+          input,
+          vocab.words,
+        )
+      : undefined;
 
     const meta: SceneTreeMeta = {
       generated_at_iso: new Date().toISOString(),
@@ -161,6 +209,7 @@ export class StoryAuthorService {
       safety,
       chat,
       maxRetries,
+      skeletonBriefs,
     };
     const firstRun = await this._runLlmGates(gateArgs);
     let passedTree = firstRun.tree;
@@ -254,7 +303,112 @@ export class StoryAuthorService {
     return passedTree;
   }
 
+  async authorPerBeat(input: StoryInput, opts: StoryAuthorOptions = {}): Promise<SceneTree> {
+    const safety = opts.safetyOverride ?? getKidsContentSafety();
+    const chat = opts.chatOverride ?? ((req: ChatRequest) => _inf.chat(req));
+    const cache = opts.sceneTreeCache ?? this.defaultSceneTreeCache;
+    const vocab = this.planner.pickWords(input);
+    const skeleton = collapseSkeleton(input, { seed: opts.skeletonSeed });
+    const hash = skeletonHash(skeleton);
+    const cached = await cache.get(hash);
+    if (cached) return cached;
+
+    const briefs = renderBeatBriefs(skeleton, input, vocab.words);
+    const beats: Beat[] = [];
+    let llmRetries = 0;
+    for (const brief of briefs) {
+      const generated = await this._requestBeat(input, brief, chat);
+      beats.push(generated.beat);
+      llmRetries += generated.retries;
+    }
+
+    const meta: SceneTreeMeta = {
+      generated_at_iso: new Date().toISOString(),
+      llm_retries: llmRetries,
+      grammar_retries: 0,
+      calibration_retries: 0,
+      budget_redistributed: false,
+      template_fallback: false,
+      per_beat: true,
+    };
+    const tree = assemblePerBeatTree(input, skeleton, beats, vocab.words, meta);
+    scrubKidNameFromTree(tree, input.kidName);
+
+    const unsafe = await this._scanSafety(tree, safety);
+    if (unsafe.length > 0) {
+      throw new Error(
+        `Per-beat story failed KidsContentSafety on spreads ${unsafe
+          .map((u) => u.spreadIndex)
+          .join(', ')}`,
+      );
+    }
+
+    this._scrubSceneBriefs(tree, input);
+    scrubKidNameFromTree(tree, input.kidName);
+
+    const grammarResult = this.grammar.validate(tree);
+    meta.grammarGate = {
+      passed: grammarResult.passed,
+      elementScores: grammarResult.elementScores,
+      avgScore: grammarResult.avgScore,
+      salvaged: false,
+    };
+    if (!grammarResult.passed) {
+      throw new Error(`Per-beat story failed grammar validation: ${grammarResult.missing.join(', ')}`);
+    }
+
+    const budgetResult = this.allocator.validate(tree.beats, input.targetSpreads);
+    if (!budgetResult.passed) {
+      throw new Error(`Per-beat story failed budget validation: ${budgetResult.issues.join('; ')}`);
+    }
+
+    if (input.dialogicPromptsEnabled) {
+      tree.dialogic_prompts = this.prompts.generate(tree, input);
+    } else {
+      tree.dialogic_prompts = undefined;
+    }
+
+    tree.meta = { ...meta };
+    await cache.put(hash, tree);
+    return tree;
+  }
+
   // ─── Private helpers ──────────────────────────────────────────────────────
+
+  private async _requestBeat(
+    input: StoryInput,
+    brief: BeatBrief,
+    chat: (req: ChatRequest) => Promise<ChatResponse>,
+  ): Promise<{ beat: Beat; retries: number }> {
+    let correction = '';
+    for (let attempt = 0; attempt <= 1; attempt++) {
+      const system = buildPerBeatSystemPrompt(input);
+      const user = buildPerBeatUserMessage(brief, correction);
+      enforcePerBeatPromptBudget(system, user, brief.beatId);
+      const resp = await chat({
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user', content: user },
+        ],
+        responseFormat: { type: 'json_object' },
+      } as ChatRequest);
+
+      try {
+        return {
+          beat: parseBeatJson(extractContent(resp), brief.beatId),
+          retries: attempt,
+        };
+      } catch (err) {
+        if (attempt === 1) {
+          throw new Error(
+            `Beat ${brief.beatId} failed to return parseable Beat JSON after retry: ${(err as Error).message}`,
+          );
+        }
+        correction = `Previous response was invalid JSON for beat ${brief.beatId}. Return only one Beat JSON object with the requested id, scenes, spreadCount, and spreads. Error: ${(err as Error).message}`;
+      }
+    }
+    throw new Error(`Beat ${brief.beatId} failed unexpectedly`);
+  }
 
   /**
    * One full pass through the gated attempt loop (parse → safety → privacy →
@@ -279,6 +433,15 @@ export class StoryAuthorService {
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       let parsed: SceneTree;
       try {
+        const baseUserMessage = buildUserMessage({
+          input,
+          tier2Words: vocabWords,
+          beatBudget: budget,
+          correction,
+        });
+        const userMessage = args.skeletonBriefs
+          ? appendSkeletonSection(baseUserMessage, args.skeletonBriefs)
+          : baseUserMessage;
         const req: ChatRequest = {
           messages: [
             {
@@ -292,12 +455,7 @@ export class StoryAuthorService {
             },
             {
               role: 'user',
-              content: buildUserMessage({
-                input,
-                tier2Words: vocabWords,
-                beatBudget: budget,
-                correction,
-              }),
+              content: userMessage,
             },
           ],
           // The LLR runtime treats this as a hint; JSON-mode passthrough is
@@ -592,6 +750,171 @@ export class StoryAuthorService {
 // ─── JSON parse + tolerant validation ───────────────────────────────────────
 
 type Scene = SceneTree['beats'][number]['scenes'][number];
+
+function buildPerBeatSystemPrompt(input: StoryInput): string {
+  const caps = AGE_BAND_CAPS[input.ageBand];
+  return [
+    `You write one children's picture-book beat as strict JSON only.`,
+    `Reader band: ${input.ageBand}; Ehri phase: ${input.ehriPhase}.`,
+    `Sentence cap: ${caps.sentence_length_words} words; visible action on every spread.`,
+    `The hero solves the problem. The sidekick may support but must not solve the climax.`,
+    `No unsafe content, no identifiers, and no kid name in any field.`,
+    `Return exactly one Beat object:`,
+    `{ "id": 1, "beat_name": "setup", "emotional_arc": "short arc", "scenes": [`,
+    `  { "sceneId": "lowercase-kebab", "spreadCount": 1, "sceneBrief": "visual brief using the hero",`,
+    `    "spreads": [ { "spreadIndex": 0, "spread_text": "page prose", "text_focus": "left", "illustration_brief": "visual brief using the hero" } ] }`,
+    `] }`,
+  ].join('\n');
+}
+
+function buildPerBeatUserMessage(brief: BeatBrief, correction: string): string {
+  const lines = [
+    `Write beat ${brief.beatId} only.`,
+    `Output id must be ${brief.beatId} and beat_name must be "${brief.beatName}".`,
+    `Use exactly ${brief.sceneCount} scene(s) if possible; total spreads across the beat must be ${brief.spreadBudget}.`,
+    `Every scene must contain 1..5 spreads and spreadCount must equal spreads.length.`,
+    `Beat brief JSON: ${JSON.stringify(brief)}`,
+  ];
+  if (correction) {
+    lines.push('');
+    lines.push(correction);
+  }
+  return lines.join('\n');
+}
+
+function enforcePerBeatPromptBudget(system: string, user: string, beatId: BeatId): void {
+  const chars = system.length + user.length;
+  if (chars >= 8000) {
+    throw new Error(`Per-beat prompt for beat ${beatId} is ${chars} chars; must be < 8000`);
+  }
+}
+
+function parseBeatJson(raw: string, expectedBeatId: BeatId): Beat {
+  const obj = extractFirstJsonObject(raw);
+  const candidate = isRecord(obj) && isRecord(obj.beat) ? obj.beat : obj;
+  if (!isRecord(candidate)) throw new Error('response did not contain a Beat object');
+  if (candidate.id !== expectedBeatId) {
+    throw new Error(`expected beat id ${expectedBeatId}, got ${String(candidate.id)}`);
+  }
+  if (candidate.beat_name !== BEAT_NAMES[expectedBeatId]) {
+    throw new Error(`expected beat_name ${BEAT_NAMES[expectedBeatId]}`);
+  }
+  if (typeof candidate.emotional_arc !== 'string') throw new Error('missing emotional_arc');
+  if (!Array.isArray(candidate.scenes) || candidate.scenes.length === 0) {
+    throw new Error('missing scenes');
+  }
+  for (const scene of candidate.scenes) {
+    if (!isRecord(scene)) throw new Error('scene is not an object');
+    if (typeof scene.sceneId !== 'string') throw new Error('missing sceneId');
+    const spreadCount = scene.spreadCount;
+    if (
+      typeof spreadCount !== 'number' ||
+      !Number.isInteger(spreadCount) ||
+      spreadCount < 1 ||
+      spreadCount > 5
+    ) {
+      throw new Error(`scene ${scene.sceneId} spreadCount must be 1..5`);
+    }
+    if (!Array.isArray(scene.spreads) || scene.spreads.length !== spreadCount) {
+      throw new Error(`scene ${scene.sceneId} spreadCount must equal spreads.length`);
+    }
+    for (const spread of scene.spreads) {
+      if (!isRecord(spread)) throw new Error('spread is not an object');
+      if (typeof spread.spread_text !== 'string') throw new Error('spread missing spread_text');
+      if (!['left', 'right', 'wraps', 'spot'].includes(String(spread.text_focus))) {
+        throw new Error('spread text_focus invalid');
+      }
+    }
+  }
+  return candidate as unknown as Beat;
+}
+
+function assemblePerBeatTree(
+  input: StoryInput,
+  skeleton: StorySkeleton,
+  beats: Beat[],
+  tier2Words: string[],
+  meta: SceneTreeMeta,
+): SceneTree {
+  let spreadIndex = 0;
+  const normalizedBeats = beats.map((beat) => ({
+    id: beat.id,
+    beat_name: BEAT_NAMES[beat.id],
+    emotional_arc: beat.emotional_arc || emotionalArcLabel(skeleton.emotionalArc[beat.id]),
+    scenes: beat.scenes.map((scene, sceneIndex) => {
+      if (scene.spreads.length < 1 || scene.spreads.length > 5) {
+        throw new Error(`beat ${beat.id} scene ${scene.sceneId} has invalid spread count`);
+      }
+      const spreads = scene.spreads.map((spread) => ({
+        ...spread,
+        spreadIndex: spreadIndex++,
+        illustration_brief:
+          spread.illustration_brief ?? `${BEAT_NAMES[beat.id]} visual moment with the hero`,
+      }));
+      return {
+        sceneId: scene.sceneId || `${BEAT_NAMES[beat.id]}-${sceneIndex + 1}`,
+        spreadCount: spreads.length as Scene['spreadCount'],
+        sceneBrief: scene.sceneBrief || `${BEAT_NAMES[beat.id]} visual moment with the hero`,
+        spreads,
+      };
+    }),
+  }));
+  const themeTitle = toTitleCase(input.theme);
+
+  return {
+    title: `${themeTitle} for the Hero`,
+    back_cover_blurb: `A ${themeTitle.toLowerCase()} story where the hero follows a brave refrain and finds the way through.`,
+    page_budget: input.targetSpreads,
+    beats: normalizedBeats,
+    tier2_words: tier2Words,
+    meta,
+  };
+}
+
+function scrubKidNameFromTree(tree: SceneTree, kidName: string): void {
+  const scrub = (value: string) => replaceKidName(value, kidName);
+  tree.title = scrub(tree.title);
+  tree.back_cover_blurb = scrub(tree.back_cover_blurb);
+  tree.tier2_words = tree.tier2_words.map(scrub);
+  for (const beat of tree.beats) {
+    beat.emotional_arc = scrub(beat.emotional_arc);
+    for (const scene of beat.scenes) {
+      scene.sceneId = scrub(scene.sceneId);
+      scene.sceneBrief = scrub(scene.sceneBrief);
+      for (const spread of scene.spreads) {
+        spread.spread_text = scrub(spread.spread_text);
+        if (spread.illustration_brief) spread.illustration_brief = scrub(spread.illustration_brief);
+      }
+    }
+  }
+  for (const prompt of tree.dialogic_prompts ?? []) {
+    prompt.text = scrub(prompt.text);
+    if (prompt.peerFollowup) prompt.peerFollowup = scrub(prompt.peerFollowup);
+  }
+}
+
+function replaceKidName(value: string, kidName: string): string {
+  const name = kidName.trim();
+  if (!name) return value;
+  return value.replace(new RegExp(`\\b${escapeRegExp(name)}\\b`, 'gi'), 'the hero');
+}
+
+function emotionalArcLabel(valence: number): string {
+  if (valence < -0.2) return 'worried -> trying';
+  if (valence < 0.2) return 'uncertain -> steady';
+  return 'hopeful -> warm';
+}
+
+function toTitleCase(value: string): string {
+  return value
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
 
 /**
  * Pull the assistant text out of a ChatResponse. The LLR runtime returns
