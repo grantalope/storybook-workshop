@@ -41,6 +41,7 @@ import {
 	charactersFromStation4,
 	type RealSceneRendererOpts,
 } from '$lib/services/scenerender';
+import type { CompositionPlan } from '$lib/services/scenegrammar';
 import { getKidProfileStore } from '$lib/workshop/services/KidProfileStore';
 import { mockRenderAllScenes } from '$lib/workshop/services/MockSceneRenderer';
 import type {
@@ -78,6 +79,8 @@ export interface PipelineOpts {
 	imageGenEnv?: ImageGenEnv;
 	/** Renderer tuning overrides for the real path (tests: tiny px, zero retry delay). */
 	renderOpts?: Partial<Omit<RealSceneRendererOpts, 'provider' | 'onProgress'>>;
+	/** Optional T1 layout/composition plans for direct-gen prompt serialization. */
+	compositionPlansBySpread?: ReadonlyMap<number, CompositionPlan>;
 	/** Optional hero appearance DNA (e.g. heroDnaFromPillarAxes(matchedPillar.axes)). */
 	heroDna?: string;
 }
@@ -200,6 +203,7 @@ export async function runWorkshopPipeline(
 			stylePackId,
 			locale: input.localeBiome,
 			characters: charactersFromStation4(outputs.s4!, input.ageBand, opts.heroDna),
+			compositionPlansBySpread: opts.compositionPlansBySpread,
 		});
 		wbPngsByScene = rendered.wbPngsByScene;
 	}
