@@ -10,6 +10,7 @@ import {
 	outputPathForAsset,
 	sidecarPathForAsset,
 } from '../../scripts/pregen/lib/jobs.mjs';
+import { seedFor } from '../../scripts/pregen/lib/seed.mjs';
 import { main as runPlateGen } from '../../scripts/pregen/plate-gen.mjs';
 
 async function tempDir() {
@@ -94,6 +95,74 @@ describe('pregen CLI and driver controls', () => {
 			expect(logs.some((line) => line.includes('skipped'))).toBe(true);
 			const sidecar = JSON.parse(await readFile(sidecarPathForAsset(bank, assetId), 'utf8'));
 			expect(sidecar).toMatchObject({ assetId, layer: 'A', styleId: 's1', locale: 'forest' });
+		} finally {
+			await rm(bank, { recursive: true, force: true });
+		}
+	});
+
+	it('runs the Comfy queue, poll, download path through mocked HTTP sequentially', async () => {
+		const bank = await tempDir();
+		try {
+			const calls: string[] = [];
+			let promptCount = 0;
+			const json = (body: unknown) => new Response(JSON.stringify(body), {
+				status: 200,
+				headers: { 'content-type': 'application/json' },
+			});
+
+			const result = await runPlateGen([
+				'--styles',
+				's1',
+				'--out',
+				bank,
+				'--server',
+				'http://comfy.test',
+				'--limit',
+				'2',
+				'--poll-interval-ms',
+				'0',
+			], {
+				fetchImpl: async (url: string | URL, init?: RequestInit) => {
+					const parsed = new URL(String(url));
+					const method = init?.method ?? 'GET';
+					calls.push(`${method} ${parsed.pathname}`);
+					if (parsed.pathname === '/system_stats') return json({ ok: true });
+					if (parsed.pathname === '/prompt') {
+						promptCount += 1;
+						return json({ prompt_id: `pid-${promptCount}` });
+					}
+					if (parsed.pathname.startsWith('/history/')) {
+						return json({
+							outputs: {
+								'60': {
+									images: [{ filename: `image-${promptCount}.png`, subfolder: '', type: 'output' }],
+								},
+							},
+						});
+					}
+					if (parsed.pathname === '/view') {
+						return new Response(new Uint8Array([137, 80, promptCount]), { status: 200 });
+					}
+					throw new Error(`unexpected fetch ${parsed.href}`);
+				},
+				logger: () => undefined,
+				generatedAtIso: '2026-06-11T00:00:00.000Z',
+			});
+
+			expect(result).toMatchObject({ total: 2, generated: 2, skipped: 0 });
+			expect(calls).toEqual([
+				'GET /system_stats',
+				'POST /prompt',
+				'GET /history/pid-1',
+				'GET /view',
+				'POST /prompt',
+				'GET /history/pid-2',
+				'GET /view',
+			]);
+			const assetId = 'plateA/forest/setup/s1';
+			expect([...await readFile(outputPathForAsset(bank, assetId))]).toEqual([137, 80, 1]);
+			const sidecar = JSON.parse(await readFile(sidecarPathForAsset(bank, assetId), 'utf8'));
+			expect(sidecar.seed).toBe(seedFor(assetId));
 		} finally {
 			await rm(bank, { recursive: true, force: true });
 		}
