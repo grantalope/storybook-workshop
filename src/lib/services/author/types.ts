@@ -55,6 +55,22 @@ export type LocaleBiome =
   | 'space'
   | 'imaginary';
 
+/** Runtime list for cross-tool drift guards. Keep in sync with LocaleBiome. */
+export const LOCALE_BIOMES = [
+  'forest',
+  'seaside',
+  'mountain',
+  'desert',
+  'meadow',
+  'snowfield',
+  'jungle',
+  'urban',
+  'farm',
+  'underwater',
+  'space',
+  'imaginary',
+] as const satisfies readonly LocaleBiome[];
+
 /** Supporting cast entry — opaque ID + display role. */
 export interface SupportingCastEntry {
   id: string; // settler ID or opaque pillar ID
