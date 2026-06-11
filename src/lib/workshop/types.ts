@@ -92,6 +92,12 @@ export interface Station3Output {
 export interface Station4Output {
 	heroName: string;
 	sidekickSettlerId: string;
+	/**
+	 * Story-internal catalog display name for the sidekick (e.g. "Pip").
+	 * Display metadata only; buildStoryInput derives trusted
+	 * StoryInput.fictionalCastNames from sidekickSettlerId.
+	 */
+	sidekickName?: string;
 	supportingCast: SupportingCastEntry[];
 	localeBiome: LocaleBiome;
 }

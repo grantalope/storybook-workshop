@@ -8,11 +8,14 @@
 	export let orchestrator: WorkshopOrchestrator;
 	const dispatch = createEventDispatcher<{ advance: void }>();
 
+	// `name` is catalog metadata. The pipeline derives trusted
+	// StoryInput.fictionalCastNames from sidekickSettlerId, not from draft
+	// free text.
 	const SIDEKICKS = [
-		{ id: 'ada', label: 'Ada (curious)' },
-		{ id: 'rumi', label: 'Rumi (gentle)' },
-		{ id: 'jules', label: 'Jules (silly)' },
-		{ id: 'nico', label: 'Nico (brave)' },
+		{ id: 'ada', label: 'Ada (curious)', name: 'Ada' },
+		{ id: 'rumi', label: 'Rumi (gentle)', name: 'Rumi' },
+		{ id: 'jules', label: 'Jules (silly)', name: 'Jules' },
+		{ id: 'nico', label: 'Nico (brave)', name: 'Nico' },
 	];
 
 	const BIOMES: LocaleBiome[] = [
@@ -44,7 +47,13 @@
 		if (!newCastName.trim() || !newCastRole.trim()) return;
 		castEntries = [
 			...castEntries,
-			{ id: `cast-${crypto.randomUUID().slice(0, 8)}`, role: `${newCastRole} (${newCastName})` },
+			{
+				id: `cast-${crypto.randomUUID().slice(0, 8)}`,
+				role: `${newCastRole} (${newCastName})`,
+				// Display metadata only. The privacy allowlist ignores this
+				// unless a trusted caller marks the entry fictional.
+				name: newCastName.trim(),
+			},
 		];
 		newCastName = '';
 		newCastRole = '';
@@ -59,6 +68,7 @@
 		await orchestrator.saveOutput('s4', {
 			heroName,
 			sidekickSettlerId,
+			sidekickName: SIDEKICKS.find((s) => s.id === sidekickSettlerId)?.name,
 			supportingCast: castEntries,
 			localeBiome,
 		});

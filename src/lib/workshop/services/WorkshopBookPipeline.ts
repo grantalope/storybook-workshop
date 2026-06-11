@@ -104,6 +104,27 @@ function clampPagesToFormat(spreadCount: number, format: BookFormat): number {
 	return pages;
 }
 
+const FICTIONAL_SIDEKICK_NAMES: Record<string, string> = {
+	ada: 'Ada',
+	rumi: 'Rumi',
+	jules: 'Jules',
+	nico: 'Nico',
+};
+
+function fictionalSidekickName(settlerId: string): string | undefined {
+	return FICTIONAL_SIDEKICK_NAMES[settlerId];
+}
+
+function sanitizeStationSupportingCast(
+	supportingCast: StoryInput['supportingCast'],
+): StoryInput['supportingCast'] {
+	return supportingCast.map((entry) => ({
+		id: entry.id,
+		role: entry.role,
+		...(entry.name !== undefined ? { name: entry.name } : {}),
+	}));
+}
+
 async function blobHash(b: Blob): Promise<string> {
 	const ab = await b.arrayBuffer();
 	const digest = await crypto.subtle.digest('SHA-256', ab);
@@ -121,6 +142,7 @@ export async function buildStoryInput(
 	}
 	const kid = await getKidProfileStore().get(draft.kidId);
 	if (!kid) throw new Error(`Pipeline: kid not found: ${draft.kidId}`);
+	const sidekickName = fictionalSidekickName(outputs.s4.sidekickSettlerId);
 	return {
 		kidName: outputs.s4.heroName || kid.name,
 		ageBand: kid.ageBand,
@@ -128,7 +150,9 @@ export async function buildStoryInput(
 		theme: outputs.s1.theme,
 		occasion: outputs.s1.occasion,
 		sidekickSettlerId: outputs.s4.sidekickSettlerId,
-		supportingCast: outputs.s4.supportingCast,
+		sidekickName,
+		fictionalCastNames: sidekickName ? [sidekickName] : [],
+		supportingCast: sanitizeStationSupportingCast(outputs.s4.supportingCast),
 		localeBiome: outputs.s4.localeBiome,
 		targetSpreads: outputs.s1.targetSpreads,
 		dedicationText: outputs.s3.dedicationText,

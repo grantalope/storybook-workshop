@@ -74,7 +74,15 @@ export const LOCALE_BIOMES = [
 /** Supporting cast entry — opaque ID + display role. */
 export interface SupportingCastEntry {
   id: string; // settler ID or opaque pillar ID
-  role: string; // "best friend", "mom", "the dog Otis" — free-text
+  role: string; // "best friend", "mom", "family dog" — free-text
+  /**
+   * Optional structured display name. This may be real PII when the entry is
+   * a sibling/friend/pet, so it does NOT join the PrivacyFilter allowlist
+   * unless `fictionalName` is explicitly true.
+   */
+  name?: string;
+  /** True only for catalog/curated fictional cast names, never free text. */
+  fictionalName?: boolean;
 }
 
 /** Parent-side input bundle gathered across Stations 1–5. */
@@ -85,6 +93,18 @@ export interface StoryInput {
   theme: StoryTheme;
   occasion: StoryOccasion;
   sidekickSettlerId: string; // public settler ID from AgentRegistryService
+  /**
+   * Story-internal fictional display name for the sidekick (e.g. "Pip").
+   * Display metadata only. PrivacyFilter allowlisting is controlled by
+   * `fictionalCastNames`, which must be populated at a trusted boundary.
+   */
+  sidekickName?: string;
+  /**
+   * Trusted story-internal fictional names allowed to survive scene-render
+   * name scrubs. Populate from catalog/curated data only, never from free
+   * text or client-saved display fields.
+   */
+  fictionalCastNames?: string[];
   supportingCast: SupportingCastEntry[];
   localeBiome: LocaleBiome;
   /** 16 / 24 / 32 / 48 — picked at Station 1. Allocator distributes across 7 beats. */

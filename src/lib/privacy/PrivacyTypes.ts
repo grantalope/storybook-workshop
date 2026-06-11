@@ -79,6 +79,17 @@ export interface ScrubOptions {
     purpose?: Purpose;
     /** Agent context for audit. */
     agentId?: string;
+    /**
+     * Names explicitly allowed to pass the `name` detector un-redacted.
+     *
+     * Intended ONLY for scene-render scrubs carrying story-internal fictional
+     * catalog names. Matching is exact (trimmed, case-sensitive, trailing
+     * possessive `'s` stripped) and applies to the `name` category ONLY —
+     * email, phone, address, account_number, secret, coords, url, date
+     * detections are never affected. Non-scene-render purposes ignore this
+     * option even if supplied.
+     */
+    allowNames?: string[];
 }
 
 import type { Purpose } from '$lib/kernel-contracts/purpose/PurposeTypes';

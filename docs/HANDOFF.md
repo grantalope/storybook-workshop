@@ -70,6 +70,8 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | date | lane | branch | check errors | fulfillment tests | full tests | lint | SQL/CSPRNG grep | commits | push | status |
 |---|---|---|---:|---|---|---|---|---|---|---|
 | 2026-06-11 | T6 orderstore-sqlite | feat/orderstore-sqlite | 102 → 102 | 168 passed / 16 files / 0 skipped | 1163 passed, 4 skipped / 104 files | eslint missing | SQL interpolation 0; executable Math.random 0 | acccc88, a9ce39f, 1b04f9e | no | LANE-DONE |
+| 2026-06-11 | privacy-allowlist LANE-DONE | fix/privacy-fictional-names | 102 → 102 (20 warnings) | 1164 passed / 4 skipped / 103 files | `pnpm lint`: eslint not found | CLEAN (source diff real-PII grep; `allowNames` only privacy + author scene-render path) | c3b5c18 | not pushed |
+| 2026-06-11 | privacy-allowlist LANE-DONE | fix/privacy-fictional-names | 102 → 102 (20 warnings) | 1166 passed / 4 skipped / 103 files | `pnpm lint`: eslint not found | CLEAN (source added-line real-PII grep; `allowNames` only privacy + author scene-render path) | ded65d0 | not pushed |
 
 ## Architect log 2026-06-11 (Fable)
 
