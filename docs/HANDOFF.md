@@ -59,6 +59,7 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | date | lane | branch | check errors | tests | lint | banned-name grep | commit | push |
 |---|---|---|---:|---|---|---|---|---|
 | 2026-06-11 | T4 art-history-styles | feat/art-history-styles | 102 → 102 | 1114 passed / 4 skipped | pnpm launcher: unable to open database file; local eslint binary missing | CLEAN | blocked: git metadata read-only | not pushed |
+| 2026-06-11 | T3 readaloud-phonics | feat/readaloud-phonics | 102 → 97 (`pnpm check`: 97 errors / 20 warnings) | targeted: 81 passed / 16 files; full: 1166 passed / 4 skipped / 111 files | `pnpm lint`: eslint not found; `node_modules/.bin/eslint` absent | no-mic grep CLEAN; readaloud Math.random/Date.now grep CLEAN; narrator :8189 grep CLEAN | 8c8dead | not pushed; LANE-DONE |
 
 ## Architect log 2026-06-11 (Fable)
 
