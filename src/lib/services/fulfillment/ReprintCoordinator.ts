@@ -23,6 +23,7 @@ import type {
 } from './types';
 import type { LuluFulfillmentService } from './LuluFulfillmentService';
 import type { OrderLifecycleService } from './OrderLifecycleService';
+import { secureRandomString } from '$lib/services/subscription/secureRandom';
 
 export interface ReprintCoordinatorOpts {
 	lulu: LuluFulfillmentService;
@@ -38,8 +39,10 @@ export interface ReprintResult {
 	luluJobId: string;
 }
 
+const REISSUE_ID_ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
+
 function defaultIdGen(): string {
-	return `reissue_${Math.random().toString(36).slice(2, 10)}`;
+	return `reissue_${secureRandomString(10, REISSUE_ID_ALPHABET)}`;
 }
 
 export class ReprintCoordinator {
