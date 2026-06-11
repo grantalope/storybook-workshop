@@ -60,6 +60,7 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 |---|---|---|---:|---|---|---|---|---|
 | 2026-06-11 | T4 art-history-styles | feat/art-history-styles | 102 → 102 | 1114 passed / 4 skipped | pnpm launcher: unable to open database file; local eslint binary missing | CLEAN | blocked: git metadata read-only | not pushed |
 | 2026-06-11 | privacy-allowlist LANE-DONE | fix/privacy-fictional-names | 102 → 102 (20 warnings) | 1164 passed / 4 skipped / 103 files | `pnpm lint`: eslint not found | CLEAN (source diff real-PII grep; `allowNames` only privacy + author scene-render path) | c3b5c18 | not pushed |
+| 2026-06-11 | privacy-allowlist LANE-DONE | fix/privacy-fictional-names | 102 → 102 (20 warnings) | 1166 passed / 4 skipped / 103 files | `pnpm lint`: eslint not found | CLEAN (source added-line real-PII grep; `allowNames` only privacy + author scene-render path) | ded65d0 | not pushed |
 
 ## Architect log 2026-06-11 (Fable)
 
