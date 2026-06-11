@@ -60,6 +60,10 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 |---|---|---|---:|---|---|---|---|---|
 | 2026-06-11 | T4 art-history-styles | feat/art-history-styles | 102 → 102 | 1114 passed / 4 skipped | pnpm launcher: unable to open database file; local eslint binary missing | CLEAN | blocked: git metadata read-only | not pushed |
 
+| date | lane | branch | check errors | fulfillment tests | full tests | lint | SQL/CSPRNG grep | commits | push | status |
+|---|---|---|---:|---|---|---|---|---|---|---|
+| 2026-06-11 | T6 orderstore-sqlite | feat/orderstore-sqlite | 102 → 102 | 168 passed / 16 files / 0 skipped | 1163 passed, 4 skipped / 104 files | eslint missing | SQL interpolation 0; executable Math.random 0 | acccc88, a9ce39f, 1b04f9e | no | LANE-DONE |
+
 ## Architect log 2026-06-11 (Fable)
 
 - MERGED: T1 feat/wfc-scene-grammar (b68a302) + T4 feat/art-history-styles (8d9d98c)
