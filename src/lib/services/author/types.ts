@@ -58,7 +58,7 @@ export type LocaleBiome =
 /** Supporting cast entry — opaque ID + display role. */
 export interface SupportingCastEntry {
   id: string; // settler ID or opaque pillar ID
-  role: string; // "best friend", "mom", "the dog Otis" — free-text
+  role: string; // "best friend", "mom", "family dog" — free-text
   /**
    * Optional structured display name. This may be real PII when the entry is
    * a sibling/friend/pet, so it does NOT join the PrivacyFilter allowlist
