@@ -8,9 +8,9 @@
 	export let orchestrator: WorkshopOrchestrator;
 	const dispatch = createEventDispatcher<{ advance: void }>();
 
-	// `name` is the story-internal display name — it flows into
-	// Station4Output.sidekickName → StoryInput.sidekickName → PrivacyFilter
-	// allowNames so the sidekick's name survives brief scrubs.
+	// `name` is catalog metadata. The pipeline derives trusted
+	// StoryInput.fictionalCastNames from sidekickSettlerId, not from draft
+	// free text.
 	const SIDEKICKS = [
 		{ id: 'ada', label: 'Ada (curious)', name: 'Ada' },
 		{ id: 'rumi', label: 'Rumi (gentle)', name: 'Rumi' },
@@ -50,8 +50,8 @@
 			{
 				id: `cast-${crypto.randomUUID().slice(0, 8)}`,
 				role: `${newCastRole} (${newCastName})`,
-				// Explicit name field — the ONLY cast-name source the privacy
-				// allowlist consumes (role free-text is never parsed).
+				// Display metadata only. The privacy allowlist ignores this
+				// unless a trusted caller marks the entry fictional.
 				name: newCastName.trim(),
 			},
 		];
