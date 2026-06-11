@@ -19,8 +19,22 @@ component owns the read-along animation. We just gate it.
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { getStylePack } from '$lib/services/stylepacks';
+	import ModeToggle from '$lib/components/readaloud/ModeToggle.svelte';
+	import KaraokeText from '$lib/components/readaloud/KaraokeText.svelte';
+	import DialogicBubble from '$lib/components/readaloud/DialogicBubble.svelte';
+	import QuizPanel from '$lib/components/readaloud/QuizPanel.svelte';
+	import { BrowserSpeechProvider } from '$lib/services/readaloud/BrowserSpeechProvider';
+	import { NarratorServerProvider, pickTtsProvider } from '$lib/services/readaloud/NarratorServerProvider';
+	import type {
+		EduOverlayBundle,
+		QuizQuestion,
+		Tier2Annotation,
+		TtsProvider
+	} from '$lib/services/readaloud/types';
 
 	type Spread = { index: number; text: string; framePngBase64: string; effect: string };
+	type ReadAloudMode = 'listen' | 'read' | 'phonics' | 'quiz';
+	type PublicEduOverlayBundle = Omit<EduOverlayBundle, 'quiz'> & { quiz?: QuizQuestion[] };
 	interface BundleResponse {
 		shortcode: string;
 		title: string;
@@ -30,6 +44,7 @@ component owns the read-along animation. We just gate it.
 		hasDedicationAudio: boolean;
 		emailGateRequired?: boolean;
 		emailGateAfter?: number;
+		edu?: PublicEduOverlayBundle;
 	}
 
 	let bundle = $state<BundleResponse | null>(null);
@@ -37,9 +52,29 @@ component owns the read-along animation. We just gate it.
 	let error = $state<string | null>(null);
 	let emailInput = $state('');
 	let submitting = $state(false);
+	let mode = $state<ReadAloudMode>('read');
+	let ttsProvider = $state<TtsProvider | null>(null);
+	let activeWordBySpread = $state<Record<number, number>>({});
+	let tier2Card = $state<Tier2Annotation | null>(null);
+	let shareUrl = $state('');
+	let shareMessage = $state('');
 
 	const shortcode = $derived($page.params.shortcode as string);
 	const stylePack = $derived(bundle?.stylePackId ? getStylePack(bundle.stylePackId) : null);
+	const availableModes: ReadAloudMode[] = $derived.by(() => {
+		if (!bundle?.edu) return [];
+		const modes: ReadAloudMode[] = [];
+		if (ttsProvider) modes.push('listen');
+		modes.push('read', 'phonics');
+		if (!bundle.emailGateRequired && (bundle.edu.quiz?.length ?? 0) > 0) modes.push('quiz');
+		return modes;
+	});
+
+	$effect(() => {
+		if (bundle?.edu && availableModes.length > 0 && !availableModes.includes(mode)) {
+			mode = availableModes[0];
+		}
+	});
 
 	async function fetchBundle() {
 		loading = true;
@@ -51,6 +86,7 @@ component owns the read-along animation. We just gate it.
 				return;
 			}
 			bundle = (await r.json()) as BundleResponse;
+			tier2Card = null;
 		} catch (e) {
 			error = (e as Error).message;
 		} finally {
@@ -96,8 +132,62 @@ component owns the read-along animation. We just gate it.
 		await fetch(`/api/marketing/referral/${ref}`).catch(() => undefined);
 	}
 
+	async function setupTtsProvider() {
+		ttsProvider = await pickTtsProvider([new NarratorServerProvider(), new BrowserSpeechProvider()]);
+	}
+
+	async function playSpread(spread: Spread) {
+		if (!ttsProvider) return;
+		let wordIndex = -1;
+		activeWordBySpread = { ...activeWordBySpread, [spread.index]: -1 };
+		try {
+			await ttsProvider.synth(spread.text, {
+				onBoundary: () => {
+					wordIndex += 1;
+					activeWordBySpread = { ...activeWordBySpread, [spread.index]: wordIndex };
+				}
+			});
+		} catch (e) {
+			console.warn('Read-aloud speech failed', e);
+		} finally {
+			activeWordBySpread = { ...activeWordBySpread, [spread.index]: -1 };
+		}
+	}
+
+	function speakWord(word: string) {
+		ttsProvider?.synth(word, { rate: 0.9 }).catch((e) => {
+			console.warn('Read-aloud word speech failed', e);
+		});
+	}
+
+	function showTier2(annotation: Tier2Annotation) {
+		tier2Card = annotation;
+		speakWord(annotation.word);
+	}
+
+	function annotationsForSpread(spreadIndex: number): Tier2Annotation[] {
+		return bundle?.edu?.tier2Annotations.filter((annotation) => annotation.spreadIndex === spreadIndex) ?? [];
+	}
+
+	function promptsForSpread(spreadIndex: number) {
+		return bundle?.edu?.dialogicPrompts.filter((prompt) => prompt.spreadIndex === spreadIndex) ?? [];
+	}
+
+	async function mintShareLink() {
+		if (typeof window === 'undefined') return;
+		const url = new URL(`/r/${shortcode}`, window.location.origin).toString();
+		shareUrl = url;
+		try {
+			await navigator.clipboard?.writeText(url);
+			shareMessage = 'Link copied.';
+		} catch {
+			shareMessage = 'Link ready.';
+		}
+	}
+
 	onMount(async () => {
 		await trackReferralIfAny();
+		await setupTtsProvider();
 		await fetchBundle();
 	});
 </script>
@@ -115,13 +205,48 @@ component owns the read-along animation. We just gate it.
 		<header>
 			<h1>{bundle.title}</h1>
 		</header>
+		{#if bundle.edu}
+			<ModeToggle {mode} {availableModes} onChange={(next) => (mode = next)} />
+		{/if}
 		<ol class="spreads">
 			{#each bundle.spreads as spread (spread.index)}
 				<li class="spread" data-spread-index={spread.index}>
-					<p>{spread.text}</p>
+					{#if bundle.edu}
+						{#if mode === 'listen' && ttsProvider}
+							<button type="button" class="listen-button" onclick={() => playSpread(spread)}>
+								Play spread {spread.index + 1}
+							</button>
+						{/if}
+						<KaraokeText
+							text={spread.text}
+							{mode}
+							activeWordIndex={activeWordBySpread[spread.index] ?? -1}
+							wordTimings={bundle.edu.wordTimings?.[spread.index] ?? []}
+							phonicsMap={bundle.edu.phonicsMap}
+							tier2Annotations={annotationsForSpread(spread.index)}
+							onWordSpeak={speakWord}
+							onTier2={showTier2}
+						/>
+						{#each promptsForSpread(spread.index) as prompt (`${spread.index}-${prompt.text}`)}
+							<DialogicBubble {prompt} />
+						{/each}
+					{:else}
+						<p>{spread.text}</p>
+					{/if}
 				</li>
 			{/each}
 		</ol>
+
+		{#if bundle.edu && tier2Card}
+			<section class="tier2-card" data-testid="tier2-card">
+				<h2>{tier2Card.word}</h2>
+				<p>{tier2Card.definitionKid || 'A useful story word.'}</p>
+			</section>
+		{/if}
+
+		{#if bundle.edu && mode === 'quiz' && !bundle.emailGateRequired && bundle.edu.quiz?.length}
+			<QuizPanel questions={bundle.edu.quiz} />
+		{/if}
 
 		{#if stylePack?.educationalCard}
 			<section class="style-card" data-testid="style-card">
@@ -196,6 +321,30 @@ component owns the read-along animation. We just gate it.
 		border-radius: 12px;
 		margin-bottom: 16px;
 		font-size: 1.1rem;
+	}
+	.listen-button {
+		margin: 0 0 12px;
+		border: 0;
+		border-radius: 8px;
+		background: #204d74;
+		color: #ffffff;
+		padding: 8px 12px;
+		font-weight: 700;
+		cursor: pointer;
+	}
+	.tier2-card {
+		margin: 20px 0;
+		padding: 16px;
+		border: 1px solid #d8d0ff;
+		border-radius: 8px;
+		background: #f6f3ff;
+	}
+	.tier2-card h2 {
+		margin: 0 0 6px;
+		font-size: 1.2rem;
+	}
+	.tier2-card p {
+		margin: 0;
 	}
 	.style-card {
 		background: #f7f3e8;
