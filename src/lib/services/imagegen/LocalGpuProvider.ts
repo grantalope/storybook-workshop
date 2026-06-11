@@ -20,7 +20,7 @@
 // wrapped behind an injectable ComfyHttpClient interface; tests pass an
 // in-memory mock, production wires the default fetch-based impl.
 
-import { secureRandomInt } from '$lib/services/subscription/secureRandom';
+import { secureRandomInt, secureRandomString } from '$lib/services/subscription/secureRandom';
 import {
 	ImageGenError,
 	MAX_SEED_EXCLUSIVE,
@@ -154,10 +154,13 @@ export interface LocalGpuProviderOpts {
 	nowSource?: () => number;
 	sleep?: (ms: number) => Promise<void>;
 	clientId?: string;
+	/** Injectable CSPRNG upload id source (tests pass deterministic values). */
+	uploadIdSource?: () => string;
 }
 
 const DEFAULT_POLL_INTERVAL_MS = 750;
 const DEFAULT_TIMEOUT_MS = 180_000;
+const UPLOAD_ID_ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
 function defaultSleep(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
@@ -180,6 +183,7 @@ export class LocalGpuProvider implements ImageGenProvider {
 	private _now: () => number;
 	private _sleep: (ms: number) => Promise<void>;
 	private _clientId: string;
+	private _uploadIdSource: () => string;
 
 	constructor(opts: LocalGpuProviderOpts) {
 		this._http = opts.http;
@@ -188,6 +192,8 @@ export class LocalGpuProvider implements ImageGenProvider {
 		this._now = opts.nowSource ?? (() => Date.now());
 		this._sleep = opts.sleep ?? defaultSleep;
 		this._clientId = opts.clientId ?? 'storybook-workshop';
+		this._uploadIdSource =
+			opts.uploadIdSource ?? (() => secureRandomString(16, UPLOAD_ID_ALPHABET));
 	}
 
 	async generate(req: ImageGenRequest): Promise<ImageGenResult> {
@@ -321,10 +327,10 @@ export class LocalGpuProvider implements ImageGenProvider {
 	}
 
 	private async _uploadRefs(blobs: Blob[]): Promise<string[]> {
-		const stamp = this._now();
+		const uploadId = this._uploadIdSource();
 		const names: string[] = [];
 		for (let i = 0; i < blobs.length; i++) {
-			const up = await this._http.uploadImage(blobs[i], `storybook-ref-${stamp}-${i}.png`);
+			const up = await this._http.uploadImage(blobs[i], `storybook-ref-${uploadId}-${i}.png`);
 			if (!up?.name) {
 				throw new ImageGenError('provider', 'ComfyUI /upload/image returned no name');
 			}
