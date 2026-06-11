@@ -1,6 +1,6 @@
 // tests/fulfillment/api-quality-claim.test.ts
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
 	InMemoryOrderStore,
 	InMemoryQualityClaimStore,
@@ -92,6 +92,21 @@ describe('POST /api/quality-claim', () => {
 		const r = await callPost(claimPOST, { body: { category: 'defect' } });
 		expect(r.status).toBe(400);
 		expect(r.data.error).toBe('missing_orderId');
+	});
+
+	it('default claim ids use CSPRNG instead of Math.random', async () => {
+		vi.resetModules();
+		const random = vi.spyOn(Math, 'random').mockImplementation(() => {
+			throw new Error('Math.random should not generate quality-claim ids');
+		});
+		try {
+			const { __getQualityApiDeps } = await import('../../src/routes/api/quality-claim/+server');
+			const id = __getQualityApiDeps().idGen();
+			expect(id).toMatch(/^claim_[a-z0-9]{10}$/);
+			expect(random).not.toHaveBeenCalled();
+		} finally {
+			random.mockRestore();
+		}
 	});
 });
 
