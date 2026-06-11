@@ -30,7 +30,7 @@ import type {
 } from '$lib/services/assemble/types';
 import { FORMAT_DIMENSIONS } from '$lib/services/assemble/types';
 import { storyAuthorService } from '$lib/services/author/StoryAuthorService';
-import type { SceneTree, StoryInput } from '$lib/services/author/types';
+import type { GrammarGateTelemetry, SceneTree, StoryInput } from '$lib/services/author/types';
 import {
 	resolveImageGenProvider,
 	type ImageGenEnv,
@@ -58,6 +58,14 @@ export interface PipelineResult {
 	book: AssembledBook;
 	pdfHash: string;
 	pageCount: number;
+	/**
+	 * Grammar-gate telemetry from the author stage (mirrors
+	 * `tree.meta.grammarGate`). `salvaged: true` = the shipped story is a
+	 * real-LLM draft that did not fully pass the deterministic Stein-Glenn
+	 * gate; surfaced here so operators/inspectors see it without digging
+	 * through tree meta.
+	 */
+	grammarGate?: GrammarGateTelemetry;
 }
 
 export interface PipelineOpts {
@@ -162,12 +170,25 @@ export async function runWorkshopPipeline(
 		forceTemplate: opts.forceTemplate,
 	});
 
+	// Surface grammar-gate telemetry (incl. salvage mode) instead of burying it
+	// in tree meta — operators should see when a draft shipped under salvage.
+	const grammarGate = tree.meta?.grammarGate;
+	if (grammarGate?.salvaged) {
+		emit({
+			stage: 'author',
+			message: `Story salvaged: grammar gate not fully green (avg ${grammarGate.avgScore.toFixed(2)})`,
+		});
+		// eslint-disable-next-line no-console
+		console.warn('[WorkshopBookPipeline] salvage mode shipped draft', grammarGate);
+	}
+
 	emit({ stage: 'render', message: 'Rendering scenes…' });
+	const stylePackId = outputs.s5!.artStyle;
 	const provider = opts.provider ?? resolveImageGenProvider(opts.imageGenEnv);
 	const isMock = provider.name === 'mock';
 	let wbPngsByScene: Map<string, Blob[]>;
 	if (isMock) {
-		({ wbPngsByScene } = await mockRenderAllScenes(tree, outputs.s5!.artStyle));
+		({ wbPngsByScene } = await mockRenderAllScenes(tree, stylePackId));
 	} else {
 		const renderer = new RealSceneRenderer({
 			provider,
@@ -176,7 +197,7 @@ export async function runWorkshopPipeline(
 				emit({ stage: 'render', message: `Rendering ${p.label} (${p.done}/${p.total})…` }),
 		});
 		const rendered = await renderer.renderAllScenes(tree, {
-			artStyle: outputs.s5!.artStyle,
+			stylePackId,
 			locale: input.localeBiome,
 			characters: charactersFromStation4(outputs.s4!, input.ageBand, opts.heroDna),
 		});
@@ -204,20 +225,22 @@ export async function runWorkshopPipeline(
 		// must declare a Lulu-valid count because the validator gate is live.
 		pages: isMock ? Math.max(spreadCount * 2, 4) : clampPagesToFormat(spreadCount, format),
 		authorByline: outputs.s5!.authorByline,
+		stylePackId,
 		...(isMock ? {} : { sceneOrder: sceneOrderOf(tree) }),
 	};
 	const spreadTexts = flattenSpreadTexts(tree);
 	const book = await assemble(
 		bundle,
 		isMock
-			? { skipValidation: true }
+			? { skipValidation: true, stylePackId }
 			: {
 					skipValidation: false,
+					stylePackId,
 					...(spreadTexts.length === spreadCount ? { spreadTexts } : {}),
 				},
 	);
 	const pdfHash = await blobHash(book.pdfBlob);
 
 	emit({ stage: 'done', message: 'Done!' });
-	return { tree, book, pdfHash, pageCount: bundle.pages };
+	return { tree, book, pdfHash, pageCount: book.audit.pageCount, grammarGate };
 }

@@ -76,7 +76,8 @@ export async function buildReadAlongBundle(input: BundleBuildInput): Promise<Bun
 			title: bundle.title,
 			spreadCount: spreads.length,
 			hasVoiceOver: !!bundle.voiceOver,
-			hasDedicationAudio: !!bundle.dedicationAudio
+			hasDedicationAudio: !!bundle.dedicationAudio,
+			stylePackId: bundle.stylePackId
 		},
 		spreads,
 		voiceOver: bundle.voiceOver,

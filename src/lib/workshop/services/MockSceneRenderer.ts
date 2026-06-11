@@ -9,7 +9,9 @@
 // + BookAssembler) can exercise end-to-end.
 
 import type { SceneTree } from '$lib/services/author/types';
-import type { ArtStyle } from '$lib/workshop/types';
+import { applyStylePackToRequest } from '$lib/services/stylepacks';
+import type { ImageGenRequest } from '$lib/services/imagegen/types';
+import type { StyleSelectionId } from '$lib/workshop/types';
 
 // 1×1 transparent PNG, base64 encoded
 const ONE_PX_PNG_B64 =
@@ -24,10 +26,34 @@ function decodeBase64ToUint8(b64: string): Uint8Array {
 
 export async function mockRenderScenePng(_opts?: {
 	sceneId: string;
-	artStyle: ArtStyle;
+	stylePackId: StyleSelectionId;
+	prompt?: string;
 }): Promise<Blob> {
+	if (_opts) {
+		composeMockSceneImageRequest({
+			prompt: _opts.prompt ?? _opts.sceneId,
+			stylePackId: _opts.stylePackId,
+		});
+	}
 	const bytes = decodeBase64ToUint8(ONE_PX_PNG_B64);
 	return new Blob([bytes.buffer as ArrayBuffer], { type: 'image/png' });
+}
+
+export function composeMockSceneImageRequest(opts: {
+	prompt: string;
+	stylePackId: StyleSelectionId;
+	width?: number;
+	height?: number;
+	seed?: number;
+}): ImageGenRequest {
+	const req: ImageGenRequest = {
+		prompt: opts.prompt,
+		width: opts.width ?? 1024,
+		height: opts.height ?? 1024,
+		seed: opts.seed,
+		styleId: opts.stylePackId,
+	};
+	return applyStylePackToRequest(req, opts.stylePackId);
 }
 
 export interface MockSceneRenderResult {
@@ -40,7 +66,7 @@ export interface MockSceneRenderResult {
  */
 export async function mockRenderAllScenes(
 	tree: SceneTree,
-	artStyle: ArtStyle,
+	stylePackId: StyleSelectionId,
 ): Promise<MockSceneRenderResult> {
 	const wbPngsByScene = new Map<string, Blob[]>();
 	for (const beat of tree.beats) {
@@ -48,7 +74,13 @@ export async function mockRenderAllScenes(
 			const spreads: Blob[] = [];
 			const count = Math.max(1, scene.spreadCount ?? 1);
 			for (let i = 0; i < count; i++) {
-				spreads.push(await mockRenderScenePng({ sceneId: scene.sceneId, artStyle }));
+				spreads.push(
+					await mockRenderScenePng({
+						sceneId: scene.sceneId,
+						stylePackId,
+						prompt: scene.spreads[i]?.illustration_brief ?? scene.sceneBrief,
+					}),
+				);
 			}
 			wbPngsByScene.set(scene.sceneId, spreads);
 		}
