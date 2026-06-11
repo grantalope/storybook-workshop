@@ -59,6 +59,7 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | date | lane | branch | check errors | tests | lint | banned-name grep | commit | push |
 |---|---|---|---:|---|---|---|---|---|
 | 2026-06-11 | T4 art-history-styles | feat/art-history-styles | 102 → 102 | 1114 passed / 4 skipped | pnpm launcher: unable to open database file; local eslint binary missing | CLEAN | blocked: git metadata read-only | not pushed |
+| 2026-06-11 | T5 pregen-bank-drivers LANE-DONE | feat/pregen-bank-drivers | 102 → 102 | pregen 15 passed / 5 files; full 1157 passed, 4 skipped / 107 files | `pnpm lint`: eslint not found | 0 `Math.random`/`Date.now`/`randomUUID`; 0 live-GPU URL in executable scripts | 08a8239..992eceb + handoff | not pushed |
 
 ## Architect log 2026-06-11 (Fable)
 
