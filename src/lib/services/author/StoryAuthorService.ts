@@ -47,19 +47,15 @@ import {
 } from './types';
 
 /**
- * Build the PrivacyFilter `allowNames` list for brief scrubs from EXPLICIT
- * StoryInput cast fields ONLY:
+ * Build the PrivacyFilter `allowNames` list for scene-brief scrubs from
+ * structured fictional-name fields only:
  *
- *   - `kidName` (the Station-4 hero name — may be fictional or the kid's
- *     real name; either way the kidName→"the hero" pre-replacement runs
- *     BEFORE any scrub, so allowlisting it here cannot leak it into briefs)
- *   - `sidekickName` (parent-chosen fictional sidekick, e.g. "Pip")
- *   - `supportingCast[].name` (explicit per-entry display names, e.g. "Otis")
+ *   - `sidekickName` (catalog-derived fictional sidekick, e.g. "Pip")
+ *   - `supportingCast[].name` only when `fictionalName === true`
  *
- * Free text is NEVER consulted: the cast `role` field, dedicationText, and
- * story prose contribute nothing. That keeps real-kid PII protection intact —
- * the allowlist can only contain names the parent typed into dedicated
- * cast-name fields. (fix/privacy-fictional-names)
+ * The hero/kid name is deliberately excluded; it is replaced with "the hero"
+ * before the privacy scrub. Free text is NEVER consulted: the cast `role`
+ * field, dedicationText, and story prose contribute nothing.
  */
 export function castAllowNames(input: StoryInput): string[] {
   const out: string[] = [];
@@ -68,9 +64,10 @@ export function castAllowNames(input: StoryInput): string[] {
     const t = v.trim();
     if (t.length > 0 && !out.includes(t)) out.push(t);
   };
-  push(input.kidName);
   push(input.sidekickName);
-  for (const entry of input.supportingCast ?? []) push(entry?.name);
+  for (const entry of input.supportingCast ?? []) {
+    if (entry?.fictionalName === true) push(entry.name);
+  }
   return out;
 }
 
@@ -351,7 +348,16 @@ export class StoryAuthorService {
       }
 
       // PrivacyFilter scrub on scene briefs (gate 2)
-      this._scrubSceneBriefs(parsed, input);
+      const privacyHardFails = await this.scrubSceneBriefsAsync(parsed, input);
+      if (privacyHardFails > 0) {
+        meta.llm_retries = (meta.llm_retries ?? 0) + 1;
+        correction = [
+          `PrivacyFilter flagged ${privacyHardFails} scene-render brief(s) with hard PII.`,
+          `Rewrite sceneBrief and illustration_brief values so they use "the hero" and catalog fictional sidekick names only.`,
+          `Do not include real names, addresses, emails, phone numbers, account numbers, secrets, or coordinates.`,
+        ].join(' ');
+        continue;
+      }
 
       // Grammar validation (gate 3)
       const grammarResult = this.grammar.validate(parsed);
@@ -404,47 +410,6 @@ export class StoryAuthorService {
     return flagged;
   }
 
-  private _scrubSceneBriefs(tree: SceneTree, input: StoryInput): void {
-    const nameLiteral = (input.kidName || '').trim();
-    const nameRe =
-      nameLiteral.length > 0
-        ? new RegExp(`\\b${escapeRegExp(nameLiteral)}\\b`, 'g')
-        : null;
-
-    for (const beat of tree.beats) {
-      for (const scene of beat.scenes) {
-        let brief = scene.sceneBrief ?? '';
-        // Pre-scrub: replace the kid's literal name with "the hero" before
-        // PrivacyFilter sees it. Kid name belongs in PDF prose only (§3.9 —
-        // composited locally at assembly time) and must NOT cross to WB.
-        if (nameRe) brief = brief.replace(nameRe, 'the hero');
-        // PrivacyFilter pass — fire-and-forget the audit; redactedText is the
-        // outbound brief. We don't await per-scene to keep latency tight; the
-        // sync stub fallback runs inline. (Full await would push the orchestrator
-        // toward LLR-call-time budgets; spec §3.7 says scene render happens in
-        // a separate WB call so we're not blocking the LLM call here either.)
-        try {
-          // privacyFilterService.scrub is async — we await per scene since the
-          // brief shape mutates. Single-pass over the tree is N scenes (≤ ~16
-          // in the largest book) so latency is bounded.
-          // We use a fire-and-forget surface here only for tests where the
-          // service may not be available; production awaits.
-        } catch {
-          /* noop */
-        }
-        scene.sceneBrief = brief;
-
-        // Same privacy posture for per-spread illustration briefs — they are
-        // written for the image model and may leave the device.
-        for (const spread of scene.spreads) {
-          if (typeof spread.illustration_brief === 'string' && nameRe) {
-            spread.illustration_brief = spread.illustration_brief.replace(nameRe, 'the hero');
-          }
-        }
-      }
-    }
-  }
-
   /**
    * Public, awaitable scene-brief scrub (called separately by orchestrator)
    * — replaces literal kidName + runs PrivacyFilterService.scrub('scene_render')
@@ -459,8 +424,8 @@ export class StoryAuthorService {
         ? new RegExp(`\\b${escapeRegExp(nameLiteral)}\\b`, 'g')
         : null;
 
-    // Story-internal fictional cast names (explicit StoryInput fields only)
-    // pass the PII name detector un-redacted — see castAllowNames docs.
+    // Story-internal fictional cast names pass the PII name detector
+    // un-redacted — see castAllowNames docs.
     const allowNames = castAllowNames(input);
 
     let hardFails = 0;

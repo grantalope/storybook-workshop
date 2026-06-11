@@ -60,13 +60,13 @@ export interface SupportingCastEntry {
   id: string; // settler ID or opaque pillar ID
   role: string; // "best friend", "mom", "the dog Otis" — free-text
   /**
-   * Explicit story-internal display name for this cast member (e.g. "Otis").
-   * Optional. When present it joins the PrivacyFilter `allowNames` list so
-   * the name can appear in scene/illustration briefs un-redacted. This is
-   * the ONLY cast-name source the allowlist consumes — the free-text `role`
-   * field is never parsed for names.
+   * Optional structured display name. This may be real PII when the entry is
+   * a sibling/friend/pet, so it does NOT join the PrivacyFilter allowlist
+   * unless `fictionalName` is explicitly true.
    */
   name?: string;
+  /** True only for catalog/curated fictional cast names, never free text. */
+  fictionalName?: boolean;
 }
 
 /** Parent-side input bundle gathered across Stations 1–5. */

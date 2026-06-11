@@ -19,6 +19,7 @@
 //     gift dedications / publishToUniversal chokepoint unchanged)
 
 import { describe, expect, it, beforeEach } from 'vitest';
+import 'fake-indexeddb/auto';
 
 import {
   PrivacyFilterService,
@@ -27,8 +28,15 @@ import {
 import {
   StoryAuthorService,
   castAllowNames,
+  type KidsContentSafetyLike,
 } from '$lib/services/author/StoryAuthorService';
 import type { SceneTree, StoryInput } from '$lib/services/author/types';
+import { buildStoryInput } from '$lib/workshop/services/WorkshopBookPipeline';
+import {
+  __TEST_resetKidProfileStore,
+  getKidProfileStore,
+} from '$lib/workshop/services/KidProfileStore';
+import type { StationOutputs, WorkshopDraft } from '$lib/workshop/types';
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -89,6 +97,51 @@ function oneSceneTree(sceneBrief: string, illustrationBrief: string): SceneTree 
     ] as unknown as SceneTree['beats'],
   };
 }
+
+function validAuthorTreeJson(sceneBrief: string, illustrationBrief: string): string {
+  const beatNames = ['setup', 'catalyst', 'debate', 'midpoint', 'trial', 'climax', 'resolution'] as const;
+  const spreadText = [
+    'Once upon a time, the hero lived by the forest.',
+    'Suddenly a bell rang.',
+    'The hero felt worried.',
+    'So the hero tried the path.',
+    'But the path twisted, so the hero tried again.',
+    'Finally, the hero found the gate.',
+    'The hero smiled and felt proud. The end.',
+  ];
+  return JSON.stringify({
+    title: 'The Brave Trail',
+    back_cover_blurb: 'A gentle story about courage.',
+    page_budget: 7,
+    tier2_words: ['brave', 'trail', 'gentle'],
+    beats: beatNames.map((beat_name, i) => ({
+      id: i + 1,
+      beat_name,
+      emotional_arc: 'steady',
+      scenes: [
+        {
+          sceneId: `${beat_name}-1`,
+          spreadCount: 1,
+          sceneBrief: i === 0 ? sceneBrief : 'the hero follows a moonlit trail',
+          spreads: [
+            {
+              spreadIndex: i,
+              spread_text: spreadText[i],
+              text_focus: 'left',
+              illustration_brief: i === 0 ? illustrationBrief : 'the hero on a quiet trail',
+            },
+          ],
+        },
+      ],
+    })),
+  });
+}
+
+const PERMISSIVE_SAFETY: KidsContentSafetyLike = {
+  async scan() {
+    return { passed: true, categories: [], confidence: 0 };
+  },
+};
 
 // ── scrub(text, { allowNames }) ──────────────────────────────────────────
 
@@ -249,19 +302,22 @@ describe('PrivacyFilterService.scrub — allowNames', () => {
 
 // ── castAllowNames(input) ────────────────────────────────────────────────
 
-describe('castAllowNames — explicit StoryInput cast fields only', () => {
-  it('collects kidName + sidekickName + supportingCast names; trims, dedupes, skips blanks', () => {
+describe('castAllowNames — structured fictional fields only', () => {
+  it('collects sidekickName + explicitly-fictional supporting names; skips kidName and unmarked names', () => {
     const input = baseInput({
       kidName: ' Eli ',
       sidekickName: 'Pip',
       supportingCast: [
-        { id: 'c1', role: 'dog (Otis)', name: 'Otis' },
+        { id: 'c1', role: 'dog (Otis)', name: 'Otis', fictionalName: true },
+        { id: 'c2', role: 'sister', name: 'Sarah' }, // real/unmarked → skipped
         { id: 'c2', role: 'the cat Whiskers' }, // no explicit name field
         { id: 'c3', role: 'sister', name: '   ' }, // blank → skipped
         { id: 'c4', role: 'friend', name: 'Pip' }, // dupe → deduped
       ],
     });
-    expect(castAllowNames(input)).toEqual(['Eli', 'Pip', 'Otis']);
+    expect(castAllowNames(input)).toEqual(['Pip', 'Otis']);
+    expect(castAllowNames(input)).not.toContain('Eli');
+    expect(castAllowNames(input)).not.toContain('Sarah');
   });
 
   it('never derives names from free text (role / dedication are ignored)', () => {
@@ -271,7 +327,8 @@ describe('castAllowNames — explicit StoryInput cast fields only', () => {
       supportingCast: [{ id: 'c1', role: 'the dog Otis' }],
     });
     const names = castAllowNames(input);
-    expect(names).toEqual(['Eli']);
+    expect(names).toEqual([]);
+    expect(names).not.toContain('Eli');
     expect(names).not.toContain('Otis');
     expect(names).not.toContain('June');
   });
@@ -285,7 +342,7 @@ describe('StoryAuthorService.scrubSceneBriefsAsync — fictional cast allowlist'
     privacyFilterService._setProbeOrderForTests(['stub']);
   });
 
-  it('explicit cast names survive in sceneBrief + illustration_brief; kid name still becomes "the hero"', async () => {
+  it('fictional cast names survive in sceneBrief + illustration_brief; kid name still becomes "the hero"', async () => {
     const svc = new StoryAuthorService();
     const tree = oneSceneTree(
       'Eli and Pip wave at Otis by the creek',
@@ -296,7 +353,7 @@ describe('StoryAuthorService.scrubSceneBriefsAsync — fictional cast allowlist'
       baseInput({
         kidName: 'Eli',
         sidekickName: 'Pip',
-        supportingCast: [{ id: 'c1', role: 'dog (Otis)', name: 'Otis' }],
+        supportingCast: [{ id: 'c1', role: 'dog (Otis)', name: 'Otis', fictionalName: true }],
       }),
     );
     expect(hardFails).toBe(0);
@@ -310,6 +367,30 @@ describe('StoryAuthorService.scrubSceneBriefsAsync — fictional cast allowlist'
     expect(ib).toContain('Pip');
     expect(ib).toContain('Otis');
     expect(ib).not.toContain('[REDACTED');
+  });
+
+  it('unmarked supporting-cast names are redacted even when sidekickName is allowed', async () => {
+    const svc = new StoryAuthorService();
+    const tree = oneSceneTree(
+      'Eli follows Pip and Sarah into the den',
+      'Wide shot of Sarah holding a lantern beside Pip',
+    );
+    const hardFails = await svc.scrubSceneBriefsAsync(
+      tree,
+      baseInput({
+        kidName: 'Eli',
+        sidekickName: 'Pip',
+        supportingCast: [{ id: 'c1', role: 'sister', name: 'Sarah' }],
+      }),
+    );
+    expect(hardFails).toBeGreaterThan(0);
+    const scene = tree.beats[0].scenes[0];
+    expect(scene.sceneBrief).toContain('Pip');
+    expect(scene.sceneBrief).not.toContain('Sarah');
+    expect(scene.sceneBrief).toContain('[REDACTED:name]');
+    const ib = scene.spreads[0].illustration_brief as string;
+    expect(ib).toContain('Pip');
+    expect(ib).not.toContain('Sarah');
   });
 
   it('without explicit cast names the sidekick is still redacted (bug-era behavior is the safe default)', async () => {
@@ -327,6 +408,91 @@ describe('StoryAuthorService.scrubSceneBriefsAsync — fictional cast allowlist'
     expect(scene.sceneBrief).not.toContain('Pip');
     expect(scene.sceneBrief).toContain('[REDACTED:name]');
     expect(scene.spreads[0].illustration_brief).not.toContain('Pip');
+  });
+});
+
+// ── StoryAuthorService.author gate regression ────────────────────────────
+
+describe('StoryAuthorService.author — scene-render privacy gate', () => {
+  beforeEach(() => {
+    privacyFilterService._resetForTests();
+    privacyFilterService._setProbeOrderForTests(['stub']);
+  });
+
+  it('does not ship an LLM tree whose scene briefs still contain unallowlisted real names', async () => {
+    const svc = new StoryAuthorService();
+    const tree = await svc.author(
+      baseInput({
+        kidName: 'Eli',
+        sidekickName: 'Pip',
+        targetSpreads: 7,
+      }),
+      {
+        chatOverride: async () => ({
+          content: validAuthorTreeJson(
+            'the hero asks Sarah to follow Pip',
+            'Sarah stands beside Pip under a lantern',
+          ),
+        } as any),
+        safetyOverride: PERMISSIVE_SAFETY,
+        maxLlmRetries: 0,
+        skipQualityGate: true,
+      },
+    );
+    expect(JSON.stringify(tree)).not.toContain('Sarah');
+    expect(tree.meta?.template_fallback).toBe(true);
+  });
+});
+
+// ── Workshop trust boundary ──────────────────────────────────────────────
+
+describe('buildStoryInput — fictional sidekick trust boundary', () => {
+  beforeEach(async () => {
+    __TEST_resetKidProfileStore();
+    await getKidProfileStore().__TEST_clear();
+  });
+
+  it('derives sidekickName from the catalog id instead of trusting saved draft text', async () => {
+    const kid = await getKidProfileStore().create({
+      name: 'Eli',
+      birthdayIso: '2021-01-01',
+    });
+    const draft = {
+      draftId: 'draft-1',
+      kidId: kid.kidId,
+      mode: 'standard',
+      currentStation: 's6',
+      outputs: {},
+      createdAt: 0,
+      updatedAt: 0,
+      expiresAt: 1,
+    } satisfies WorkshopDraft;
+    const outputs = {
+      s1: {
+        theme: 'bedtime',
+        occasion: 'just-because',
+        lengthTier: 'bedtime',
+        targetSpreads: 7,
+        ehriPhase: 'partial-alphabetic',
+      },
+      s2: { pillarId: 'pillar-1' },
+      s3: { dedicationText: 'For family.' },
+      s4: {
+        heroName: 'Eli',
+        sidekickSettlerId: 'ada',
+        sidekickName: 'Sarah',
+        supportingCast: [],
+        localeBiome: 'forest',
+      },
+      s5: {
+        artStyle: 'octopath-hd2d',
+        easierReadingMode: false,
+        dialogicPromptsEnabled: true,
+      },
+    } satisfies StationOutputs;
+    const input = await buildStoryInput(draft, outputs);
+    expect(input.sidekickName).toBe('Ada');
+    expect(input.sidekickName).not.toBe('Sarah');
   });
 });
 
