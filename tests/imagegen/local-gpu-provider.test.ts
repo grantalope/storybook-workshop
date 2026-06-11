@@ -139,17 +139,17 @@ describe('LocalGpuProvider.generate — template routing', () => {
 
 	it('uploads Blob characterRefs before queueing and wires uploaded names', async () => {
 		const mock = makeMockComfy();
-		const provider = makeProvider(mock, { nowSource: () => 1111 });
+		const provider = makeProvider(mock, { uploadIdSource: () => 'refs123' });
 		const refA = new Blob([new Uint8Array([1]).buffer], { type: 'image/png' });
 		const refB = new Blob([new Uint8Array([2, 2]).buffer], { type: 'image/png' });
 		await provider.generate({ ...baseReq, characterRefs: [refA, refB] });
 
 		expect(mock.uploads).toHaveLength(2);
-		expect(mock.uploads[0].filename).toBe('storybook-ref-1111-0.png');
-		expect(mock.uploads[1].filename).toBe('storybook-ref-1111-1.png');
+		expect(mock.uploads[0].filename).toBe('storybook-ref-refs123-0.png');
+		expect(mock.uploads[1].filename).toBe('storybook-ref-refs123-1.png');
 		const graph = mock.posted[0].graph;
-		expect(graph['10'].inputs.image).toBe('uploads/storybook-ref-1111-0.png');
-		expect(graph['11'].inputs.image).toBe('uploads/storybook-ref-1111-1.png');
+		expect(graph['10'].inputs.image).toBe('uploads/storybook-ref-refs123-0.png');
+		expect(graph['11'].inputs.image).toBe('uploads/storybook-ref-refs123-1.png');
 	});
 
 	it('routes lora:<path>@<scale> styleId to the lora-spread workflow', async () => {
@@ -260,13 +260,13 @@ describe('LocalGpuProvider.generate — polling + error paths', () => {
 describe('LocalGpuProvider.upscale', () => {
 	it('uploads a Blob source and queues the upscale workflow', async () => {
 		const mock = makeMockComfy();
-		const provider = makeProvider(mock, { nowSource: () => 2222 });
+		const provider = makeProvider(mock, { uploadIdSource: () => 'upscale456' });
 		const source = new Blob([new Uint8Array([5, 5, 5]).buffer], { type: 'image/png' });
 		const result = await provider.upscale({ image: source, scale: 2 });
 
 		expect(mock.uploads).toHaveLength(1);
 		const graph = mock.posted[0].graph;
-		expect(graph['1'].inputs.image).toBe('uploads/storybook-ref-2222-0.png');
+		expect(graph['1'].inputs.image).toBe('uploads/storybook-ref-upscale456-0.png');
 		expect(graph['2'].class_type).toBe('UpscaleModelLoader');
 		// 4x model + lanczos trim to the requested 2x.
 		expect(graph['4'].inputs.scale_by).toBe(0.5);

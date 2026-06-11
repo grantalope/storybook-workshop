@@ -7,7 +7,17 @@
 // slots (prompt / seed / dimensions / refs / lora / upscale source). One
 // template per pipeline:
 //
-//   - pillar-gen            txt2img base (Qwen-Image-2512 checkpoint)
+//   - pillar-gen            txt2img base — split-loader Qwen-Image-2512
+//                           stack (UNETLoader fp8 + CLIPLoader qwen_image +
+//                           VAELoader + Lightning-8step LoRA, 8 steps
+//                           cfg 1.0). This is what's actually installed on
+//                           the 4090 server (models live in
+//                           diffusion_models/ as split UNET+CLIP+VAE) and
+//                           was proven end-to-end by
+//                           scripts/e2e/generate-real-book.mjs
+//                           (feat/e2e-real-book @ ca00d61). The previous
+//                           CheckpointLoaderSimple graph targeted a
+//                           checkpoint that does not exist on the server.
 //   - spread-gen-multi-ref  PRIMARY character-consistency path: condition
 //                           every spread on the hero + sidekick character
 //                           sheets via Qwen-Image-Edit-2511 multi-reference
@@ -83,6 +93,24 @@ export const LOCAL_CHECKPOINTS = Object.freeze({
 	edit: 'qwen-image-edit-2511-fp8.safetensors',
 });
 
+/**
+ * Split-loader model files actually installed on the GPU server (verified
+ * via /object_info + /models by the e2e real-book run): UNET + CLIP + VAE
+ * load separately, with the Lightning 8-step distillation LoRA on top.
+ */
+export const LOCAL_SPLIT_MODELS = Object.freeze({
+	unet: 'qwen_image_2512_fp8_e4m3fn.safetensors',
+	clip: 'qwen_2.5_vl_7b_fp8_scaled.safetensors',
+	vae: 'qwen_image_vae.safetensors',
+	lightningLora: 'Qwen-Image-2512-Lightning-8steps-V1.0-bf16.safetensors',
+});
+
+/** Lightning-8step distillation sampling params (proven cfg/steps pair). */
+export const LIGHTNING_STEPS = 8;
+export const LIGHTNING_CFG = 1.0;
+/** ModelSamplingAuraFlow shift used with the Lightning LoRA. */
+export const AURAFLOW_SHIFT = 3.1;
+
 export const UPSCALE_MODEL_NAME = '4x-UltraSharp.pth';
 /** The upscale model's intrinsic factor; postScaleBy trims to target. */
 export const UPSCALE_MODEL_FACTOR = 4;
@@ -91,39 +119,66 @@ export const UPSCALE_MODEL_FACTOR = 4;
 // Templates
 // ---------------------------------------------------------------------------
 
-/** (a) txt2img base — pillar generation. */
+/**
+ * (a) txt2img base — pillar generation. Split-loader Qwen-Image-2512 stack
+ * proven by the e2e real-book run: UNETLoader (fp8) → Lightning-8step LoRA →
+ * ModelSamplingAuraFlow → KSampler at 8 steps / cfg 1.0, with a standalone
+ * qwen_image CLIPLoader feeding both text encoders and a standalone
+ * VAELoader feeding the decode.
+ */
 export const PILLAR_GEN_TEMPLATE: WorkflowTemplate = Object.freeze({
 	id: 'pillar-gen' as const,
 	graph: {
 		'1': {
-			class_type: 'CheckpointLoaderSimple',
-			inputs: { ckpt_name: LOCAL_CHECKPOINTS.txt2img },
-			_meta: { title: 'Qwen-Image-2512 checkpoint' },
+			class_type: 'UNETLoader',
+			inputs: { unet_name: LOCAL_SPLIT_MODELS.unet, weight_dtype: 'default' },
+			_meta: { title: 'Qwen-Image-2512 fp8 UNET' },
+		},
+		'8': {
+			class_type: 'LoraLoaderModelOnly',
+			inputs: {
+				lora_name: LOCAL_SPLIT_MODELS.lightningLora,
+				strength_model: 1.0,
+				model: ['1', 0],
+			},
+			_meta: { title: 'Lightning 8-step' },
+		},
+		'9': {
+			class_type: 'ModelSamplingAuraFlow',
+			inputs: { shift: AURAFLOW_SHIFT, model: ['8', 0] },
+		},
+		'20': {
+			class_type: 'CLIPLoader',
+			inputs: { clip_name: LOCAL_SPLIT_MODELS.clip, type: 'qwen_image' },
+		},
+		'21': {
+			class_type: 'VAELoader',
+			inputs: { vae_name: LOCAL_SPLIT_MODELS.vae },
 		},
 		'2': {
 			class_type: 'CLIPTextEncode',
-			inputs: { text: '', clip: ['1', 1] },
+			inputs: { text: '', clip: ['20', 0] },
 			_meta: { title: 'positive prompt' },
 		},
 		'3': {
 			class_type: 'CLIPTextEncode',
-			inputs: { text: '', clip: ['1', 1] },
+			inputs: { text: '', clip: ['20', 0] },
 			_meta: { title: 'negative prompt' },
 		},
 		'4': {
-			class_type: 'EmptyLatentImage',
+			class_type: 'EmptySD3LatentImage',
 			inputs: { width: 1024, height: 1024, batch_size: 1 },
 		},
 		'5': {
 			class_type: 'KSampler',
 			inputs: {
 				seed: 0,
-				steps: 28,
-				cfg: 4.0,
+				steps: LIGHTNING_STEPS,
+				cfg: LIGHTNING_CFG,
 				sampler_name: 'euler',
 				scheduler: 'simple',
 				denoise: 1.0,
-				model: ['1', 0],
+				model: ['9', 0],
 				positive: ['2', 0],
 				negative: ['3', 0],
 				latent_image: ['4', 0],
@@ -131,7 +186,7 @@ export const PILLAR_GEN_TEMPLATE: WorkflowTemplate = Object.freeze({
 		},
 		'6': {
 			class_type: 'VAEDecode',
-			inputs: { samples: ['5', 0], vae: ['1', 2] },
+			inputs: { samples: ['5', 0], vae: ['21', 0] },
 		},
 		'7': {
 			class_type: 'SaveImage',
