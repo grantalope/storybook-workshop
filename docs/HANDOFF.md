@@ -59,3 +59,16 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | date | lane | branch | check errors | tests | lint | banned-name grep | commit | push |
 |---|---|---|---:|---|---|---|---|---|
 | 2026-06-11 | T4 art-history-styles | feat/art-history-styles | 102 → 102 | 1114 passed / 4 skipped | pnpm launcher: unable to open database file; local eslint binary missing | CLEAN | blocked: git metadata read-only | not pushed |
+
+## Architect log 2026-06-11 (Fable)
+
+- MERGED: T1 feat/wfc-scene-grammar (b68a302) + T4 feat/art-history-styles (8d9d98c)
+  → main 9d20117. Independent verify: 1142 passed / 102 files on merged main.
+- T6 in flight on the 4090-box WSL clone (bundle-relay merge when done).
+- RULINGS (binding): style application at request boundary via applyStylePack;
+  blank-padding honors format pageCountMultiple; pnpm-check gate = NO NEW errors
+  vs 102 pre-existing baseline; sceneBrief flows only to PromptSerializer;
+  slot requiredness inferred from beat+template rules; CSPRNG for all ids.
+- SANDBOX LESSON: do NOT pass `-s workspace-write` for worktree lanes — git
+  metadata lives under the main repo .git; config default (danger-full-access)
+  is required for commits. Lanes are architect-managed.
