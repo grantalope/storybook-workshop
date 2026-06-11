@@ -212,7 +212,7 @@ export class RealSceneRenderer {
 		refs: Blob[] | undefined,
 	): Promise<Blob> {
 		const characterDna = buildCharacterDnaBlock(ctx.characters, task.contextText);
-		const brief = task.compositionPlan
+		const brief = task.compositionPlan?.mode === 'direct-gen'
 			? serializeDirectGenPrompt(task.compositionPlan.layout, task.brief)
 			: task.brief;
 		const baseReq = composeScenePrompt({

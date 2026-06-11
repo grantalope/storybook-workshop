@@ -8,6 +8,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { collapseLayout, planComposition } from '$lib/services/scenegrammar';
+import type { BankAssetEntry, BankManifest } from '$lib/services/scenegrammar';
 import {
 	BASE_SEED,
 	RealSceneRenderer,
@@ -33,6 +34,27 @@ const CTX = {
 
 function makeRenderer(provider: ReturnType<typeof makeFakeProvider>, extra = {}) {
 	return new RealSceneRenderer({ provider, retryDelayMs: 0, ...extra });
+}
+
+function manifestForLayout(layout: ReturnType<typeof collapseLayout>): BankManifest {
+	const entries: BankAssetEntry[] = layout.slots.flatMap((slot, index) => {
+		if (!slot.assetQuery) return [];
+		const query = slot.assetQuery;
+		return [{
+			assetId: `${slot.slotId}-${index}`,
+			layer: query.layer,
+			styleId: query.styleId,
+			...(query.locale ? { locale: query.locale } : {}),
+			...(query.beatMood ? { beatMood: query.beatMood } : {}),
+			...(query.archetypeId ? { archetypeId: query.archetypeId } : {}),
+			...(query.poseClass ? { poseClass: query.poseClass } : {}),
+			...(query.propId ? { propId: query.propId } : {}),
+			file: `${slot.slotId}-${index}.png`,
+			seed: 1_000 + index,
+			generatedAtIso: '2026-06-11T00:00:00.000Z',
+		}];
+	});
+	return { version: 1, bankRoot: '/bank', entries };
 }
 
 describe('RealSceneRenderer — output shape', () => {
@@ -194,9 +216,9 @@ describe('RealSceneRenderer — progress + prompts', () => {
 		expect(spreadCall.prompt).toContain(pack.promptRecipe!.positiveSuffix);
 	});
 
-	it('uses an optional CompositionPlan to serialize direct-gen composition guidance', async () => {
+	it('uses only direct-gen CompositionPlans to serialize composition guidance', async () => {
 		const provider = makeFakeProvider();
-		const layout = collapseLayout({
+		const directLayout = collapseLayout({
 			bookId: 'renderer-plan-book',
 			spreadIndex: 0,
 			beatName: 'setup',
@@ -206,10 +228,21 @@ describe('RealSceneRenderer — progress + prompts', () => {
 			focalPropId: 'lantern',
 			pageTurnDirection: 'ltr',
 		});
-		const plan = planComposition(layout, null);
+		const bankLayout = collapseLayout({
+			...directLayout.ctx,
+			spreadIndex: 1,
+		});
+		const directPlan = planComposition(directLayout, null);
+		const bankPlan = planComposition(bankLayout, manifestForLayout(bankLayout));
+		expect(directPlan.mode).toBe('direct-gen');
+		expect(bankPlan.mode).toBe('bank-composite');
+
 		await makeRenderer(provider).renderAllScenes(makeSixSpreadTree(), {
 			...CTX,
-			compositionPlansBySpread: new Map([[0, plan]]),
+			compositionPlansBySpread: new Map([
+				[0, directPlan],
+				[1, bankPlan],
+			]),
 		});
 
 		const firstSpread = provider.genCalls.find(
@@ -218,5 +251,12 @@ describe('RealSceneRenderer — progress + prompts', () => {
 		expect(firstSpread.prompt).toContain('Shot:');
 		expect(firstSpread.prompt).toContain('Composition:');
 		expect(firstSpread.prompt).toContain('clear empty area at');
+
+		const secondSpread = provider.genCalls.find(
+			(c) => c.seed === BASE_SEED + SPREAD_SEED_OFFSET + 1,
+		)!;
+		expect(secondSpread.prompt).not.toContain('Shot:');
+		expect(secondSpread.prompt).not.toContain('Composition:');
+		expect(secondSpread.prompt).toContain('the sidekick hedgehog Pip holding a lantern');
 	});
 });
