@@ -22,7 +22,7 @@
 import type { AgeBand, LocaleBiome, SupportingCastEntry } from '$lib/services/author/types';
 import type { ImageGenRequest } from '$lib/services/imagegen';
 import type { ClothingVibe, HairKind, PillarAxes, SkinTone } from '$lib/services/types';
-import type { ArtStyle } from '$lib/workshop/types';
+import { ART_STYLES, type ArtStyle, type StyleSelectionId } from '$lib/workshop/types';
 import type { CharacterDNA } from './types';
 
 // ---------------------------------------------------------------------------
@@ -59,6 +59,14 @@ export const STYLE_PREFIXES: Record<ArtStyle, string> = {
 	'pixel-pure':
 		'detailed pixel art children’s picture book illustration, 16-bit palette, soft dithering, rounded sprite shapes, cozy, whimsical, clean composition, no text, no letters, no words',
 };
+
+export const DEFAULT_BASE_ART_STYLE: ArtStyle = 'flat-painted';
+
+export function baseArtStyleForStylePack(stylePackId: StyleSelectionId): ArtStyle {
+	return ART_STYLES.includes(stylePackId as ArtStyle)
+		? (stylePackId as ArtStyle)
+		: DEFAULT_BASE_ART_STYLE;
+}
 
 /** Locale-anchor fragments — "Scene in <fragment>: <brief>". */
 export const LOCALE_FRAGMENTS: Record<LocaleBiome, string> = {

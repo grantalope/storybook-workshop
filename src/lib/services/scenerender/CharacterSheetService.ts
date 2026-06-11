@@ -16,8 +16,14 @@
 // rides on the fixed character-DNA prompt block instead.
 
 import { ImageGenError, type ImageGenProvider } from '$lib/services/imagegen';
-import type { ArtStyle } from '$lib/workshop/types';
-import { BASE_SEED, GEN_PX, composeCharacterSheetPrompt } from './ScenePromptComposer';
+import { applyStylePackToRequest } from '$lib/services/stylepacks';
+import type { StyleSelectionId } from '$lib/workshop/types';
+import {
+	BASE_SEED,
+	GEN_PX,
+	baseArtStyleForStylePack,
+	composeCharacterSheetPrompt,
+} from './ScenePromptComposer';
 import type { CharacterDNA, SceneRenderProgressFn } from './types';
 
 /** Sheet seeds start at baseSeed + 1 (e2e: hero +1, sidekick +2). */
@@ -52,19 +58,21 @@ export class CharacterSheetService {
 	 */
 	async generateSheets(
 		characters: readonly CharacterDNA[],
-		artStyle: ArtStyle,
+		stylePackId: StyleSelectionId,
 		onProgress?: SceneRenderProgressFn,
 	): Promise<Map<string, Blob>> {
 		const sheets = new Map<string, Blob>();
+		const baseArtStyle = baseArtStyleForStylePack(stylePackId);
 		for (let i = 0; i < characters.length; i++) {
 			const character = characters[i];
-			const req = composeCharacterSheetPrompt({
+			const baseReq = composeCharacterSheetPrompt({
 				character,
-				artStyle,
+				artStyle: baseArtStyle,
 				seed: this._baseSeed + SHEET_SEED_OFFSET + i,
 				size: this._sheetPx,
 				multiView: this._multiView,
 			});
+			const req = applyStylePackToRequest({ ...baseReq, styleId: stylePackId }, stylePackId);
 			const res = await this._provider.generate(req);
 			if (res.images.length === 0) {
 				throw new ImageGenError(

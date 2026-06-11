@@ -20,12 +20,15 @@
 
 import { ImageGenError, MAX_CHARACTER_REFS, type ImageGenProvider } from '$lib/services/imagegen';
 import type { LocaleBiome, Scene, SceneTree } from '$lib/services/author/types';
-import type { ArtStyle } from '$lib/workshop/types';
+import { serializeDirectGenPrompt, type CompositionPlan } from '$lib/services/scenegrammar';
+import { applyStylePackToRequest } from '$lib/services/stylepacks';
+import type { ArtStyle, StyleSelectionId } from '$lib/workshop/types';
 import { CharacterSheetService } from './CharacterSheetService';
 import {
 	BASE_SEED,
 	GEN_PX,
 	PRINT_PX,
+	baseArtStyleForStylePack,
 	buildCharacterDnaBlock,
 	composeScenePrompt,
 } from './ScenePromptComposer';
@@ -38,10 +41,15 @@ const DEFAULT_CONCURRENCY = 2;
 const DEFAULT_RETRY_DELAY_MS = 5_000;
 
 export interface SceneRenderContext {
-	artStyle: ArtStyle;
+	/** Style-pack id selected at Station 5; legacy art-style ids are valid packs. */
+	stylePackId?: StyleSelectionId;
+	/** Legacy alias retained for direct callers from the pre-stylepack branch. */
+	artStyle?: ArtStyle;
 	locale: LocaleBiome;
 	/** Hero first by convention; see buildCharacterDnaBlock for inclusion rules. */
 	characters: CharacterDNA[];
+	/** Optional T1 composition plans, keyed by global spread index. */
+	compositionPlansBySpread?: ReadonlyMap<number, CompositionPlan>;
 }
 
 export interface RealSceneRendererOpts {
@@ -77,6 +85,7 @@ interface SpreadTask {
 	brief: string;
 	/** brief + spread text — match haystack for sidekick DNA inclusion. */
 	contextText: string;
+	compositionPlan?: CompositionPlan;
 }
 
 function defaultSleep(ms: number): Promise<void> {
@@ -127,6 +136,9 @@ export class RealSceneRenderer {
 	 * character sheets.
 	 */
 	async renderAllScenes(tree: SceneTree, ctx: SceneRenderContext): Promise<SceneRenderResult> {
+		const stylePackId = ctx.stylePackId ?? ctx.artStyle ?? 'flat-painted';
+		const baseArtStyle = baseArtStyleForStylePack(stylePackId);
+
 		// ── 1. character sheets ────────────────────────────────────────────
 		const sheetService = new CharacterSheetService({
 			provider: this._provider,
@@ -136,7 +148,7 @@ export class RealSceneRenderer {
 		});
 		const characterSheets =
 			ctx.characters.length > 0
-				? await sheetService.generateSheets(ctx.characters, ctx.artStyle, this._onProgress)
+				? await sheetService.generateSheets(ctx.characters, stylePackId, this._onProgress)
 				: new Map<string, Blob>();
 		const refs =
 			this._useCharacterRefs && characterSheets.size > 0
@@ -162,6 +174,7 @@ export class RealSceneRenderer {
 						spreadIndex,
 						brief: row.brief,
 						contextText: row.contextText,
+						compositionPlan: ctx.compositionPlansBySpread?.get(spreadIndex),
 					});
 					globalIndex++;
 				});
@@ -173,7 +186,7 @@ export class RealSceneRenderer {
 		const total = tasks.length;
 		await runPool(
 			tasks.map((task) => async () => {
-				const blob = await this._renderSpread(task, ctx, refs);
+				const blob = await this._renderSpread(task, ctx, stylePackId, baseArtStyle, refs);
 				wbPngsByScene.get(task.sceneId)![task.slot] = blob;
 				done++;
 				this._onProgress?.({
@@ -194,25 +207,31 @@ export class RealSceneRenderer {
 	private async _renderSpread(
 		task: SpreadTask,
 		ctx: SceneRenderContext,
+		stylePackId: StyleSelectionId,
+		baseArtStyle: ArtStyle,
 		refs: Blob[] | undefined,
 	): Promise<Blob> {
 		const characterDna = buildCharacterDnaBlock(ctx.characters, task.contextText);
+		const brief = task.compositionPlan
+			? serializeDirectGenPrompt(task.compositionPlan.layout, task.brief)
+			: task.brief;
 		const baseReq = composeScenePrompt({
-			illustrationBrief: task.brief,
-			artStyle: ctx.artStyle,
+			illustrationBrief: brief,
+			artStyle: baseArtStyle,
 			locale: ctx.locale,
 			characterDna,
 			refs,
 			width: this._genPx,
 			height: this._genPx,
 		});
+		const req = applyStylePackToRequest({ ...baseReq, styleId: stylePackId }, stylePackId);
 		const seed = this._baseSeed + SPREAD_SEED_OFFSET + task.spreadIndex;
 
 		// One retry with seed+1 (e2e-proven recovery from transient gen fails).
 		let lastErr: unknown;
 		for (let attempt = 0; attempt < 2; attempt++) {
 			try {
-				const res = await this._provider.generate({ ...baseReq, seed: seed + attempt });
+				const res = await this._provider.generate({ ...req, seed: seed + attempt });
 				if (res.images.length === 0) {
 					throw new ImageGenError(
 						'provider',

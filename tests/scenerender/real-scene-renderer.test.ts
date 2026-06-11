@@ -7,6 +7,7 @@
 
 import { describe, expect, it } from 'vitest';
 
+import { collapseLayout, planComposition } from '$lib/services/scenegrammar';
 import {
 	BASE_SEED,
 	RealSceneRenderer,
@@ -14,6 +15,7 @@ import {
 	SPREAD_SEED_OFFSET,
 	type SceneRenderProgress,
 } from '$lib/services/scenerender';
+import { getStylePack } from '$lib/services/stylepacks';
 import { mockRenderAllScenes } from '$lib/workshop/services/MockSceneRenderer';
 import {
 	HERO_DNA,
@@ -24,7 +26,7 @@ import {
 } from './helpers';
 
 const CTX = {
-	artStyle: 'flat-painted' as const,
+	stylePackId: 'flat-painted' as const,
 	locale: 'forest' as const,
 	characters: [HERO_DNA, SIDEKICK_DNA],
 };
@@ -170,5 +172,51 @@ describe('RealSceneRenderer — progress + prompts', () => {
 			expect(call.characterRefs).toHaveLength(2);
 			expect(call.characterRefs![0]).toBeInstanceOf(Blob);
 		}
+	});
+
+	it('applies non-legacy style packs at the image request boundary', async () => {
+		const provider = makeFakeProvider();
+		await makeRenderer(provider).renderAllScenes(makeSixSpreadTree(), {
+			...CTX,
+			stylePackId: 'ukiyo-e-woodblock',
+		});
+
+		const pack = getStylePack('ukiyo-e-woodblock')!;
+		expect(provider.genCalls[0].styleId).toBe(pack.id);
+		expect(provider.genCalls[0].prompt).toContain(pack.promptRecipe!.positivePrefix);
+		expect(provider.genCalls[0].prompt).toContain(pack.promptRecipe!.positiveSuffix);
+		expect(provider.genCalls[0].negativePrompt).toContain(pack.promptRecipe!.negativeAdditions);
+		const spreadCall = provider.genCalls.find(
+			(c) => c.seed === BASE_SEED + SPREAD_SEED_OFFSET,
+		)!;
+		expect(spreadCall.styleId).toBe(pack.id);
+		expect(spreadCall.prompt).toContain(pack.promptRecipe!.positivePrefix);
+		expect(spreadCall.prompt).toContain(pack.promptRecipe!.positiveSuffix);
+	});
+
+	it('uses an optional CompositionPlan to serialize direct-gen composition guidance', async () => {
+		const provider = makeFakeProvider();
+		const layout = collapseLayout({
+			bookId: 'renderer-plan-book',
+			spreadIndex: 0,
+			beatName: 'setup',
+			locale: 'forest',
+			styleId: 'flat-painted',
+			castArchetypeIds: ['hero', 'pip-hedgehog'],
+			focalPropId: 'lantern',
+			pageTurnDirection: 'ltr',
+		});
+		const plan = planComposition(layout, null);
+		await makeRenderer(provider).renderAllScenes(makeSixSpreadTree(), {
+			...CTX,
+			compositionPlansBySpread: new Map([[0, plan]]),
+		});
+
+		const firstSpread = provider.genCalls.find(
+			(c) => c.seed === BASE_SEED + SPREAD_SEED_OFFSET,
+		)!;
+		expect(firstSpread.prompt).toContain('Shot:');
+		expect(firstSpread.prompt).toContain('Composition:');
+		expect(firstSpread.prompt).toContain('clear empty area at');
 	});
 });
