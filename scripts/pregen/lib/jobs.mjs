@@ -71,7 +71,9 @@ export function buildPlatePrompt({ locale, beatMood, styleId, stylePrompts = {} 
 		positive: joinPrompt([
 			style.prefix,
 			'empty stage negative-space composition',
+			`locale biome: ${locale}`,
 			LOCALE_SCENERY[locale],
+			`beat mood: ${beatMood}`,
 			BEAT_MOOD_LIGHTING[beatMood],
 			'wide empty foreground, open negative space at center, no people, no characters, no animals, no text',
 			style.suffix,
