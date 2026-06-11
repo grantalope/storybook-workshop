@@ -79,11 +79,16 @@ export interface StoryInput {
   sidekickSettlerId: string; // public settler ID from AgentRegistryService
   /**
    * Story-internal fictional display name for the sidekick (e.g. "Pip").
-   * Parent-chosen at Station 4. Joins the PrivacyFilter `allowNames` list
-   * for brief scrubs so the sidekick's name survives PII redaction in
-   * scene/illustration briefs. Never derived from free text.
+   * Display metadata only. PrivacyFilter allowlisting is controlled by
+   * `fictionalCastNames`, which must be populated at a trusted boundary.
    */
   sidekickName?: string;
+  /**
+   * Trusted story-internal fictional names allowed to survive scene-render
+   * name scrubs. Populate from catalog/curated data only, never from free
+   * text or client-saved display fields.
+   */
+  fictionalCastNames?: string[];
   supportingCast: SupportingCastEntry[];
   localeBiome: LocaleBiome;
   /** 16 / 24 / 32 / 48 — picked at Station 1. Allocator distributes across 7 beats. */

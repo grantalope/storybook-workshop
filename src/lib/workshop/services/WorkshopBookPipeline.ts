@@ -87,6 +87,7 @@ export async function buildStoryInput(
 	}
 	const kid = await getKidProfileStore().get(draft.kidId);
 	if (!kid) throw new Error(`Pipeline: kid not found: ${draft.kidId}`);
+	const sidekickName = fictionalSidekickName(outputs.s4.sidekickSettlerId);
 	return {
 		kidName: outputs.s4.heroName || kid.name,
 		ageBand: kid.ageBand,
@@ -94,7 +95,8 @@ export async function buildStoryInput(
 		theme: outputs.s1.theme,
 		occasion: outputs.s1.occasion,
 		sidekickSettlerId: outputs.s4.sidekickSettlerId,
-		sidekickName: fictionalSidekickName(outputs.s4.sidekickSettlerId),
+		sidekickName,
+		fictionalCastNames: sidekickName ? [sidekickName] : [],
 		supportingCast: outputs.s4.supportingCast,
 		localeBiome: outputs.s4.localeBiome,
 		targetSpreads: outputs.s1.targetSpreads,

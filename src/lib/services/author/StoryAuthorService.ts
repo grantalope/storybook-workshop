@@ -50,7 +50,7 @@ import {
  * Build the PrivacyFilter `allowNames` list for scene-brief scrubs from
  * structured fictional-name fields only:
  *
- *   - `sidekickName` (catalog-derived fictional sidekick, e.g. "Pip")
+ *   - `fictionalCastNames` (catalog/curated fictional names)
  *   - `supportingCast[].name` only when `fictionalName === true`
  *
  * The hero/kid name is deliberately excluded; it is replaced with "the hero"
@@ -64,7 +64,7 @@ export function castAllowNames(input: StoryInput): string[] {
     const t = v.trim();
     if (t.length > 0 && !out.includes(t)) out.push(t);
   };
-  push(input.sidekickName);
+  for (const name of input.fictionalCastNames ?? []) push(name);
   for (const entry of input.supportingCast ?? []) {
     if (entry?.fictionalName === true) push(entry.name);
   }

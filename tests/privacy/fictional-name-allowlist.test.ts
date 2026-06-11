@@ -303,10 +303,11 @@ describe('PrivacyFilterService.scrub — allowNames', () => {
 // ── castAllowNames(input) ────────────────────────────────────────────────
 
 describe('castAllowNames — structured fictional fields only', () => {
-  it('collects sidekickName + explicitly-fictional supporting names; skips kidName and unmarked names', () => {
+  it('collects trusted fictionalCastNames + explicitly-fictional supporting names; skips display-only names', () => {
     const input = baseInput({
       kidName: ' Eli ',
-      sidekickName: 'Pip',
+      sidekickName: 'Sarah',
+      fictionalCastNames: ['Pip'],
       supportingCast: [
         { id: 'c1', role: 'dog (Otis)', name: 'Otis', fictionalName: true },
         { id: 'c2', role: 'sister', name: 'Sarah' }, // real/unmarked → skipped
@@ -353,6 +354,7 @@ describe('StoryAuthorService.scrubSceneBriefsAsync — fictional cast allowlist'
       baseInput({
         kidName: 'Eli',
         sidekickName: 'Pip',
+        fictionalCastNames: ['Pip'],
         supportingCast: [{ id: 'c1', role: 'dog (Otis)', name: 'Otis', fictionalName: true }],
       }),
     );
@@ -380,6 +382,7 @@ describe('StoryAuthorService.scrubSceneBriefsAsync — fictional cast allowlist'
       baseInput({
         kidName: 'Eli',
         sidekickName: 'Pip',
+        fictionalCastNames: ['Pip'],
         supportingCast: [{ id: 'c1', role: 'sister', name: 'Sarah' }],
       }),
     );
@@ -391,6 +394,23 @@ describe('StoryAuthorService.scrubSceneBriefsAsync — fictional cast allowlist'
     const ib = scene.spreads[0].illustration_brief as string;
     expect(ib).toContain('Pip');
     expect(ib).not.toContain('Sarah');
+  });
+
+  it('sidekickName alone is display metadata and does not bypass the scrub', async () => {
+    const svc = new StoryAuthorService();
+    const tree = oneSceneTree(
+      'Eli follows Pip into the den',
+      'Wide shot of Pip leading the way',
+    );
+    const hardFails = await svc.scrubSceneBriefsAsync(
+      tree,
+      baseInput({ kidName: 'Eli', sidekickName: 'Pip' }),
+    );
+    expect(hardFails).toBeGreaterThan(0);
+    const scene = tree.beats[0].scenes[0];
+    expect(scene.sceneBrief).not.toContain('Pip');
+    expect(scene.sceneBrief).toContain('[REDACTED:name]');
+    expect(scene.spreads[0].illustration_brief).not.toContain('Pip');
   });
 
   it('without explicit cast names the sidekick is still redacted (bug-era behavior is the safe default)', async () => {
@@ -425,6 +445,7 @@ describe('StoryAuthorService.author — scene-render privacy gate', () => {
       baseInput({
         kidName: 'Eli',
         sidekickName: 'Pip',
+        fictionalCastNames: ['Pip'],
         targetSpreads: 7,
       }),
       {
@@ -492,6 +513,7 @@ describe('buildStoryInput — fictional sidekick trust boundary', () => {
     } satisfies StationOutputs;
     const input = await buildStoryInput(draft, outputs);
     expect(input.sidekickName).toBe('Ada');
+    expect(input.fictionalCastNames).toEqual(['Ada']);
     expect(input.sidekickName).not.toBe('Sarah');
   });
 });
