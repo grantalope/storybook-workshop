@@ -70,6 +70,16 @@ function fictionalSidekickName(settlerId: string): string | undefined {
 	return FICTIONAL_SIDEKICK_NAMES[settlerId];
 }
 
+function sanitizeStationSupportingCast(
+	supportingCast: StoryInput['supportingCast'],
+): StoryInput['supportingCast'] {
+	return supportingCast.map((entry) => ({
+		id: entry.id,
+		role: entry.role,
+		...(entry.name !== undefined ? { name: entry.name } : {}),
+	}));
+}
+
 async function blobHash(b: Blob): Promise<string> {
 	const ab = await b.arrayBuffer();
 	const digest = await crypto.subtle.digest('SHA-256', ab);
@@ -97,7 +107,7 @@ export async function buildStoryInput(
 		sidekickSettlerId: outputs.s4.sidekickSettlerId,
 		sidekickName,
 		fictionalCastNames: sidekickName ? [sidekickName] : [],
-		supportingCast: outputs.s4.supportingCast,
+		supportingCast: sanitizeStationSupportingCast(outputs.s4.supportingCast),
 		localeBiome: outputs.s4.localeBiome,
 		targetSpreads: outputs.s1.targetSpreads,
 		dedicationText: outputs.s3.dedicationText,

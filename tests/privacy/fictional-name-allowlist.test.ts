@@ -432,6 +432,35 @@ describe('StoryAuthorService.scrubSceneBriefsAsync — fictional cast allowlist'
     expect(scene.sceneBrief).toContain('[REDACTED:name]');
     expect(scene.spreads[0].illustration_brief).not.toContain('Pip');
   });
+
+  it('fails closed if the scene-render privacy scrub throws', async () => {
+    const originalScrub = privacyFilterService.scrub;
+    privacyFilterService.scrub = (async () => {
+      throw new Error('privacy backend unavailable');
+    }) as typeof privacyFilterService.scrub;
+
+    try {
+      const svc = new StoryAuthorService();
+      const tree = oneSceneTree(
+        'Eli follows Sarah into the den',
+        'Wide shot of Sarah guiding Eli past the willow',
+      );
+      const hardFails = await svc.scrubSceneBriefsAsync(
+        tree,
+        baseInput({ kidName: 'Eli', fictionalCastNames: ['Pip'] }),
+      );
+      expect(hardFails).toBe(2);
+      const scene = tree.beats[0].scenes[0];
+      expect(scene.sceneBrief).toBe('the hero in a privacy-safe scene');
+      expect(scene.sceneBrief).not.toContain('Sarah');
+      expect(scene.sceneBrief).not.toContain('Eli');
+      expect(scene.spreads[0].illustration_brief).toBe('the hero in a privacy-safe scene');
+      expect(scene.spreads[0].illustration_brief).not.toContain('Sarah');
+      expect(scene.spreads[0].illustration_brief).not.toContain('Eli');
+    } finally {
+      privacyFilterService.scrub = originalScrub;
+    }
+  });
 });
 
 // ── StoryAuthorService.author gate regression ────────────────────────────
@@ -518,6 +547,53 @@ describe('buildStoryInput — fictional sidekick trust boundary', () => {
     expect(input.sidekickName).toBe('Ada');
     expect(input.fictionalCastNames).toEqual(['Ada']);
     expect(input.sidekickName).not.toBe('Sarah');
+  });
+
+  it('strips untrusted supporting-cast fictionalName flags from saved station output', async () => {
+    const kid = await getKidProfileStore().create({
+      name: 'Eli',
+      birthdayIso: '2021-01-01',
+    });
+    const draft = {
+      draftId: 'draft-2',
+      kidId: kid.kidId,
+      mode: 'standard',
+      currentStation: 's6',
+      outputs: {},
+      createdAt: 0,
+      updatedAt: 0,
+      expiresAt: 1,
+    } satisfies WorkshopDraft;
+    const outputs = {
+      s1: {
+        theme: 'bedtime',
+        occasion: 'just-because',
+        lengthTier: 'bedtime',
+        targetSpreads: 7,
+        ehriPhase: 'partial-alphabetic',
+      },
+      s2: { pillarId: 'pillar-1' },
+      s3: { dedicationText: 'For family.' },
+      s4: {
+        heroName: 'Eli',
+        sidekickSettlerId: 'ada',
+        sidekickName: 'Ada',
+        supportingCast: [
+          { id: 'c1', role: 'sister', name: 'Sarah', fictionalName: true },
+        ],
+        localeBiome: 'forest',
+      },
+      s5: {
+        artStyle: 'octopath-hd2d',
+        easierReadingMode: false,
+        dialogicPromptsEnabled: true,
+      },
+    } satisfies StationOutputs;
+    const input = await buildStoryInput(draft, outputs);
+    expect(input.supportingCast).toEqual([{ id: 'c1', role: 'sister', name: 'Sarah' }]);
+    expect(input.supportingCast[0]).not.toHaveProperty('fictionalName');
+    expect(castAllowNames(input)).toEqual(['Ada']);
+    expect(castAllowNames(input)).not.toContain('Sarah');
   });
 });
 

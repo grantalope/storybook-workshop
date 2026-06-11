@@ -89,6 +89,8 @@ const permissiveSafetyStub: KidsContentSafetyLike = {
   },
 };
 
+const PRIVACY_SCRUB_FAILED_BRIEF = 'the hero in a privacy-safe scene';
+
 function getKidsContentSafety(): KidsContentSafetyLike {
   const injected = (globalThis as any).__kidsContentSafetyService as
     | KidsContentSafetyLike
@@ -441,7 +443,8 @@ export class StoryAuthorService {
           scene.sceneBrief = report.redactedText;
           if (report.hardFail) hardFails++;
         } catch {
-          scene.sceneBrief = brief;
+          scene.sceneBrief = PRIVACY_SCRUB_FAILED_BRIEF;
+          hardFails++;
         }
 
         for (const spread of scene.spreads) {
@@ -456,7 +459,8 @@ export class StoryAuthorService {
             spread.illustration_brief = report.redactedText;
             if (report.hardFail) hardFails++;
           } catch {
-            spread.illustration_brief = ib;
+            spread.illustration_brief = PRIVACY_SCRUB_FAILED_BRIEF;
+            hardFails++;
           }
         }
       }
