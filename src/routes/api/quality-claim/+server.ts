@@ -8,18 +8,25 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import {
 	QualityGuaranteeHandler,
-	InMemoryQualityClaimStore,
+	createDefaultFulfillmentStores,
 	type QualityClaimCategory,
+	type QualityClaimStore,
 } from '$lib/services/fulfillment';
 import { __getOrderApiDeps } from '../order/+server';
+import { secureRandomString } from '$lib/services/subscription/secureRandom';
 
 interface QualityApiDeps {
 	handler: QualityGuaranteeHandler;
-	claimStore: InMemoryQualityClaimStore;
+	claimStore: QualityClaimStore;
 	idGen: () => string;
 }
 
 let _deps: QualityApiDeps | null = null;
+
+const _QUALITY_CLAIM_ID_ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
+function _secureQualityClaimIdGen(): string {
+	return `claim_${secureRandomString(10, _QUALITY_CLAIM_ID_ALPHABET)}`;
+}
 
 export function __setQualityApiDeps(deps: QualityApiDeps): void {
 	_deps = deps;
@@ -27,8 +34,8 @@ export function __setQualityApiDeps(deps: QualityApiDeps): void {
 
 export function __getQualityApiDeps(): QualityApiDeps {
 	if (_deps) return _deps;
-	const claimStore = new InMemoryQualityClaimStore();
 	const orderDeps = __getOrderApiDeps();
+	const claimStore = orderDeps.qualityClaimStore ?? createDefaultFulfillmentStores().qualityClaimStore;
 	const handler = new QualityGuaranteeHandler({
 		orderStore: orderDeps.store,
 		claimStore,
@@ -36,7 +43,7 @@ export function __getQualityApiDeps(): QualityApiDeps {
 	_deps = {
 		handler,
 		claimStore,
-		idGen: () => `claim_${Math.random().toString(36).slice(2, 10)}`,
+		idGen: _secureQualityClaimIdGen,
 	};
 	return _deps;
 }

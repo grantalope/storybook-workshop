@@ -67,6 +67,10 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | 2026-06-11 | T3 readaloud-phonics | feat/readaloud-phonics | 102 → 97 (`pnpm check`: 97 errors / 20 warnings) | targeted: 81 passed / 16 files; full: 1166 passed / 4 skipped / 111 files | `pnpm lint`: eslint not found; `node_modules/.bin/eslint` absent | no-mic grep CLEAN; readaloud Math.random/Date.now grep CLEAN; narrator :8189 grep CLEAN | 8c8dead | not pushed; LANE-DONE |
 | 2026-06-11 | T5 pregen-bank-drivers LANE-DONE | feat/pregen-bank-drivers | 102 → 102 | pregen 15 passed / 5 files; full 1157 passed, 4 skipped / 107 files | `pnpm lint`: eslint not found | 0 `Math.random`/`Date.now`/`randomUUID`; 0 live-GPU URL in executable scripts | 08a8239..992eceb + handoff | not pushed |
 
+| date | lane | branch | check errors | fulfillment tests | full tests | lint | SQL/CSPRNG grep | commits | push | status |
+|---|---|---|---:|---|---|---|---|---|---|---|
+| 2026-06-11 | T6 orderstore-sqlite | feat/orderstore-sqlite | 102 → 102 | 168 passed / 16 files / 0 skipped | 1163 passed, 4 skipped / 104 files | eslint missing | SQL interpolation 0; executable Math.random 0 | acccc88, a9ce39f, 1b04f9e | no | LANE-DONE |
+
 ## Architect log 2026-06-11 (Fable)
 
 - MERGED: T1 feat/wfc-scene-grammar (b68a302) + T4 feat/art-history-styles (8d9d98c)

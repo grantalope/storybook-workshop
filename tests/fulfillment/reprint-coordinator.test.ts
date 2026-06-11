@@ -71,4 +71,20 @@ describe('ReprintCoordinator.reprint', () => {
 		expect(arg.state).toBe('submitted_to_lulu');
 		expect(arg.reissueOfOrderId).toBe('ord_a');
 	});
+
+	it('default reissue ids use CSPRNG instead of Math.random', async () => {
+		const random = vi.spyOn(Math, 'random').mockImplementation(() => {
+			throw new Error('Math.random should not generate reissue ids');
+		});
+		try {
+			const defaultCoord = new ReprintCoordinator({ lulu, lifecycle, store });
+			await store.put(makeOrder({ id: 'ord_default_id', luluJobId: 'lj_old' }));
+			const result = await defaultCoord.reprint('ord_default_id', 'defect');
+
+			expect(result.reissueOrderId).toMatch(/^ord_reissue_[a-z0-9]{10}$/);
+			expect(random).not.toHaveBeenCalled();
+		} finally {
+			random.mockRestore();
+		}
+	});
 });
