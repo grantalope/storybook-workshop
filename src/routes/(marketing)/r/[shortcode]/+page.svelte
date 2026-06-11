@@ -18,11 +18,13 @@ component owns the read-along animation. We just gate it.
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { getStylePack } from '$lib/services/stylepacks';
 
 	type Spread = { index: number; text: string; framePngBase64: string; effect: string };
 	interface BundleResponse {
 		shortcode: string;
 		title: string;
+		stylePackId?: string;
 		spreads: Spread[];
 		hasVoiceOver: boolean;
 		hasDedicationAudio: boolean;
@@ -37,6 +39,7 @@ component owns the read-along animation. We just gate it.
 	let submitting = $state(false);
 
 	const shortcode = $derived($page.params.shortcode as string);
+	const stylePack = $derived(bundle?.stylePackId ? getStylePack(bundle.stylePackId) : null);
 
 	async function fetchBundle() {
 		loading = true;
@@ -120,6 +123,18 @@ component owns the read-along animation. We just gate it.
 			{/each}
 		</ol>
 
+		{#if stylePack?.educationalCard}
+			<section class="style-card" data-testid="style-card">
+				<h2>About this art style</h2>
+				<h3>{stylePack.displayName}</h3>
+				<p>{stylePack.educationalCard.kidExplainer}</p>
+				<p><strong>Look for:</strong> {stylePack.educationalCard.lookFor}</p>
+				{#if stylePack.respectNote}
+					<p class="respect-note">{stylePack.respectNote}</p>
+				{/if}
+			</section>
+		{/if}
+
 		{#if bundle.emailGateRequired}
 			<section class="gate" data-testid="email-gate">
 				<h2>Enter your email to read the full book</h2>
@@ -181,6 +196,24 @@ component owns the read-along animation. We just gate it.
 		border-radius: 12px;
 		margin-bottom: 16px;
 		font-size: 1.1rem;
+	}
+	.style-card {
+		background: #f7f3e8;
+		border: 1px solid #e0d6bd;
+		border-radius: 8px;
+		padding: 24px;
+		margin: 32px 0 16px;
+	}
+	.style-card h2,
+	.style-card h3 {
+		margin: 0 0 8px;
+	}
+	.style-card p {
+		margin: 8px 0;
+	}
+	.respect-note {
+		color: #5f5138;
+		font-size: 0.95rem;
 	}
 	.gate {
 		margin-top: 48px;

@@ -18,13 +18,20 @@
  * NameOverlayCompositor.ts header for the privacy contract.
  */
 
-import type { AssembledBook, AssemblyAudit, BookAssetBundle, ReadAlongBundle } from './types';
+import {
+	FORMAT_DIMENSIONS,
+	type AssembledBook,
+	type AssemblyAudit,
+	type BookAssetBundle,
+	type ReadAlongBundle,
+} from './types';
 import { overlayBookNames } from './NameOverlayCompositor';
 import { composeCover, computeSpineWidthIn } from './CoverComposer';
 import { buildPdf } from './PdfBuilder';
 import { validatePdf } from './LuluPdfSpecValidator';
 import { buildEpub } from './EpubBuilder';
 import { buildReadAlongBundle } from './ReadAlongBundleBuilder';
+import { getStylePack, StylePackError, type StylePack } from '$lib/services/stylepacks';
 
 export interface AssembleOptions {
 	/** Optional spread-text source: spreadIndex → text containing {HERO_NAME}. */
@@ -40,6 +47,10 @@ export interface AssembleOptions {
 	rng?: () => number;
 	/** Optional registrar called with the ReadAlongBundle once minted. */
 	registerBundle?: (bundle: ReadAlongBundle) => Promise<string | undefined>;
+	/** Optional art-history backmatter page. Defaults to true for non-legacy style packs. */
+	includeStyleCard?: boolean;
+	/** Optional override for the selected style pack id. */
+	stylePackId?: string;
 	/** Optional override for testing the validator pre-check. */
 	skipValidation?: boolean;
 }
@@ -72,6 +83,36 @@ function flattenWbPngs(bundle: BookAssetBundle): Blob[] {
 		for (const png of arr) out.push(png);
 	}
 	return out;
+}
+
+function resolveStylePack(bundle: BookAssetBundle, options: AssembleOptions): StylePack | null {
+	const stylePackId = options.stylePackId ?? bundle.stylePackId;
+	if (!stylePackId) return null;
+	const pack = getStylePack(stylePackId);
+	if (!pack) {
+		throw new StylePackError(`BookAssembler.assemble: unknown stylePackId "${stylePackId}"`);
+	}
+	return pack;
+}
+
+function blankPagesNeededForStyleCard(basePageCount: number, format: BookAssetBundle['format']): number {
+	const multiple = FORMAT_DIMENSIONS[format].pageCountMultiple;
+	const withStyleCard = basePageCount + 1;
+	const remainder = withStyleCard % multiple;
+	return remainder === 0 ? 0 : multiple - remainder;
+}
+
+function styleCardContent(pack: StylePack) {
+	const card = pack.educationalCard;
+	if (!card) return undefined;
+	return {
+		displayName: pack.displayName,
+		kidExplainer: card.kidExplainer,
+		funFact: card.funFact,
+		lookFor: card.lookFor,
+		tryItYourself: card.tryItYourself,
+		respectNote: pack.respectNote,
+	};
 }
 
 export class AssemblyValidationError extends Error {
@@ -115,6 +156,22 @@ export async function assemble(
 	const composedSpreadPngs = overlay.spreads.map(s => s.composedPng);
 	const resolvedSpreadTexts = overlay.spreads.map(s => s.resolvedText);
 
+	const selectedStylePackId = options.stylePackId ?? bundle.stylePackId;
+	const selectedStylePack = resolveStylePack(bundle, options);
+	const shouldIncludeStyleCard =
+		(options.includeStyleCard ?? true) && !!selectedStylePack && selectedStylePack.legacy !== true;
+	const styleBlankPageCount = shouldIncludeStyleCard
+		? blankPagesNeededForStyleCard(bundle.pages, bundle.format)
+		: 0;
+	const assemblyBundle: BookAssetBundle =
+		selectedStylePackId || shouldIncludeStyleCard
+			? {
+					...bundle,
+					stylePackId: selectedStylePackId,
+					pages: bundle.pages + (shouldIncludeStyleCard ? 1 + styleBlankPageCount : 0),
+				}
+			: bundle;
+
 	// ── (b) CoverComposer ──────────────────────────────────────────────────
 	// Pick the first spread PNG as a stand-in front-cover seed if no dedicated
 	// front-cover PNG is in the bundle. Real cover seed comes from goal #4 +
@@ -127,28 +184,30 @@ export async function assemble(
 		authorByline: bundle.authorByline,
 		backCoverBlurb: bundle.backCoverBlurb,
 		coverBadge: bundle.coverBadge,
-		pageCount: bundle.pages,
-		format: bundle.format
+		pageCount: assemblyBundle.pages,
+		format: assemblyBundle.format
 	});
 
 	// ── (c) PdfBuilder ─────────────────────────────────────────────────────
 	const pdf = await buildPdf({
-		bundle,
+		bundle: assemblyBundle,
 		composedSpreadPngs,
 		coverFrontPng: cover.frontPng,
 		coverBackPng: cover.backPng,
 		endpaperPng: options.endpaperPng,
 		titlePagePng: options.titlePagePng,
 		dedicationPagePng: overlay.dedicationPng ?? options.dedicationPagePng,
-		spineWidthIn: cover.canvas.spineWidthIn
+		spineWidthIn: cover.canvas.spineWidthIn,
+		styleCard: shouldIncludeStyleCard && selectedStylePack ? styleCardContent(selectedStylePack) : undefined,
+		blankPageCount: styleBlankPageCount,
 	});
 
 	// ── (d) LuluPdfSpecValidator ───────────────────────────────────────────
 	if (!options.skipValidation) {
 		const report = await validatePdf({
 			pdfBlob: pdf.pdfBlob,
-			format: bundle.format,
-			interiorPageCount: bundle.pages,
+			format: assemblyBundle.format,
+			interiorPageCount: assemblyBundle.pages,
 			declaredSpineWidthIn: cover.canvas.spineWidthIn,
 			bleedMarkCount: pdf.bleedMarkCount,
 			fontEmbedSummary: pdf.fontEmbedSummary,
@@ -159,14 +218,14 @@ export async function assemble(
 
 	// ── (e) EpubBuilder ────────────────────────────────────────────────────
 	const epub = await buildEpub({
-		bundle,
+		bundle: assemblyBundle,
 		resolvedSpreadTexts,
 		composedSpreadPngs
 	});
 
 	// ── (f) ReadAlongBundleBuilder ─────────────────────────────────────────
 	const readAlong = await buildReadAlongBundle({
-		bundle,
+		bundle: assemblyBundle,
 		resolvedSpreadTexts,
 		composedSpreadPngs,
 		isShortcodeFree: options.isShortcodeFree,
@@ -188,7 +247,7 @@ export async function assemble(
 		bleedValidated: pdf.bleedMarkCount >= 8,
 		cmykValidated: pdf.cmykMarkerPresent,
 		shortcode: readAlong.bundle.shortcode,
-		spineWidthIn: computeSpineWidthIn(bundle.pages, bundle.format)
+		spineWidthIn: computeSpineWidthIn(assemblyBundle.pages, assemblyBundle.format)
 	};
 
 	return {

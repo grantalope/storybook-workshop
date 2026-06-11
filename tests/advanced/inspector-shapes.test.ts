@@ -26,6 +26,15 @@ describe('StoryGrammarInspector — cellStatus', () => {
       passed: true,
       missing: [],
       beatGaps: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] },
+      elementScores: {
+        setting: 1,
+        initiating_event: 1,
+        internal_response: 1,
+        attempt: 1,
+        consequence: 1,
+        reaction: 1,
+      },
+      avgScore: 1,
     };
     expect(cellStatus(result, 1, 'setting')).toBe('pass');
     expect(cellStatus(result, 4, 'attempt')).toBe('pass');
@@ -44,6 +53,15 @@ describe('StoryGrammarInspector — cellStatus', () => {
         6: [],
         7: [],
       },
+      elementScores: {
+        setting: 0.4,
+        initiating_event: 0.7,
+        internal_response: 0.7,
+        attempt: 0,
+        consequence: 0.5,
+        reaction: 0.7,
+      },
+      avgScore: 0.5,
     };
     expect(cellStatus(result, 1, 'setting')).toBe('fail');
     expect(cellStatus(result, 4, 'attempt')).toBe('fail');

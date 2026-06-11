@@ -23,6 +23,7 @@ export interface BundleStore {
 export interface PublicBundleSnapshot {
 	shortcode: string;
 	title: string;
+	stylePackId?: string;
 	spreads: Array<{ index: number; text: string; framePngBase64: string; effect: string }>;
 	hasVoiceOver: boolean;
 	hasDedicationAudio: boolean;

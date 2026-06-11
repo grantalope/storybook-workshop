@@ -18,6 +18,7 @@ import type {
 
 // ─── Pivot: 3 art styles ────────────────────────────────────────────────────
 export type ArtStyle = 'octopath-hd2d' | 'flat-painted' | 'pixel-pure';
+export type StyleSelectionId = string;
 
 export const ART_STYLES: readonly ArtStyle[] = [
 	'octopath-hd2d',
@@ -102,7 +103,7 @@ export interface Station4Output {
 }
 
 export interface Station5Output {
-	artStyle: ArtStyle;
+	artStyle: StyleSelectionId;
 	authorByline?: string;
 	endpaper?: string;
 	coverBadge?: string;
