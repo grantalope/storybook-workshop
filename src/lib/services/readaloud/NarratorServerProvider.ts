@@ -78,7 +78,7 @@ export class NarratorServerProvider implements TtsProvider {
 		const wordTimings = validateWordTimings(body.wordTimings);
 		for (const timing of wordTimings) opts.onBoundary?.({ ...timing });
 		return {
-			audio: new Blob([base64ToBytes(body.audioBase64)], { type: 'audio/wav' }),
+			audio: new Blob([base64ToArrayBuffer(body.audioBase64)], { type: 'audio/wav' }),
 			wordTimings
 		};
 	}
@@ -144,6 +144,13 @@ function validateWordTiming(value: unknown, index: number): WordTiming {
 
 function isFiniteNumber(value: unknown): value is number {
 	return typeof value === 'number' && Number.isFinite(value);
+}
+
+function base64ToArrayBuffer(base64: string): ArrayBuffer {
+	const bytes = base64ToBytes(base64);
+	const buffer = new ArrayBuffer(bytes.byteLength);
+	new Uint8Array(buffer).set(bytes);
+	return buffer;
 }
 
 function base64ToBytes(base64: string): Uint8Array {

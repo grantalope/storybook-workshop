@@ -45,32 +45,33 @@ function makeTree(): SceneTree {
 
 describe('BookAssembler read-aloud edu wiring', () => {
 	it('registers an edu-extended read-along bundle when edu overlays are supplied', async () => {
-		let captured: ReadAlongBundle | null = null;
+		const captured: ReadAlongBundle[] = [];
 		await assemble(makeBundle(), {
 			spreadTexts: ['A brave {HERO_NAME} opened the map.', '', '', '', '', '', ''],
 			eduOverlays: { sceneTree: makeTree() },
 			registerBundle: async (bundle) => {
-				captured = bundle;
+				captured.push(bundle);
 				return `/preview/${bundle.shortcode}`;
 			}
 		});
 
-		expect(captured?.edu?.phonicsMap.brave.length).toBeGreaterThan(0);
-		expect(captured?.edu?.tier2Annotations[0].word).toBe('brave');
-		expect(captured?.edu?.dialogicPrompts).toEqual([{ spreadIndex: 0, type: 'recall', text: 'What did the reader try?' }]);
-		expect(captured?.edu?.quiz).toHaveLength(3);
+		const edu = captured[0].edu;
+		expect(edu?.phonicsMap.brave.length).toBeGreaterThan(0);
+		expect(edu?.tier2Annotations[0].word).toBe('brave');
+		expect(edu?.dialogicPrompts).toEqual([{ spreadIndex: 0, type: 'recall', text: 'What did the reader try?' }]);
+		expect(edu?.quiz).toHaveLength(3);
 	});
 
 	it('leaves the registered bundle unchanged when edu overlays are absent', async () => {
-		let captured: ReadAlongBundle | null = null;
+		const captured: ReadAlongBundle[] = [];
 		await assemble(makeBundle(), {
 			spreadTexts: ['', '', '', '', '', '', ''],
 			registerBundle: async (bundle) => {
-				captured = bundle;
+				captured.push(bundle);
 				return `/preview/${bundle.shortcode}`;
 			}
 		});
 
-		expect(captured).not.toHaveProperty('edu');
+		expect(captured[0]).not.toHaveProperty('edu');
 	});
 });
