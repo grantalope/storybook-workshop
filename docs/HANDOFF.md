@@ -52,3 +52,7 @@ green in WSL clone; restart-persistence test proves orders survive store reopen;
 default untouched for vitest/browser; `better-sqlite3` optionalDependency; no consumer churn.
 
 ## Session log (builder appends below — RAW results only)
+
+| Date | Branch | Task | Scenegrammar tests | Full tests | Check | Lint | Determinism grep | Push |
+|---|---|---|---:|---:|---|---|---:|---|
+| 2026-06-11 | feat/wfc-scene-grammar | T1 | 28 passed / 6 files | 1125 passed, 4 skipped / 98 files | `pnpm check`: unable to open database file; direct `svelte-check`: 102 existing errors / 20 warnings | `pnpm lint`: unable to open database file; direct `eslint`: binary absent | 0 matches in `src/lib/services/scenegrammar` | no |
