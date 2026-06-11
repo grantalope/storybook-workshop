@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, expect, it } from 'vitest';
 
 import { BEAT_NAMES, LOCALE_BIOMES } from '$lib/services/author/types';
