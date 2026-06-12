@@ -2,61 +2,31 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
-	InMemoryOrderStore,
-	OrderLifecycleService,
-	StripeCheckoutService,
-	LuluFulfillmentService,
-	type Order,
-} from '$lib/services/fulfillment';
-import {
 	POST as orderPOST,
-	__setOrderApiDeps,
 } from '../../src/routes/api/order/+server';
 import {
 	POST as luluWebhookPOST,
-	__setLuluWebhookApiDeps,
 } from '../../src/routes/api/lulu-webhook/+server';
 import {
 	POST as stripeWebhookPOST,
-	__setStripeWebhookApiDeps,
 } from '../../src/routes/api/stripe-webhook/+server';
 import { callPost } from './api-helpers';
 import {
-	createMockLulu,
-	createMockStripe,
 	hmacHex,
 	makeAddress,
 	makeConsent,
 	makeShippingOption,
-	makeClock,
-	makeIdGen,
 } from './fixtures';
+import { wireFulfillmentDeps } from './wireFulfillmentDeps';
 
 const LULU_SECRET = 'lulu-test-secret';
 const STRIPE_SECRET = 'whsec_test';
 
 function wireAll() {
-	const store = new InMemoryOrderStore();
-	const stripeHttp = createMockStripe();
-	const stripe = new StripeCheckoutService({
-		http: stripeHttp,
-		webhookSecret: STRIPE_SECRET,
-		nowSource: () => clock.now(),
+	return wireFulfillmentDeps({
+		stripeWebhookSecret: STRIPE_SECRET,
+		luluWebhookSecret: LULU_SECRET,
 	});
-	const clock = makeClock();
-	const luluHttp = createMockLulu();
-	const lulu = new LuluFulfillmentService({ http: luluHttp, webhookSecret: LULU_SECRET });
-	const lifecycle = new OrderLifecycleService({ store, nowSource: clock.now });
-	__setOrderApiDeps({
-		lifecycle,
-		stripe,
-		store,
-		idGen: makeIdGen('ord'),
-		nowSource: clock.now,
-	});
-	__setLuluWebhookApiDeps({ lulu });
-	__setStripeWebhookApiDeps({ stripe });
-	return { store, stripeHttp, lifecycle, clock, lulu, luluHttp };
 }
 
 const validBody = () => ({

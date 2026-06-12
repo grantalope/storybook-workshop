@@ -9,13 +9,12 @@
  */
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
-import { POST as orderPost, __setOrderApiDeps } from "../../src/routes/api/order/+server";
+import { POST as orderPost } from "../../src/routes/api/order/+server";
 import {
-	OrderLifecycleService,
-	StripeCheckoutService,
-	InMemoryOrderStore,
+	type ShippingOption,
 	type StripeHttpClient,
 } from "$lib/services/fulfillment";
+import { wireFulfillmentDeps } from "./wireFulfillmentDeps";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -43,16 +42,12 @@ function makeMockStripeHttp(): { http: StripeHttpClient; created: { amountCents:
 }
 
 function setupDeps() {
-	const store = new InMemoryOrderStore();
 	const { http, created } = makeMockStripeHttp();
-	const lifecycle = new OrderLifecycleService({ store });
-	const stripe = new StripeCheckoutService({ http, webhookSecret: "test-webhook-secret" });
-	__setOrderApiDeps({
-		lifecycle,
-		stripe,
-		store,
+	const { store } = wireFulfillmentDeps({
+		stripeHttp: http,
+		stripeWebhookSecret: "test-webhook-secret",
+		shippingOptions: [VALID_BODY.shippingOption],
 		idGen: () => `ord_test_${Math.random().toString(36).slice(2, 10)}`,
-		nowSource: () => 1_700_000_000_000,
 	});
 	return { store, created };
 }
@@ -64,6 +59,15 @@ function makeRequest(body: unknown, extraHeaders: Record<string, string> = {}): 
 		body: JSON.stringify(body),
 	});
 }
+
+const VALID_SHIPPING_OPTION: ShippingOption = {
+	name: "Mail",
+	shipSpeed: "mail",
+	costCents: 599,
+	currency: "USD",
+	etaDays: 7,
+	luluShippingLevel: "MAIL",
+};
 
 const VALID_BODY = {
 	kidId: "kid_eli",
@@ -80,18 +84,12 @@ const VALID_BODY = {
 		postcode: "11201",
 		country: "US",
 	},
-	shippingOption: {
-		name: "Mail",
-		shipSpeed: "mail",
-		costCents: 599,
-		currency: "USD",
-		etaDays: 7,
-	},
+	shippingOption: VALID_SHIPPING_OPTION,
 	consentLog: {
 		reviewedSpreads: true,
 		understandsNonRefundable: true,
-		consentedAt: Date.now(),
-		pdfHashAtConsent: "abc12345678",
+		pdfHash: "abc12345678",
+		timestampMs: 1_700_000_000_000,
 	},
 };
 

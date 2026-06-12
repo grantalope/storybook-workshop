@@ -2,52 +2,15 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
-	InMemoryOrderStore,
-	InMemoryQualityClaimStore,
-	OrderLifecycleService,
-	QualityGuaranteeHandler,
-	StripeCheckoutService,
-} from '$lib/services/fulfillment';
-import {
 	POST as claimPOST,
 	GET as claimGET,
-	__setQualityApiDeps,
 } from '../../src/routes/api/quality-claim/+server';
-import { __setOrderApiDeps } from '../../src/routes/api/order/+server';
 import { callPost, callGet } from './api-helpers';
-import {
-	createMockStripe,
-	makeAddress,
-	makeConsent,
-	makeOrder,
-	makeShippingOption,
-	makeIdGen,
-	makeClock,
-} from './fixtures';
+import { makeOrder } from './fixtures';
+import { wireFulfillmentDeps } from './wireFulfillmentDeps';
 
 function wire() {
-	const store = new InMemoryOrderStore();
-	const claimStore = new InMemoryQualityClaimStore();
-	const clock = makeClock();
-	const stripe = new StripeCheckoutService({
-		http: createMockStripe(),
-		webhookSecret: 's',
-	});
-	const lifecycle = new OrderLifecycleService({ store, nowSource: clock.now });
-	__setOrderApiDeps({
-		lifecycle,
-		stripe,
-		store,
-		idGen: makeIdGen('ord'),
-		nowSource: clock.now,
-	});
-	const handler = new QualityGuaranteeHandler({
-		orderStore: store,
-		claimStore,
-		nowSource: clock.now,
-	});
-	__setQualityApiDeps({ handler, claimStore, idGen: makeIdGen('claim') });
-	return { store, claimStore, clock };
+	return wireFulfillmentDeps({ stripeWebhookSecret: 's' });
 }
 
 describe('POST /api/quality-claim', () => {

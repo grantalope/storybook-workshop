@@ -1,35 +1,21 @@
 // tests/fulfillment/api-order-endpoint.test.ts
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import {
-	InMemoryOrderStore,
-	OrderLifecycleService,
-	StripeCheckoutService,
-} from '$lib/services/fulfillment';
-import { POST as orderPOST, __setOrderApiDeps } from '../../src/routes/api/order/+server';
+import { POST as orderPOST } from '../../src/routes/api/order/+server';
 import {
 	GET as orderIdGET,
 	POST as orderIdPOST,
 } from '../../src/routes/api/order/[id]/+server';
 import { callPost, callGet } from './api-helpers';
 import {
-	createMockStripe,
 	makeAddress,
 	makeShippingOption,
 	makeConsent,
-	makeClock,
-	makeIdGen,
 } from './fixtures';
+import { wireFulfillmentDeps } from './wireFulfillmentDeps';
 
 function wireDeps() {
-	const store = new InMemoryOrderStore();
-	const stripeHttp = createMockStripe();
-	const stripe = new StripeCheckoutService({ http: stripeHttp, webhookSecret: 's' });
-	const clock = makeClock();
-	const lifecycle = new OrderLifecycleService({ store, nowSource: clock.now });
-	const idGen = makeIdGen('ord');
-	__setOrderApiDeps({ lifecycle, stripe, store, idGen, nowSource: clock.now });
-	return { store, stripe, stripeHttp, lifecycle, clock, idGen };
+	return wireFulfillmentDeps({ stripeWebhookSecret: 's' });
 }
 
 const validBody = () => ({

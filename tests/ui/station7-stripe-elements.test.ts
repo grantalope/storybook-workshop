@@ -36,25 +36,17 @@ import {
 	pollAfter3DS,
 } from '$lib/workshop/services/stripeElementsGate';
 import {
-	InMemoryOrderStore,
-	OrderLifecycleService,
-	StripeCheckoutService,
 	type Order,
 } from '$lib/services/fulfillment';
-import {
-	POST as orderPOST,
-	__setOrderApiDeps,
-} from '../../src/routes/api/order/+server';
+import { POST as orderPOST } from '../../src/routes/api/order/+server';
 import { POST as orderIdPOST } from '../../src/routes/api/order/[id]/+server';
 import { callPost } from '../fulfillment/api-helpers';
 import {
-	createMockStripe,
 	makeAddress,
 	makeShippingOption,
 	makeConsent,
-	makeClock,
-	makeIdGen,
 } from '../fulfillment/fixtures';
+import { wireFulfillmentDeps } from '../fulfillment/wireFulfillmentDeps';
 
 // ---------------------------------------------------------------------------
 // StripeElementsLoader unit tests
@@ -306,8 +298,8 @@ describe('stripeElementsGate.pollAfter3DS', () => {
 type PiStatus = 'requires_payment_method' | 'requires_confirmation' | 'succeeded' | 'canceled';
 
 function wireDeps(opts: { piStatus?: PiStatus } = {}) {
-	const store = new InMemoryOrderStore();
-	const stripeHttp = createMockStripe();
+	const deps = wireFulfillmentDeps({ stripeWebhookSecret: 's' });
+	const { store, stripeHttp, stripe, clock, lifecycle, idGen } = deps;
 	// Override getPaymentIntent so confirm-action server re-fetch yields the
 	// caller-controlled status (Stripe is source of truth for status).
 	const origGet = stripeHttp.getPaymentIntent;
@@ -315,11 +307,6 @@ function wireDeps(opts: { piStatus?: PiStatus } = {}) {
 		const pi = await origGet.call(stripeHttp, id);
 		return { ...pi, status: (opts.piStatus ?? 'succeeded') as PiStatus };
 	};
-	const stripe = new StripeCheckoutService({ http: stripeHttp, webhookSecret: 's' });
-	const clock = makeClock();
-	const lifecycle = new OrderLifecycleService({ store, nowSource: clock.now });
-	const idGen = makeIdGen('ord');
-	__setOrderApiDeps({ lifecycle, stripe, store, idGen, nowSource: clock.now });
 	return { store, stripe, stripeHttp, lifecycle, clock, idGen };
 }
 

@@ -7,20 +7,15 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
 	createSqliteStores,
 	InMemoryOrderStore,
-	OrderLifecycleService,
 	sqliteAvailable,
-	StripeCheckoutService,
 	type Order,
 	type SqliteStores,
 	type WebhookOrderStore,
 } from '$lib/services/fulfillment';
-import { __setOrderApiDeps } from '../../src/routes/api/order/+server';
-import {
-	POST as stripeWebhookPOST,
-	__setStripeWebhookApiDeps,
-} from '../../src/routes/api/stripe-webhook/+server';
+import { POST as stripeWebhookPOST } from '../../src/routes/api/stripe-webhook/+server';
 import { callPost } from './api-helpers';
-import { createMockStripe, hmacHex, makeClock, makeIdGen, makeOrder } from './fixtures';
+import { hmacHex, makeClock, makeOrder } from './fixtures';
+import { wireFulfillmentDeps } from './wireFulfillmentDeps';
 
 const STRIPE_SECRET = 'whsec_test';
 const tempDirs: string[] = [];
@@ -225,22 +220,11 @@ for (const variant of storeVariants) {
 }
 
 function wireWebhook(harness: StoreHarness): StoreHarness & { clock: ReturnType<typeof makeClock> } {
-	const clock = makeClock();
-	const stripe = new StripeCheckoutService({
-		http: createMockStripe(),
-		webhookSecret: STRIPE_SECRET,
-		nowSource: () => clock.now(),
-	});
-	const lifecycle = new OrderLifecycleService({ store: harness.store, nowSource: clock.now });
-	__setOrderApiDeps({
-		lifecycle,
-		stripe,
+	const deps = wireFulfillmentDeps({
 		store: harness.store,
-		idGen: makeIdGen('ord'),
-		nowSource: clock.now,
+		stripeWebhookSecret: STRIPE_SECRET,
 	});
-	__setStripeWebhookApiDeps({ stripe });
-	return { ...harness, clock };
+	return { ...harness, clock: deps.clock };
 }
 
 function handledEventCases(): Array<{

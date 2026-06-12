@@ -2,31 +2,24 @@
 //
 // Regression tests for Cluster-A money-integrity findings:
 //   P1: charge.refunded uses charge.id instead of charge.payment_intent -> refunds never audited
+//   P0: order creation must fail closed and charge server-quoted shipping
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import {
-	InMemoryOrderStore,
-	OrderLifecycleService,
-	StripeCheckoutService,
-} from '$lib/services/fulfillment';
 import {
 	POST as orderPOST,
 	__setOrderApiDeps,
 } from '../../src/routes/api/order/+server';
 import {
 	POST as stripeWebhookPOST,
-	__setStripeWebhookApiDeps,
 } from '../../src/routes/api/stripe-webhook/+server';
 import { callPost } from './api-helpers';
 import {
-	createMockStripe,
 	hmacHex,
 	makeAddress,
 	makeConsent,
 	makeShippingOption,
-	makeClock,
-	makeIdGen,
 } from './fixtures';
+import { wireFulfillmentDeps } from './wireFulfillmentDeps';
 
 const STRIPE_SECRET = 'whsec_test';
 
@@ -35,24 +28,7 @@ const STRIPE_SECRET = 'whsec_test';
 // ---------------------------------------------------------------------------
 
 function wireAll() {
-	const store = new InMemoryOrderStore();
-	const stripeHttp = createMockStripe();
-	const clock = makeClock();
-	const stripe = new StripeCheckoutService({
-		http: stripeHttp,
-		webhookSecret: STRIPE_SECRET,
-		nowSource: () => clock.now(),
-	});
-	const lifecycle = new OrderLifecycleService({ store, nowSource: clock.now });
-	__setOrderApiDeps({
-		lifecycle,
-		stripe,
-		store,
-		idGen: makeIdGen('ord'),
-		nowSource: clock.now,
-	});
-	__setStripeWebhookApiDeps({ stripe });
-	return { store, stripeHttp, lifecycle, clock, stripe };
+	return wireFulfillmentDeps({ stripeWebhookSecret: STRIPE_SECRET });
 }
 
 async function signedStripe(secret: string, body: string, nowMs: number): Promise<string> {
@@ -181,3 +157,137 @@ describe('P1 — charge.refunded webhook uses payment_intent not charge id', () 
 		expect(entry!.meta?.paymentIntentId).toBe(piId);
 	});
 });
+
+// ---------------------------------------------------------------------------
+// P0: shipping option costCents must be server-validated, not client-trusted
+// ---------------------------------------------------------------------------
+
+describe('P0 — shipping costCents fail-closed and server-quoted', () => {
+	it('ADVERSARIAL: missing shippingQuote service returns 503 before Stripe', async () => {
+		const deps = wireAll();
+		__setOrderApiDeps({
+			lifecycle: deps.lifecycle,
+			stripe: deps.stripe,
+			store: deps.store,
+			qualityClaimStore: deps.claimStore,
+			idGen: deps.idGen,
+			nowSource: deps.clock.now,
+		} as Parameters<typeof __setOrderApiDeps>[0]);
+
+		const r = await callPost(orderPOST, { body: validBody() });
+		expect(r.status).toBe(503);
+		expect(r.data.error).toBe('shipping_unavailable');
+		expect(stripeCreateCalls(deps)).toHaveLength(0);
+	});
+
+	it('ADVERSARIAL: quote service throw returns 503 before Stripe', async () => {
+		const deps = wireAll();
+		deps.luluHttp.failNext('getShippingCost', new Error('lulu down'));
+
+		const r = await callPost(orderPOST, { body: validBody() });
+		expect(r.status).toBe(503);
+		expect(r.data.error).toBe('shipping_unavailable');
+		expect(stripeCreateCalls(deps)).toHaveLength(0);
+	});
+
+	it('ADVERSARIAL: zero costCents is rejected before Stripe', async () => {
+		const deps = wireAll();
+		const tampered = validBody();
+		tampered.shippingOption = makeShippingOption({
+			...tampered.shippingOption,
+			costCents: 0,
+		});
+
+		const r = await callPost(orderPOST, { body: tampered });
+		expect(r.status).toBe(400);
+		expect(r.data.error).toBe('invalid_shipping_cost');
+		expect(stripeCreateCalls(deps)).toHaveLength(0);
+	});
+
+	it('ADVERSARIAL: unknown shipping level is rejected even when cost matches', async () => {
+		const deps = wireAll();
+		const tampered = validBody();
+		tampered.shippingOption = makeShippingOption({
+			...tampered.shippingOption,
+			name: 'Unavailable',
+			luluShippingLevel: 'OVERNIGHT_MOON',
+		});
+
+		const r = await callPost(orderPOST, { body: tampered });
+		expect(r.status).toBe(400);
+		expect(r.data.error).toBe('shipping_option_unavailable');
+		expect(stripeCreateCalls(deps)).toHaveLength(0);
+	});
+
+	it('ADVERSARIAL: matching level with wrong currency is rejected', async () => {
+		const deps = wireAll();
+		const tampered = validBody();
+		tampered.shippingOption = makeShippingOption({
+			...tampered.shippingOption,
+			currency: 'CAD',
+		});
+
+		const r = await callPost(orderPOST, { body: tampered });
+		expect(r.status).toBe(400);
+		expect(r.data.error).toBe('shipping_option_unavailable');
+		expect(stripeCreateCalls(deps)).toHaveLength(0);
+	});
+
+	it('ADVERSARIAL: matching level with tampered cost is rejected with server quote', async () => {
+		const deps = wireAll();
+		const tampered = validBody();
+		tampered.shippingOption = makeShippingOption({
+			...tampered.shippingOption,
+			costCents: 999999,
+		});
+
+		const r = await callPost(orderPOST, { body: tampered });
+		expect(r.status).toBe(400);
+		expect(r.data.error).toBe('shipping_mismatch');
+		expect(r.data.serverQuote).toMatchObject({
+			luluShippingLevel: 'MAIL',
+			currency: 'USD',
+			costCents: 499,
+		});
+		expect(stripeCreateCalls(deps)).toHaveLength(0);
+	});
+
+	it('HAPPY: persists matched server option and charges server shipping amount', async () => {
+		const deps = wireAll();
+		const body = validBody();
+		body.shippingOption = makeShippingOption({
+			name: 'Client supplied label must not persist',
+			shipSpeed: 'ground',
+			costCents: 499,
+			currency: 'USD',
+			etaDays: 1,
+			luluShippingLevel: 'MAIL',
+		});
+
+		const r = await callPost(orderPOST, { body });
+		expect(r.status).toBe(200);
+		expect(r.data.amountCents).toBe(3499 + 499);
+
+		const stored = (await deps.store.get(r.data.orderId as string))!;
+		expect(stored.shippingOption).toMatchObject({
+			name: 'Standard mail',
+			shipSpeed: 'mail',
+			costCents: 499,
+			currency: 'USD',
+			etaDays: 14,
+			luluShippingLevel: 'MAIL',
+		});
+		expect(stripeCreateCalls(deps)[0]?.args).toMatchObject({
+			amountCents: 3499 + 499,
+			currency: 'USD',
+		});
+	});
+});
+
+function stripeCreateCalls(deps: ReturnType<typeof wireAll>) {
+	return (
+		deps.stripeHttp as {
+			calls: Array<{ method: string; args: unknown }>;
+		}
+	).calls.filter((call) => call.method === 'createPaymentIntent');
+}
