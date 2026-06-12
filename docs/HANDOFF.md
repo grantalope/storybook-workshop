@@ -405,6 +405,3316 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | p149 | 2751351 |
 | p150 | 2722267 |
 
+| date | lane | branch | id | bytes | status |
+|---|---|---|---|---:|---|
+| 2026-06-12 | example-books | feat/img-books | p002/cover.jpg | 552354 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p002/hero-portrait.jpg | 460078 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p002/spread-climax.jpg | 648029 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p002/spread-midpoint.jpg | 647687 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p002/spread-resolution.jpg | 519929 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p002/spread-setup.jpg | 519804 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p002/spread-trial.jpg | 568278 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p002/story.json | 3516 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p005/cover.jpg | 441319 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p005/hero-portrait.jpg | 400786 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p005/spread-climax.jpg | 470137 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p005/spread-midpoint.jpg | 453146 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p005/spread-resolution.jpg | 458634 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p005/spread-setup.jpg | 457544 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p005/spread-trial.jpg | 457094 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p005/story.json | 3342 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p011/cover.jpg | 709032 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p011/hero-portrait.jpg | 493856 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p011/spread-climax.jpg | 685340 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p011/spread-midpoint.jpg | 672895 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p011/spread-resolution.jpg | 674908 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p011/spread-setup.jpg | 571114 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p011/spread-trial.jpg | 528781 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p011/story.json | 3323 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p024/cover.jpg | 677149 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p024/hero-portrait.jpg | 555712 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p024/spread-climax.jpg | 697897 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p024/spread-midpoint.jpg | 664935 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p024/spread-resolution.jpg | 584099 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p024/spread-setup.jpg | 673350 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p024/spread-trial.jpg | 666577 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p024/story.json | 3266 | LANE-DONE |
+
+| date | lane | branch | id | bytes | status |
+|---|---|---|---|---:|---|
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p002/cover.jpg | 552354 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p002/hero-portrait.jpg | 460078 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p002/spread-climax.jpg | 648029 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p002/spread-midpoint.jpg | 647687 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p002/spread-resolution.jpg | 519929 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p002/spread-setup.jpg | 519804 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p002/spread-trial.jpg | 568278 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p002/story.json | 3516 | LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p005/cover.jpg | 441319 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p005/hero-portrait.jpg | 400786 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p005/spread-climax.jpg | 470137 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p005/spread-midpoint.jpg | 453146 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p005/spread-resolution.jpg | 458634 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p005/spread-setup.jpg | 457544 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p005/spread-trial.jpg | 457094 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p005/story.json | 3342 | LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p011/cover.jpg | 709032 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p011/hero-portrait.jpg | 493856 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p011/spread-climax.jpg | 685340 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p011/spread-midpoint.jpg | 672895 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p011/spread-resolution.jpg | 674908 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p011/spread-setup.jpg | 571114 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p011/spread-trial.jpg | 528781 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p011/story.json | 3323 | LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p024/cover.jpg | 677149 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p024/hero-portrait.jpg | 555712 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p024/spread-climax.jpg | 697897 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p024/spread-midpoint.jpg | 664935 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p024/spread-resolution.jpg | 584099 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p024/spread-setup.jpg | 673350 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p024/spread-trial.jpg | 666577 | RESUME-SKIP LANE-DONE |
+| 2026-06-12 | example-books-resume-verify | feat/img-books | p024/story.json | 3266 | LANE-DONE |
+
+| date | lane | branch | id | bytes | status |
+|---|---|---|---|---:|---|
+| 2026-06-12 | example-books-final-verify | feat/img-books | p002/cover.jpg | 552354 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p002/hero-portrait.jpg | 460078 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p002/spread-climax.jpg | 648029 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p002/spread-midpoint.jpg | 647687 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p002/spread-resolution.jpg | 519929 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p002/spread-setup.jpg | 519804 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p002/spread-trial.jpg | 568278 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p002/story.json | 3516 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p005/cover.jpg | 441319 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p005/hero-portrait.jpg | 400786 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p005/spread-climax.jpg | 470137 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p005/spread-midpoint.jpg | 453146 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p005/spread-resolution.jpg | 458634 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p005/spread-setup.jpg | 457544 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p005/spread-trial.jpg | 457094 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p005/story.json | 3342 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p011/cover.jpg | 709032 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p011/hero-portrait.jpg | 493856 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p011/spread-climax.jpg | 685340 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p011/spread-midpoint.jpg | 672895 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p011/spread-resolution.jpg | 674908 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p011/spread-setup.jpg | 571114 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p011/spread-trial.jpg | 528781 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p011/story.json | 3323 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p024/cover.jpg | 677149 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p024/hero-portrait.jpg | 555712 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p024/spread-climax.jpg | 697897 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p024/spread-midpoint.jpg | 664935 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p024/spread-resolution.jpg | 584099 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p024/spread-setup.jpg | 673350 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p024/spread-trial.jpg | 666577 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-final-verify | feat/img-books | p024/story.json | 3266 | RESUME-SKIP VISUAL-OK LANE-DONE |
+
+| date | lane | branch | id | bytes | status |
+|---|---|---|---|---:|---|
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p002/cover.jpg | 552354 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p002/hero-portrait.jpg | 460078 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p002/spread-climax.jpg | 648029 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p002/spread-midpoint.jpg | 647687 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p002/spread-resolution.jpg | 519929 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p002/spread-setup.jpg | 519804 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p002/spread-trial.jpg | 568278 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p002/story.json | 3516 | JSON-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p005/cover.jpg | 441319 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p005/hero-portrait.jpg | 400786 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p005/spread-climax.jpg | 470137 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p005/spread-midpoint.jpg | 453146 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p005/spread-resolution.jpg | 458634 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p005/spread-setup.jpg | 457544 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p005/spread-trial.jpg | 457094 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p005/story.json | 3342 | JSON-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p011/cover.jpg | 709032 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p011/hero-portrait.jpg | 493856 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p011/spread-climax.jpg | 685340 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p011/spread-midpoint.jpg | 672895 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p011/spread-resolution.jpg | 674908 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p011/spread-setup.jpg | 571114 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p011/spread-trial.jpg | 528781 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p011/story.json | 3323 | JSON-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p024/cover.jpg | 677149 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p024/hero-portrait.jpg | 555712 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p024/spread-climax.jpg | 697897 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p024/spread-midpoint.jpg | 664935 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p024/spread-resolution.jpg | 584099 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p024/spread-setup.jpg | 673350 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p024/spread-trial.jpg | 666577 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p024/story.json | 3266 | JSON-OK LANE-DONE |
+
+| date | lane | branch | id | bytes | status |
+|---|---|---|---|---:|---|
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p002/cover.jpg | 552354 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p002/hero-portrait.jpg | 460078 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p002/spread-climax.jpg | 648029 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p002/spread-midpoint.jpg | 647687 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p002/spread-resolution.jpg | 519929 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p002/spread-setup.jpg | 519804 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p002/spread-trial.jpg | 568278 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p002/story.json | 3516 | JSON-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p005/cover.jpg | 441319 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p005/hero-portrait.jpg | 400786 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p005/spread-climax.jpg | 470137 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p005/spread-midpoint.jpg | 453146 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p005/spread-resolution.jpg | 458634 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p005/spread-setup.jpg | 457544 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p005/spread-trial.jpg | 457094 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p005/story.json | 3342 | JSON-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p011/cover.jpg | 709032 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p011/hero-portrait.jpg | 493856 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p011/spread-climax.jpg | 685340 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p011/spread-midpoint.jpg | 672895 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p011/spread-resolution.jpg | 674908 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p011/spread-setup.jpg | 571114 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p011/spread-trial.jpg | 528781 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p011/story.json | 3323 | JSON-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p024/cover.jpg | 677149 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p024/hero-portrait.jpg | 555712 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p024/spread-climax.jpg | 697897 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p024/spread-midpoint.jpg | 664935 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p024/spread-resolution.jpg | 584099 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p024/spread-setup.jpg | 673350 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p024/spread-trial.jpg | 666577 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-final | feat/img-books | p024/story.json | 3266 | JSON-OK LANE-DONE |
+
+| date | lane | branch | id | bytes | status |
+|---|---|---|---|---:|---|
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p002/cover.jpg | 552354 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p002/hero-portrait.jpg | 460078 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p002/spread-climax.jpg | 648029 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p002/spread-midpoint.jpg | 647687 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p002/spread-resolution.jpg | 519929 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p002/spread-setup.jpg | 519804 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p002/spread-trial.jpg | 568278 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p002/story.json | 3516 | JSON-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p005/cover.jpg | 441319 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p005/hero-portrait.jpg | 400786 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p005/spread-climax.jpg | 470137 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p005/spread-midpoint.jpg | 453146 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p005/spread-resolution.jpg | 458634 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p005/spread-setup.jpg | 457544 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p005/spread-trial.jpg | 457094 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p005/story.json | 3342 | JSON-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p011/cover.jpg | 709032 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p011/hero-portrait.jpg | 493856 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p011/spread-climax.jpg | 685340 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p011/spread-midpoint.jpg | 672895 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p011/spread-resolution.jpg | 674908 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p011/spread-setup.jpg | 571114 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p011/spread-trial.jpg | 528781 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p011/story.json | 3323 | JSON-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p024/cover.jpg | 677149 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p024/hero-portrait.jpg | 555712 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p024/spread-climax.jpg | 697897 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p024/spread-midpoint.jpg | 664935 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p024/spread-resolution.jpg | 584099 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p024/spread-setup.jpg | 673350 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p024/spread-trial.jpg | 666577 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-closeout | feat/img-books | p024/story.json | 3266 | JSON-OK LANE-DONE |
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-resume-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-idempotent-closeout, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-current-idempotent-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-image-builder-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-resume-fresh-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+| date | lane | branch | id | bytes | status |
+|---|---|---|---|---:|---|
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p002/cover.jpg | 552354 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p002/hero-portrait.jpg | 460078 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p002/spread-climax.jpg | 648029 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p002/spread-midpoint.jpg | 647687 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p002/spread-resolution.jpg | 519929 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p002/spread-setup.jpg | 519804 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p002/spread-trial.jpg | 568278 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p002/story.json | 3516 | JSON-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p005/cover.jpg | 441319 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p005/hero-portrait.jpg | 400786 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p005/spread-climax.jpg | 470137 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p005/spread-midpoint.jpg | 453146 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p005/spread-resolution.jpg | 458634 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p005/spread-setup.jpg | 457544 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p005/spread-trial.jpg | 457094 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p005/story.json | 3342 | JSON-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p011/cover.jpg | 709032 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p011/hero-portrait.jpg | 493856 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p011/spread-climax.jpg | 685340 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p011/spread-midpoint.jpg | 672895 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p011/spread-resolution.jpg | 674908 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p011/spread-setup.jpg | 571114 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p011/spread-trial.jpg | 528781 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p011/story.json | 3323 | JSON-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p024/cover.jpg | 677149 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p024/hero-portrait.jpg | 555712 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p024/spread-climax.jpg | 697897 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p024/spread-midpoint.jpg | 664935 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p024/spread-resolution.jpg | 584099 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p024/spread-setup.jpg | 673350 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p024/spread-trial.jpg | 666577 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-codex55-current-run | feat/img-books | p024/story.json | 3266 | JSON-OK LANE-DONE |
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-current-run, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-final-idempotent-pass, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-current-idempotent-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-local-visual-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-selected-four-current-idempotent-visual-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-current-run, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-idempotent-recheck, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-idempotent-visual-recheck, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-built-in-idempotent-visual-check, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-current-idempotent-check, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-user-request-idempotent, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-trial.jpg | 568278 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-trial.jpg | 457094 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-trial.jpg | 528781 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-trial.jpg | 666577 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-resume-final, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-trial.jpg | 568278 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-trial.jpg | 457094 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-trial.jpg | 528781 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-trial.jpg | 666577 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-idempotent-current, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-trial.jpg | 568278 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-trial.jpg | 457094 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-trial.jpg | 528781 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-trial.jpg | 666577 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-idempotent-built-in-only, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-final-idempotent, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-built-in-resume-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-image-builder-idempotent-final, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-built-in-idempotent-rerun, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-resume-skip-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-final-skip-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-idempotent-reverify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-idempotent-visual-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-user-current-visual-idempotent, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-idempotent-existing-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-resume-skip-visual, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-idempotent-current-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-idempotent-resume-final, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-idempotent-final, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-turn-visual-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-idempotent-visual-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-turn-verified, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-idempotent-final, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-resume-visual-verified, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-resume-skip-verified, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-final-idempotent-visual-ok, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-idempotent-skip, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-visual-idempotent-skip, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-idempotent-visual-ok, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-final-idempotent-visual-ok, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-resume-visual-ok, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-idempotent-rerun, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-run-visual-ok, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-turn-idempotent-visual-ok, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-final-current-turn, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-idempotent-final, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-resume-skip-visual-verified, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-resume-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-idempotent-visual-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-idempotent-visual-check, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-resume-verified, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-final-idempotent-verified, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-idempotent-recheck, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-fresh-idempotent-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-resume-skip-visual-ok, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-resume-skip-visual-ok, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-image-builder-resume-skip-visual-ok, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-current-resume-skip-visual-ok, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p002/cover.jpg | 552354 |
+| p002/hero-portrait.jpg | 460078 |
+| p002/spread-setup.jpg | 519804 |
+| p002/spread-midpoint.jpg | 647687 |
+| p002/spread-trial.jpg | 568278 |
+| p002/spread-climax.jpg | 648029 |
+| p002/spread-resolution.jpg | 519929 |
+| p002/story.json | 3516 |
+| p005/cover.jpg | 441319 |
+| p005/hero-portrait.jpg | 400786 |
+| p005/spread-setup.jpg | 457544 |
+| p005/spread-midpoint.jpg | 453146 |
+| p005/spread-trial.jpg | 457094 |
+| p005/spread-climax.jpg | 470137 |
+| p005/spread-resolution.jpg | 458634 |
+| p005/story.json | 3342 |
+| p011/cover.jpg | 709032 |
+| p011/hero-portrait.jpg | 493856 |
+| p011/spread-setup.jpg | 571114 |
+| p011/spread-midpoint.jpg | 672895 |
+| p011/spread-trial.jpg | 528781 |
+| p011/spread-climax.jpg | 685340 |
+| p011/spread-resolution.jpg | 674908 |
+| p011/story.json | 3323 |
+| p024/cover.jpg | 677149 |
+| p024/hero-portrait.jpg | 555712 |
+| p024/spread-setup.jpg | 673350 |
+| p024/spread-midpoint.jpg | 664935 |
+| p024/spread-trial.jpg | 666577 |
+| p024/spread-climax.jpg | 697897 |
+| p024/spread-resolution.jpg | 584099 |
+| p024/story.json | 3266 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-diverse-new-books, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-resume-skip-visual-ok, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-idempotent-verify-current, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-resume-skip-visual-ok-rerun, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-final-resume-verify-selected-four, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-verify-resume-skip, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-selected-four-idempotent-qc, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-selected-four-idempotent-final, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-idempotent-verified, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-built-in-imagegen-idempotent-verified, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-request-idempotent-verified, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-turn-idempotent-verified, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-built-in-imagegen-idempotent-visual-ok, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-turn-visual-idempotent, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-final-idempotent-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-current-turn-idempotent-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-current-idempotent-visual-verify, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
+
 ## Compose pilot 2026-06-11 (Fable)
 
 - COMPOSE PILOT: scripts/pregen/compose-pilot.mjs — first 3 bank-composed spreads

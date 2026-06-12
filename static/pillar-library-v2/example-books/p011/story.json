@@ -1,0 +1,63 @@
+{
+  "id": "p011",
+  "archetypeId": "p011",
+  "displayName": "wavy-haired artist",
+  "ageBand": "4-6",
+  "artStyle": "opaque gouache, warm painted children's-storybook",
+  "title": "Theo's Brave Blue Line",
+  "refrain": {
+    "setup": "A little line can find the way.",
+    "climaxMutation": "A brave blue line can lead us home."
+  },
+  "beats": [
+    {
+      "beat": "setup",
+      "sceneTreeRole": "setup",
+      "storyText": "Theo loved his battered crayon box most of all, especially the blue crayon worn flat from drawing rivers.",
+      "pageTurnHook": "Then his blue line wriggled off the paper.",
+      "illustrationBrief": "Theo kneels at a low art table in a cozy room, paint-smudged smock on, battered crayon box open, drawing a blue river on paper."
+    },
+    {
+      "beat": "catalyst",
+      "sceneTreeRole": "catalyst",
+      "storyText": "The blue line slid across the floor and curled around a lost toy boat waiting under the chair.",
+      "pageTurnHook": "Theo wondered whether a drawing could know where to go.",
+      "illustrationBrief": "Theo watches a blue crayon line curl gently from paper across the floor toward a small toy boat under a chair."
+    },
+    {
+      "beat": "debate",
+      "sceneTreeRole": "debate",
+      "storyText": "He whispered, A little line can find the way, but his hand shook when the line reached the hallway shadows.",
+      "pageTurnHook": "The toy boat bumped forward anyway.",
+      "illustrationBrief": "Theo stands at the edge of a softly lit hallway, holding his blue crayon and toy boat, uncertain but curious."
+    },
+    {
+      "beat": "midpoint",
+      "sceneTreeRole": "midpoint",
+      "storyText": "Theo drew bridges, stepping stones, and a loop-de-loop sky, and the blue line carried the boat through every pretend place.",
+      "pageTurnHook": "Until the crayon snapped in two.",
+      "illustrationBrief": "Theo draws an imaginative indoor river path with bridges and stepping stones, guiding the toy boat through playful painted scenery."
+    },
+    {
+      "beat": "trial",
+      "sceneTreeRole": "trial",
+      "storyText": "With half a crayon and a big blank wall ahead, Theo felt too small to finish the river.",
+      "pageTurnHook": "The little line waited for him to choose.",
+      "illustrationBrief": "Theo sits before a large blank paper taped to the wall, holding two pieces of blue crayon, worried but thinking hard."
+    },
+    {
+      "beat": "climax",
+      "sceneTreeRole": "climax",
+      "storyText": "Theo pressed both blue pieces together and cried, A brave blue line can lead us home, drawing a shining river back to the art table.",
+      "pageTurnHook": "The toy boat sailed straight into a hug.",
+      "illustrationBrief": "Theo draws with both broken blue crayon pieces at once, a glowing blue river sweeping warmly through the room toward the art table and toy boat."
+    },
+    {
+      "beat": "resolution",
+      "sceneTreeRole": "resolution",
+      "storyText": "Now Theo keeps the snapped blue crayon in front, because some lines grow braver after they break.",
+      "pageTurnHook": "And every new river begins with a tiny wiggle.",
+      "illustrationBrief": "Theo smiles at his art table, the repaired blue crayon pieces beside the toy boat, a finished river drawing glowing softly in afternoon light."
+    }
+  ]
+}

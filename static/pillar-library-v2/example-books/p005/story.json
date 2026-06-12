@@ -1,0 +1,63 @@
+{
+  "id": "p005",
+  "archetypeId": "p005",
+  "displayName": "curly-haired dancer",
+  "ageBand": "2-4",
+  "artStyle": "wax crayon and soft pastel, warm children's-storybook",
+  "title": "Milo's Small Spin",
+  "refrain": {
+    "setup": "Tiny step, steady spin.",
+    "climaxMutation": "Tiny steps, steady hearts, big spin."
+  },
+  "beats": [
+    {
+      "beat": "setup",
+      "sceneTreeRole": "setup",
+      "storyText": "Milo loved to twirl in the playroom, one hand on his swishy skirt and ballet slippers bouncing on his shoulder.",
+      "pageTurnHook": "But the big recital circle looked much wider than home.",
+      "illustrationBrief": "Milo twirls in a cozy playroom, swishy practice skirt over leggings, ballet slippers slung over one shoulder, soft blocks and a rug around him."
+    },
+    {
+      "beat": "catalyst",
+      "sceneTreeRole": "catalyst",
+      "storyText": "At dance class, a chalk circle waited on the floor, and every child was invited to spin inside it.",
+      "pageTurnHook": "Milo's toes stopped right at the white line.",
+      "illustrationBrief": "Milo stands at the edge of a chalk circle in a friendly dance studio, other small dancers nearby, his ballet slippers now in his hands."
+    },
+    {
+      "beat": "debate",
+      "sceneTreeRole": "debate",
+      "storyText": "He whispered, Tiny step, steady spin, but wondered if a tiny step could ever cross such a big round space.",
+      "pageTurnHook": "Then the music began with a shy little plink.",
+      "illustrationBrief": "Milo looks thoughtful beside the chalk circle as warm music notes seem to float gently from a small speaker."
+    },
+    {
+      "beat": "midpoint",
+      "sceneTreeRole": "midpoint",
+      "storyText": "Milo tapped one slipper down, then the other, and found a path of little steps curling like a ribbon.",
+      "pageTurnHook": "The ribbon path tangled when the tempo hopped faster.",
+      "illustrationBrief": "Milo follows a curling ribbon-like path of tiny dance steps inside the chalk circle, smiling with new courage."
+    },
+    {
+      "beat": "trial",
+      "sceneTreeRole": "trial",
+      "storyText": "His skirt swished too far, his curls bounced into his eyes, and he sat down with one slipper half-tied.",
+      "pageTurnHook": "The circle felt quiet until a friend offered a hand.",
+      "illustrationBrief": "Milo sits gently on the dance floor inside the chalk circle, one slipper half-tied, a kind classmate reaching out."
+    },
+    {
+      "beat": "climax",
+      "sceneTreeRole": "climax",
+      "storyText": "Milo took the hand and called, Tiny steps, steady hearts, big spin, and the class made one wide turning circle together.",
+      "pageTurnHook": "Milo's laugh spun right through the room.",
+      "illustrationBrief": "Milo dances hand-in-hand with classmates in a wide joyful circle, his swishy skirt and curls moving as everyone turns together."
+    },
+    {
+      "beat": "resolution",
+      "sceneTreeRole": "resolution",
+      "storyText": "Back home, Milo drew a tiny chalk circle on the rug and practiced a spin big enough for tomorrow.",
+      "pageTurnHook": "This time, the circle waited like a friend.",
+      "illustrationBrief": "Milo practices happily in the cozy playroom inside a small chalk circle on the rug, ballet slippers nearby, evening light warm and calm."
+    }
+  ]
+}

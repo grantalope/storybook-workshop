@@ -1,0 +1,63 @@
+{
+  "id": "p065",
+  "archetypeId": "p065",
+  "displayName": "coily-haired explorer",
+  "ageBand": "2-4",
+  "artStyle": "wax crayon and soft pastel, warm children's-storybook",
+  "title": "Nia's Compass for Very Near",
+  "refrain": {
+    "setup": "North is near, brave is here.",
+    "climaxMutation": "Home is near, brave is here."
+  },
+  "beats": [
+    {
+      "beat": "setup",
+      "sceneTreeRole": "setup",
+      "storyText": "Nia wore her pocketed olive jacket for every backyard expedition and clicked her small brass compass open with both hands.",
+      "pageTurnHook": "The compass needle pointed under the porch.",
+      "illustrationBrief": "Nia stands in a sunny backyard with amber-frame glasses, pocketed olive jacket, sturdy shorts, and a small brass compass open in her hands."
+    },
+    {
+      "beat": "catalyst",
+      "sceneTreeRole": "catalyst",
+      "storyText": "Under the porch, something round and golden winked from beside a dandelion puff.",
+      "pageTurnHook": "Nia took one tiny explorer step closer.",
+      "illustrationBrief": "Nia peers toward the shady space under a porch where a gentle golden glint shines beside a dandelion puff."
+    },
+    {
+      "beat": "debate",
+      "sceneTreeRole": "debate",
+      "storyText": "She whispered, North is near, brave is here, but the porch shadow looked much bigger than her shoes.",
+      "pageTurnHook": "The compass clicked softly, as if it agreed.",
+      "illustrationBrief": "Nia crouches at the porch edge, clutching the compass, cautious but determined as warm light meets soft shadow."
+    },
+    {
+      "beat": "midpoint",
+      "sceneTreeRole": "midpoint",
+      "storyText": "Nia crawled past chalk pebbles, one sleepy beetle, and a tunnel of cool boards until she found a lost button shining like treasure.",
+      "pageTurnHook": "Then she turned around and could not see the steps.",
+      "illustrationBrief": "Nia discovers a shiny lost button beneath the porch among chalk pebbles and a friendly sleepy beetle, her compass glowing softly."
+    },
+    {
+      "beat": "trial",
+      "sceneTreeRole": "trial",
+      "storyText": "The backyard sounds went muffly, her jacket pockets felt heavy, and the compass needle trembled in her little palm.",
+      "pageTurnHook": "Nia needed a different kind of north.",
+      "illustrationBrief": "Nia sits under the porch holding the compass close, worried but safe, soft boards around her and warm daylight visible at the edge."
+    },
+    {
+      "beat": "climax",
+      "sceneTreeRole": "climax",
+      "storyText": "She called, Home is near, brave is here, and followed the smell of warm grass, the hum of family voices, and one bright stripe of sun.",
+      "pageTurnHook": "The porch opened into afternoon.",
+      "illustrationBrief": "Nia crawls toward a bright stripe of sunlight leading out from under the porch, compass in hand, expression brave and relieved."
+    },
+    {
+      "beat": "resolution",
+      "sceneTreeRole": "resolution",
+      "storyText": "Nia taped the golden button to her map and named it Very Near Treasure, because brave could be as close as home.",
+      "pageTurnHook": "Tomorrow's expedition began at the flowerpot.",
+      "illustrationBrief": "Nia sits on the backyard steps adding the golden button to a simple hand-drawn map, compass beside her, family garden glowing behind."
+    }
+  ]
+}

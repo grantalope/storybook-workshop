@@ -1,0 +1,63 @@
+{
+  "id": "p002",
+  "archetypeId": "p002",
+  "displayName": "coily-haired drummer",
+  "ageBand": "6-9",
+  "artStyle": "transparent watercolor, warm painted children's-storybook",
+  "title": "Mara and the Tin-Pot Moon",
+  "refrain": {
+    "setup": "Listen first, then tap-tap-tap.",
+    "climaxMutation": "Listen together, then tap-tap-BLOOM."
+  },
+  "beats": [
+    {
+      "beat": "setup",
+      "sceneTreeRole": "setup",
+      "storyText": "Mara could make a parade from one upturned tin pot, two wooden spoons, and the quiet corner of her kitchen.",
+      "pageTurnHook": "But that morning, the pot answered back.",
+      "illustrationBrief": "Mara sits cross-legged on a sunlit kitchen rug with her upturned tin pot drum, wooden spoons poised, cozy cabinets and a breakfast table behind her."
+    },
+    {
+      "beat": "catalyst",
+      "sceneTreeRole": "catalyst",
+      "storyText": "A tiny metallic hum rolled from the pot like a silver moonbeam hiding under the rim.",
+      "pageTurnHook": "Mara leaned close enough to hear a secret beat.",
+      "illustrationBrief": "Mara discovers a gentle glowing hum under the tin pot rim, surprised but delighted, warm kitchen light pooling around her."
+    },
+    {
+      "beat": "debate",
+      "sceneTreeRole": "debate",
+      "storyText": "She wanted to bang a mighty solo, yet the moon-hum only shimmered when she whispered, Listen first, then tap-tap-tap.",
+      "pageTurnHook": "So Mara carried the pot outside to find what it was listening for.",
+      "illustrationBrief": "Mara pauses at the doorway with the tin pot tucked under one arm, listening toward the yard before deciding to step out."
+    },
+    {
+      "beat": "midpoint",
+      "sceneTreeRole": "midpoint",
+      "storyText": "In the courtyard, raindrops, bike bells, sneakers, and sparrows all had pieces of the rhythm, and Mara began to weave them together.",
+      "pageTurnHook": "Then the biggest piece went missing.",
+      "illustrationBrief": "Mara stands in a lively courtyard, tapping softly on the tin pot while raindrops, a bicycle bell, skipping shoes, and sparrows create visible motion around her."
+    },
+    {
+      "beat": "trial",
+      "sceneTreeRole": "trial",
+      "storyText": "The wind snatched her spoons into a puddle, the courtyard sounds tangled, and the moon-hum faded to a lonely ping.",
+      "pageTurnHook": "Mara had no solo left, only everyone else's noise.",
+      "illustrationBrief": "Mara kneels by a shallow puddle reaching for her wooden spoons, the courtyard rhythm messy but gentle, her expression worried yet brave."
+    },
+    {
+      "beat": "climax",
+      "sceneTreeRole": "climax",
+      "storyText": "Mara lifted the pot high and called, Listen together, then tap-tap-BLOOM, and every small sound found its place in one bright song.",
+      "pageTurnHook": "The moon-hum opened like a flower.",
+      "illustrationBrief": "Mara joyfully raises the tin pot as neighbors, raindrops, bike bells, sneakers, and sparrows join one swirling rhythm, a soft moonlike glow blooming from the pot."
+    },
+    {
+      "beat": "resolution",
+      "sceneTreeRole": "resolution",
+      "storyText": "That night, Mara drummed softly for the moon, and the whole courtyard listened first before tapping goodnight.",
+      "pageTurnHook": "Tomorrow, the pot might hum a new hello.",
+      "illustrationBrief": "Mara sits on a stoop under a friendly moon, gently tapping the tin pot while the calm courtyard glows with warm windows and peaceful faces."
+    }
+  ]
+}

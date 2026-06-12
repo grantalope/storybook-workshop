@@ -1,0 +1,63 @@
+{
+  "id": "p089",
+  "archetypeId": "p089",
+  "displayName": "honey-haired dancer",
+  "ageBand": "6-9",
+  "artStyle": "cut-paper collage, warm children's-storybook",
+  "title": "Noah's Sideways Spin",
+  "refrain": {
+    "setup": "One step, then the next.",
+    "climaxMutation": "Our step, then the next."
+  },
+  "beats": [
+    {
+      "beat": "setup",
+      "sceneTreeRole": "setup",
+      "storyText": "Noah practiced in comfy dance clothes, soft shoes, and a smile full of colorful braces while his ballet slippers swung from one shoulder.",
+      "pageTurnHook": "The floor gave a tiny sideways squeak.",
+      "illustrationBrief": "Noah stands in a cozy dance studio wearing comfy dance clothes and soft shoes, ballet slippers slung over one shoulder, smiling with colorful braces."
+    },
+    {
+      "beat": "catalyst",
+      "sceneTreeRole": "catalyst",
+      "storyText": "A loose paper star from the recital decorations slid across the floor and spun exactly where Noah's foot was supposed to land.",
+      "pageTurnHook": "Noah forgot the next count.",
+      "illustrationBrief": "Noah watches a bright paper star decoration spin across the dance studio floor, surprised but interested."
+    },
+    {
+      "beat": "debate",
+      "sceneTreeRole": "debate",
+      "storyText": "He whispered, One step, then the next, but the new step was sideways and the mirror made it look twice as strange.",
+      "pageTurnHook": "The paper star spun again.",
+      "illustrationBrief": "Noah studies his reflection in the studio mirror while trying a careful sideways step near the paper star."
+    },
+    {
+      "beat": "midpoint",
+      "sceneTreeRole": "midpoint",
+      "storyText": "Noah followed the star into a hop, a slide, and a turn that made his curls bounce like a happy spring.",
+      "pageTurnHook": "Then everyone copied him at once.",
+      "illustrationBrief": "Noah dances through a playful hop, slide, and turn, light-brown curls bouncing, paper collage shapes showing movement around him."
+    },
+    {
+      "beat": "trial",
+      "sceneTreeRole": "trial",
+      "storyText": "The studio filled with elbows, giggles, and wrong-way feet until Noah's brave sideways step felt lost in the shuffle.",
+      "pageTurnHook": "The music waited for one clear count.",
+      "illustrationBrief": "Noah stands among classmates in a gentle tangle of dance steps, looking uncertain but safe, with colorful paper shapes around their feet."
+    },
+    {
+      "beat": "climax",
+      "sceneTreeRole": "climax",
+      "storyText": "Noah grinned and called, Our step, then the next, and the whole room made one sideways spin that fit everybody.",
+      "pageTurnHook": "The paper star landed in the spotlight.",
+      "illustrationBrief": "Noah leads classmates in one joyful sideways spin, colorful braces visible in his wide smile, the paper star shining in a warm spotlight."
+    },
+    {
+      "beat": "resolution",
+      "sceneTreeRole": "resolution",
+      "storyText": "At the recital, Noah bowed beside the paper star and knew a mistake could become the step everyone remembered.",
+      "pageTurnHook": "Backstage, another decoration wiggled.",
+      "illustrationBrief": "Noah bows on a small friendly recital stage beside the paper star, ballet slippers nearby, warm cut-paper audience shapes smiling."
+    }
+  ]
+}

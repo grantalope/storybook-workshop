@@ -1,0 +1,63 @@
+{
+  "id": "p083",
+  "archetypeId": "p083",
+  "displayName": "dark-haired birdwatcher",
+  "ageBand": "4-6",
+  "artStyle": "soft gouache, warm children's-storybook",
+  "title": "Lina and the First Whistle",
+  "refrain": {
+    "setup": "Look softly, listen close.",
+    "climaxMutation": "Look together, sing close."
+  },
+  "beats": [
+    {
+      "beat": "setup",
+      "sceneTreeRole": "setup",
+      "storyText": "Lina pulled her floppy hat over her lavender hijab, zipped her fleece, and lifted her toy binoculars to the pear tree.",
+      "pageTurnHook": "A brand-new whistle came from the leaves.",
+      "illustrationBrief": "Lina stands in an early-morning garden wearing a soft lavender hijab, floppy hat, and zip-up fleece, holding toy binoculars toward a pear tree."
+    },
+    {
+      "beat": "catalyst",
+      "sceneTreeRole": "catalyst",
+      "storyText": "The whistle was not quite a song yet, more like a tiny question with feathers hidden somewhere green.",
+      "pageTurnHook": "Lina took one quiet step nearer.",
+      "illustrationBrief": "Lina peers into leafy branches with toy binoculars as a tiny gentle bird-shape is half hidden among pear leaves."
+    },
+    {
+      "beat": "debate",
+      "sceneTreeRole": "debate",
+      "storyText": "She whispered, Look softly, listen close, but her boots wanted to crunch and her breath wanted to giggle.",
+      "pageTurnHook": "The whistle stopped.",
+      "illustrationBrief": "Lina pauses on the garden path, careful and still, boots above crunchy leaves, listening with a hopeful expression."
+    },
+    {
+      "beat": "midpoint",
+      "sceneTreeRole": "midpoint",
+      "storyText": "Lina found the young bird on a low branch, round as a plum, trying three brave notes and fluffing up after each one.",
+      "pageTurnHook": "Then the wind shook the pear tree.",
+      "illustrationBrief": "Lina spots a round young bird on a low pear branch through her toy binoculars, warm gouache leaves framing the gentle moment."
+    },
+    {
+      "beat": "trial",
+      "sceneTreeRole": "trial",
+      "storyText": "Leaves fluttered, the branch bounced, and Lina could not tell whether helping meant stepping closer or staying still.",
+      "pageTurnHook": "The bird opened its beak with no sound at all.",
+      "illustrationBrief": "Lina stands beneath a swaying pear branch, worried but calm, keeping her hands soft while the small bird balances safely above."
+    },
+    {
+      "beat": "climax",
+      "sceneTreeRole": "climax",
+      "storyText": "Lina called, Look together, sing close, and the garden grew quiet enough for the bird to answer with one clear note.",
+      "pageTurnHook": "The note lifted the morning.",
+      "illustrationBrief": "Lina gently gathers nearby family and garden friends to listen quietly as the young bird sings one clear glowing note from the branch."
+    },
+    {
+      "beat": "resolution",
+      "sceneTreeRole": "resolution",
+      "storyText": "After breakfast, Lina drew one pear tree, one round bird, and the exact shape of listening close.",
+      "pageTurnHook": "At dawn, the second whistle waited.",
+      "illustrationBrief": "Lina sits at a small garden table drawing the pear tree and bird, toy binoculars beside her, morning light soft and friendly."
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "p006",
+  "archetypeId": "p006",
+  "displayName": "wavy-haired puddle-jumper",
+  "ageBand": "6-9",
+  "artStyle": "transparent watercolor, warm children's-storybook",
+  "title": "Eli and the Clear Umbrella Sky",
+  "refrain": {
+    "setup": "Step light, splash bright.",
+    "climaxMutation": "Step together, shine bright."
+  },
+  "beats": [
+    {
+      "beat": "setup",
+      "sceneTreeRole": "setup",
+      "storyText": "Eli zipped his yellow slicker, opened his tiny clear umbrella, and counted the puddles waiting on the sidewalk.",
+      "pageTurnHook": "The smallest puddle winked back.",
+      "illustrationBrief": "Eli stands on a rainy sidewalk in a yellow slicker and tall rain boots, holding a tiny clear umbrella, with friendly puddles reflecting soft clouds."
+    },
+    {
+      "beat": "catalyst",
+      "sceneTreeRole": "catalyst",
+      "storyText": "Inside the puddle reflection, a little cloud seemed folded up like a handkerchief and whispered for a path home.",
+      "pageTurnHook": "Eli lifted one boot, then hesitated.",
+      "illustrationBrief": "Eli bends toward a small glowing puddle reflection where a tiny soft cloud shape appears, curious and gentle in the rain."
+    },
+    {
+      "beat": "debate",
+      "sceneTreeRole": "debate",
+      "storyText": "He whispered, Step light, splash bright, but one too-big jump might scatter the cloud into a hundred silver dots.",
+      "pageTurnHook": "Then another raindrop pointed to the next puddle.",
+      "illustrationBrief": "Eli balances carefully with one boot raised, umbrella tilted, watching raindrops make a dotted trail across the sidewalk."
+    },
+    {
+      "beat": "midpoint",
+      "sceneTreeRole": "midpoint",
+      "storyText": "Eli made a chain of gentle splashes, and each puddle lent the cloud one more piece of blue until the sidewalk looked like sky.",
+      "pageTurnHook": "But the last puddle was under a rushing gutter.",
+      "illustrationBrief": "Eli steps lightly from puddle to puddle, each splash glowing blue in transparent watercolor, the sidewalk becoming a playful reflected sky."
+    },
+    {
+      "beat": "trial",
+      "sceneTreeRole": "trial",
+      "storyText": "The gutter gurgled, his umbrella bobbled, and the little cloud blurred until Eli could hardly tell water from worry.",
+      "pageTurnHook": "He needed a bigger kind of careful.",
+      "illustrationBrief": "Eli crouches beside a busy gutter, holding the tiny clear umbrella close, worried but safe as rain ripples around his yellow boots."
+    },
+    {
+      "beat": "climax",
+      "sceneTreeRole": "climax",
+      "storyText": "Eli called, Step together, shine bright, and his neighbors tiptoed a quiet splash bridge that carried the cloud past the gutter.",
+      "pageTurnHook": "The puddle sky opened wide.",
+      "illustrationBrief": "Eli and friendly neighbors make a careful line of tiny splashes over puddles, helping the reflected cloud glow open into a bright patch of sky."
+    },
+    {
+      "beat": "resolution",
+      "sceneTreeRole": "resolution",
+      "storyText": "When the rain softened, Eli closed his clear umbrella and found one pocket-sized patch of blue shining in every puddle.",
+      "pageTurnHook": "Tomorrow's forecast said maybe.",
+      "illustrationBrief": "Eli smiles on the calm sidewalk after rain, clear umbrella folded, yellow boots beside puddles that reflect peaceful blue sky."
+    }
+  ]
+}
