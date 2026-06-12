@@ -85,3 +85,38 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 - SANDBOX LESSON: do NOT pass `-s workspace-write` for worktree lanes — git
   metadata lives under the main repo .git; config default (danger-full-access)
   is required for commits. Lanes are architect-managed.
+
+| date | lane | branch | id | bytes | status |
+|---|---|---|---|---:|---|
+| 2026-06-12 | example-books | feat/img-books | p002/cover.jpg | 552354 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p002/hero-portrait.jpg | 460078 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p002/spread-climax.jpg | 648029 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p002/spread-midpoint.jpg | 647687 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p002/spread-resolution.jpg | 519929 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p002/spread-setup.jpg | 519804 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p002/spread-trial.jpg | 568278 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p002/story.json | 3516 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p005/cover.jpg | 441319 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p005/hero-portrait.jpg | 400786 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p005/spread-climax.jpg | 470137 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p005/spread-midpoint.jpg | 453146 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p005/spread-resolution.jpg | 458634 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p005/spread-setup.jpg | 457544 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p005/spread-trial.jpg | 457094 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p005/story.json | 3342 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p011/cover.jpg | 709032 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p011/hero-portrait.jpg | 493856 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p011/spread-climax.jpg | 685340 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p011/spread-midpoint.jpg | 672895 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p011/spread-resolution.jpg | 674908 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p011/spread-setup.jpg | 571114 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p011/spread-trial.jpg | 528781 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p011/story.json | 3323 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p024/cover.jpg | 677149 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p024/hero-portrait.jpg | 555712 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p024/spread-climax.jpg | 697897 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p024/spread-midpoint.jpg | 664935 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p024/spread-resolution.jpg | 584099 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p024/spread-setup.jpg | 673350 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p024/spread-trial.jpg | 666577 | LANE-DONE |
+| 2026-06-12 | example-books | feat/img-books | p024/story.json | 3266 | LANE-DONE |
