@@ -6,6 +6,11 @@
 // actual production wiring needs a persistent backend so the recipient can
 // later redeem the code. Tests cover the in-memory service layer; this
 // endpoint contracts the request/response shape.
+//
+// PERSISTENCE NOTE (cluster-D P1 fix): giftStore is a module-level singleton
+// so the in-memory store survives across requests in the same Node.js process.
+// For multi-process / serverless deployments replace InMemoryGiftStore with
+// a DB-backed GiftStore implementation.
 
 import { json, type RequestHandler } from '@sveltejs/kit';
 import type {
@@ -13,6 +18,7 @@ import type {
 	Cadence,
 	Format,
 } from '$lib/services/subscription';
+import { InMemoryGiftStore } from '$lib/services/subscription/GiftFlowService';
 
 interface PostBody {
 	recipientParentEmail: string;
@@ -25,6 +31,13 @@ interface PostBody {
 	giverName: string;
 	giverEmail: string;
 }
+
+/**
+ * Module-level singleton gift store. Survives across requests within the same
+ * process so the same redeem code cannot be used twice (cluster-D P1 fix).
+ * Replace with a DB-backed GiftStore for multi-instance / serverless deployments.
+ */
+const giftStore = new InMemoryGiftStore();
 
 export const POST: RequestHandler = async ({ request }) => {
 	let body: PostBody;
@@ -78,11 +91,13 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	const subs = new SubscriptionService({ payment: mockPayment });
 	const bundles = new BundleService({ payment: mockPayment });
+	// Pass the module-level store so state survives across requests.
 	const svc = new GiftFlowService({
 		payment: mockPayment,
 		mailer: mockMailer,
 		subscriptions: subs,
 		bundles,
+		store: giftStore,
 	});
 	try {
 		const result = await svc.createGift({
