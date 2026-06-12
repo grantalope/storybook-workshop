@@ -13,9 +13,12 @@ import {
 	OrderLifecycleService,
 	StripeCheckoutService,
 	createDefaultFulfillmentStores,
+	createLuluService,
+	createStripeService,
 	validateShippingAddress,
 	ShippingAddressError,
 	FORMAT_SPECS,
+	ShippingQuoteService,
 	type ConsentLogEntry,
 	type ShippingAddress,
 	type ShippingOption,
@@ -29,6 +32,7 @@ import { priceForBook, verifyClientPriceClaim } from '$lib/services/fulfillment/
 import { resolveParentEmail } from '../../../hooks.server';
 import { secureRandomString } from '$lib/services/subscription/secureRandom';
 import type { BookFormat } from '$lib/services/assemble/types';
+import { __getShippingApiDeps } from '../shipping-quote/+server';
 
 // SECURITY-PATCH-2026-06-03 — see docs/specs (price tampering CRITICAL + auth HIGH from 2026-06-03 review)
 
@@ -42,6 +46,7 @@ interface OrderApiDeps {
 	stripe: StripeCheckoutService;
 	store: OrderStore;
 	qualityClaimStore?: QualityClaimStore;
+	shippingQuote: ShippingQuoteService;
 	idGen: () => string;
 	nowSource: () => number;
 }
@@ -76,11 +81,13 @@ export function __getOrderApiDeps(): OrderApiDeps {
 		http: stripeHttp,
 		webhookSecret: 'test-webhook-secret',
 	});
+	const shippingQuote = __getShippingApiDeps().quoteService;
 	_deps = {
 		lifecycle,
 		stripe,
 		store,
 		qualityClaimStore: stores.qualityClaimStore,
+		shippingQuote,
 		idGen: _secureOrderIdGen,
 		nowSource: () => Date.now(),
 	};
@@ -244,6 +251,10 @@ export const POST: RequestHandler = async (event) => {
 	}
 
 	const deps = __getOrderApiDeps();
+	const shipping = await resolveServerShippingOption(deps, body);
+	if ('response' in shipping) return shipping.response;
+	const serverShippingOption = shipping.option;
+
 	const orderId = deps.idGen();
 
 	const order: Order = await deps.lifecycle.create({
@@ -255,18 +266,18 @@ export const POST: RequestHandler = async (event) => {
 		pages: body.pages,
 		pdfHash: body.pdfHash,
 		shippingAddress: body.shippingAddress,
-		shippingOption: body.shippingOption,
+		shippingOption: serverShippingOption,
 		bookCostCents: serverBookCostCents,
 		consentLog: body.consentLog,
 	});
 
-	const totalCents = serverBookCostCents + body.shippingOption.costCents;
+	const totalCents = serverBookCostCents + serverShippingOption.costCents;
 	let pi;
 	try {
 		pi = await deps.stripe.createPaymentIntent({
 			orderId,
 			amountCents: totalCents,
-			currency: body.shippingOption.currency,
+			currency: serverShippingOption.currency,
 			parentEmail,
 			shippingAddress: body.shippingAddress,
 			metadata: { kidId: body.kidId, bookId: body.bookId },
@@ -288,8 +299,129 @@ export const POST: RequestHandler = async (event) => {
 	});
 };
 
+async function resolveServerShippingOption(
+	deps: OrderApiDeps,
+	body: CreateOrderBody,
+): Promise<{ option: ShippingOption } | { response: Response }> {
+	const client = body.shippingOption;
+	if (
+		!client ||
+		typeof client.costCents !== 'number' ||
+		!Number.isFinite(client.costCents) ||
+		client.costCents <= 0
+	) {
+		return {
+			response: json(
+				{ error: 'invalid_shipping_cost', reason: 'costCents must be a positive finite number' },
+				{ status: 400 },
+			),
+		};
+	}
+
+	if (
+		typeof client.luluShippingLevel !== 'string' ||
+		client.luluShippingLevel.length === 0 ||
+		typeof client.currency !== 'string' ||
+		client.currency.length === 0
+	) {
+		return {
+			response: json(
+				{ error: 'shipping_option_unavailable', reason: 'missing shipping level or currency' },
+				{ status: 400 },
+			),
+		};
+	}
+
+	if (!deps.shippingQuote) {
+		return {
+			response: json(
+				{ error: 'shipping_unavailable', reason: 'shipping quote service is not configured' },
+				{ status: 503 },
+			),
+		};
+	}
+
+	let serverOptions: ShippingOption[];
+	try {
+		serverOptions = await deps.shippingQuote.getQuote(
+			body.shippingAddress,
+			body.format,
+			body.pages,
+		);
+	} catch (e) {
+		console.warn('[order] ShippingQuoteService.getQuote failed', e);
+		return {
+			response: json(
+				{ error: 'shipping_unavailable', message: (e as Error).message },
+				{ status: 503 },
+			),
+		};
+	}
+
+	const match = serverOptions.find(
+		(option) =>
+			option.luluShippingLevel === client.luluShippingLevel &&
+			option.currency === client.currency,
+	);
+	if (!match) {
+		return {
+			response: json(
+				{
+					error: 'shipping_option_unavailable',
+					reason: 'selected shipping level is not available for this quote',
+					serverQuote: serverOptions,
+				},
+				{ status: 400 },
+			),
+		};
+	}
+
+	if (!Number.isFinite(match.costCents) || match.costCents <= 0) {
+		return {
+			response: json(
+				{ error: 'shipping_unavailable', reason: 'server quote returned an invalid cost' },
+				{ status: 503 },
+			),
+		};
+	}
+
+	if (client.costCents !== match.costCents) {
+		return {
+			response: json(
+				{
+					error: 'shipping_mismatch',
+					reason: 'client shipping cost does not match server quote',
+					serverQuote: match,
+					clientShippingOption: client,
+				},
+				{ status: 400 },
+			),
+		};
+	}
+
+	return { option: match };
+}
+
 // Re-export env helper for the host server hook to swap in real impls
 export function configureOrderApi(env: FulfillmentEnv): void {
-	// Placeholder — real wiring lives in hooks.server.ts when deployed.
-	void env;
+	const stores = createDefaultFulfillmentStores({ runtime: 'node-prod' });
+	const store = stores.orderStore;
+	const stripe = createStripeService(env);
+	const lulu = createLuluService(env);
+	const shippingQuote = new ShippingQuoteService({
+		lulu,
+		currency: env.currency,
+	});
+	_deps = {
+		lifecycle: new OrderLifecycleService({
+			store,
+			cancelWindowMs: env.cancelWindowMs,
+		}),
+		stripe,
+		store,
+		qualityClaimStore: stores.qualityClaimStore,
+		shippingQuote,
+		idGen: _secureOrderIdGen,
+		nowSource: () => Date.now(),
+	};
 }

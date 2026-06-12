@@ -91,6 +91,7 @@ export type QualityClaimDecision =
 	| 'pending'
 	| 'approved_reprint'
 	| 'approved_refund'
+	| 'approved_refund_pending'
 	| 'rejected';
 
 /** Parent-submitted quality claim. */
@@ -241,7 +242,7 @@ export interface RefundResult {
 export interface StripeHttpClient {
 	createPaymentIntent(opts: CreatePaymentIntentOpts, idempotencyKey: string): Promise<PaymentIntent>;
 	getPaymentIntent(id: string): Promise<PaymentIntent>;
-	refund(paymentIntentId: string, amountCents?: number): Promise<RefundResult>;
+	refund(paymentIntentId: string, amountCents?: number, idempotencyKey?: string): Promise<RefundResult>;
 }
 
 export interface StripeWebhookEvent {
@@ -251,7 +252,7 @@ export interface StripeWebhookEvent {
 		| 'payment_intent.payment_failed'
 		| 'charge.refunded'
 		| string;
-	data: { object: { id: string; metadata?: Record<string, string> } };
+	data: { object: { id: string; payment_intent?: string | null; metadata?: Record<string, string> } };
 }
 
 // ---------------------------------------------------------------------------
@@ -264,6 +265,111 @@ export interface OrderStore {
 	listByParent(email: string): Promise<Order[]>;
 	getByStripePaymentIntent(id: string): Promise<Order | undefined>;
 	getByLuluJob(id: string): Promise<Order | undefined>;
+}
+
+export interface ApplyStripeWebhookEventOnceInput {
+	eventId: string;
+	eventType: string;
+	paymentIntentId: string;
+	expectedState?: OrderState;
+	toState?: OrderState;
+	actor: TransitionActor;
+	reason: string;
+	meta?: Record<string, unknown>;
+	at: number;
+}
+
+export type StripeWebhookApplyOutcome = 'applied' | 'duplicate' | 'ignored';
+
+export interface StripeWebhookApplyResult {
+	outcome: StripeWebhookApplyOutcome;
+	reason?: 'unknown_payment_intent' | 'state_mismatch';
+	order?: Order;
+	previousState?: OrderState;
+	currentState?: OrderState;
+}
+
+export interface WebhookOrderStore extends OrderStore {
+	applyStripeWebhookEventOnce(
+		input: ApplyStripeWebhookEventOnceInput,
+	): Promise<StripeWebhookApplyResult>;
+}
+
+export function isWebhookOrderStore(store: OrderStore): store is WebhookOrderStore {
+	return typeof (store as Partial<WebhookOrderStore>).applyStripeWebhookEventOnce === 'function';
+}
+
+export type RefundLedgerStatus = RefundResult['status'];
+
+export interface RefundLedgerEntry {
+	orderId: string;
+	claimId: string;
+	refundKind: string;
+	amountCents: number;
+	currency: string;
+	status: RefundLedgerStatus;
+	stripeRefundId?: string;
+	stripePaymentIntentId: string;
+	idempotencyKey: string;
+	errorMessage?: string;
+	response?: RefundResult;
+	createdAt: number;
+	updatedAt: number;
+}
+
+export interface BeginRefundOnceInput {
+	orderId: string;
+	claimId: string;
+	refundKind: string;
+	amountCents: number;
+	currency: string;
+	stripePaymentIntentId: string;
+	idempotencyKey: string;
+	at: number;
+}
+
+export interface RefundLedgerResult {
+	outcome: 'started' | 'existing';
+	entry: RefundLedgerEntry;
+}
+
+export interface CompleteRefundInput {
+	orderId: string;
+	claimId: string;
+	refundKind: string;
+	result: RefundResult;
+	at: number;
+}
+
+export interface FailRefundInput {
+	orderId: string;
+	claimId: string;
+	refundKind: string;
+	errorMessage: string;
+	at: number;
+}
+
+export interface RefundLedgerStore extends OrderStore {
+	beginRefundOnce(input: BeginRefundOnceInput): Promise<RefundLedgerResult>;
+	completeRefund(input: CompleteRefundInput): Promise<RefundLedgerEntry>;
+	failRefund(input: FailRefundInput): Promise<RefundLedgerEntry>;
+	getRefundLedgerEntry(
+		orderId: string,
+		claimId: string,
+		refundKind: string,
+	): Promise<RefundLedgerEntry | undefined>;
+}
+
+export type FulfillmentOrderStore = WebhookOrderStore & RefundLedgerStore;
+
+export function isRefundLedgerStore(store: OrderStore): store is RefundLedgerStore {
+	const candidate = store as Partial<RefundLedgerStore>;
+	return (
+		typeof candidate.beginRefundOnce === 'function' &&
+		typeof candidate.completeRefund === 'function' &&
+		typeof candidate.failRefund === 'function' &&
+		typeof candidate.getRefundLedgerEntry === 'function'
+	);
 }
 
 export interface QualityClaimStore {

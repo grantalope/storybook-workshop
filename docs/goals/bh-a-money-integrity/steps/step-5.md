@@ -1,0 +1,1 @@
+# step-5.md\n\nClose out (AC6, AC7). Full pnpm test green; node scripts/gates/run-all.mjs ALL PASS; sqlite fresh + upgrade tests green. Append RAW results to docs/HANDOFF.md lane log + tick state.md boxes w/ evidence. Final commit. Print LANE-DONE.\nRe-read ../notes-from-the-boss.md first.\n

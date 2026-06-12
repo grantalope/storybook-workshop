@@ -18,6 +18,7 @@
 //        * NODE_ENV=production AND missing STRIPE_SECRET_KEY
 //        * NODE_ENV=production AND missing LULU_CLIENT_ID/LULU_CLIENT_SECRET
 //        * NODE_ENV=production AND missing STRIPE_WEBHOOK_SECRET/LULU_WEBHOOK_SECRET
+//        * NODE_ENV=production AND missing OPS_API_TOKEN
 //      → throws ProductionConfigError (process aborts).
 //
 //   2. PROD-DEGRADED — optional integration missing; app functions but
@@ -41,6 +42,7 @@ export interface ProductionConfigEnv {
 	readonly LULU_CLIENT_ID?: string;
 	readonly LULU_CLIENT_SECRET?: string;
 	readonly LULU_WEBHOOK_SECRET?: string;
+	readonly OPS_API_TOKEN?: string;
 	readonly RESEND_API_KEY?: string;
 }
 
@@ -57,6 +59,7 @@ export type ProductionConfigErrorCode =
 	| "missing_lulu_client_id"
 	| "missing_lulu_client_secret"
 	| "missing_lulu_webhook_secret"
+	| "missing_ops_api_token"
 	| "missing_resend_api_key"
 	| "node_env_looks_like_production";
 
@@ -231,6 +234,17 @@ export function ensureProductionConfig(
 				"LULU_WEBHOOK_SECRET is empty or unset. Incoming Lulu webhooks " +
 				"will fail HMAC verification and be REJECTED, stalling every " +
 				"order at submitted_to_lulu. Add the secret from the Lulu Direct dashboard.",
+		});
+	}
+
+	if (!nonEmpty(env.OPS_API_TOKEN)) {
+		findings.push({
+			level: "fatal",
+			code: "missing_ops_api_token",
+			message:
+				"OPS_API_TOKEN is empty or unset. Ops refund decisions via " +
+				"/api/quality-claim/[id]/decision cannot be authenticated. " +
+				"Set a high-entropy bearer token before production deploy.",
 		});
 	}
 

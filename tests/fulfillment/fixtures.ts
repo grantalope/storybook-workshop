@@ -219,8 +219,9 @@ export function createMockStripe(): StripeHttpClient & {
 				}
 			);
 		},
-		async refund(piId, amountCents): Promise<RefundResult> {
-			calls.push({ method: 'refund', args: { piId, amountCents } });
+		async refund(piId, amountCents, idempotencyKey): Promise<RefundResult> {
+			calls.push({ method: 'refund', args: { piId, amountCents }, idempotencyKey });
+			if (idempotencyKey) idempotencyKeys.push(idempotencyKey);
 			counter += 1;
 			return {
 				id: `re_${counter}`,
