@@ -1,0 +1,19 @@
+{
+  "svelteCheckMaxErrors": 109,
+  "allowFail": [
+    {
+      "gate": "G3-privacy",
+      "reason": "getUserMedia in ExifStripper.ts is for camera capture (EXIF strip), not microphone. Comment in source explains the pattern.",
+      "todo": "Verify allowlist comment adequacy by 2026-07-01"
+    },
+    {
+      "gate": "G7-security",
+      "reason": "Pre-existing findings: defaultIdGen() in AutopilotDrafter.ts + BundleService.ts uses Math.random() for draft/bundle IDs. These IDs are not security-sensitive (not exposed as auth tokens or payment refs) but should be upgraded to CSPRNG for consistency.",
+      "todo": "Replace defaultIdGen() in AutopilotDrafter.ts and BundleService.ts with secureRandomString() from secureRandom.ts by 2026-07-01"
+    }
+  ],
+  "_notes": {
+    "svelteCheckMaxErrors": "Baseline frozen from measurement. Improvements auto-tighten. Never auto-loosened.",
+    "allowFail": "Non-blocking on CI; each requires reason + todo. Remove entry once resolved."
+  }
+}
