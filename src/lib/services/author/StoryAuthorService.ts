@@ -370,7 +370,12 @@ export class StoryAuthorService {
       );
     }
 
-    this._scrubSceneBriefs(tree, input);
+    const privacyHardFails = await this.scrubSceneBriefsAsync(tree, input);
+    if (privacyHardFails > 0) {
+      throw new Error(
+        `Per-beat story failed PrivacyFilter on ${privacyHardFails} scene brief(s)`,
+      );
+    }
     scrubKidNameFromTree(tree, input.kidName);
 
     const grammarResult = this.grammar.validate(tree);
