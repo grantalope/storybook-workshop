@@ -1,0 +1,63 @@
+{
+  "id": "p024",
+  "archetypeId": "p024",
+  "displayName": "sleek-haired gardener",
+  "ageBand": "6-9",
+  "artStyle": "layered cut-paper collage, warm children's-storybook",
+  "title": "Lina's Sprout-Sized Promise",
+  "refrain": {
+    "setup": "Small roots, steady hands.",
+    "climaxMutation": "Small roots, many hands, one garden."
+  },
+  "beats": [
+    {
+      "beat": "setup",
+      "sceneTreeRole": "setup",
+      "storyText": "Lina carried one clay pot with one green sprout and promised it the sunniest square in the community garden.",
+      "pageTurnHook": "But the sunniest square was already taken.",
+      "illustrationBrief": "Lina enters a bright community garden holding a clay pot with one sprout, powder-blue hijab and sunhat visible, garden beds and tools around her."
+    },
+    {
+      "beat": "catalyst",
+      "sceneTreeRole": "catalyst",
+      "storyText": "A row of tall tomato cages cast stripy shadows over the only empty bed.",
+      "pageTurnHook": "Lina's sprout leaned away from the dark.",
+      "illustrationBrief": "Lina studies a garden bed shaded by tall tomato cages, holding the little sprout close while sunlight stripes the soil."
+    },
+    {
+      "beat": "debate",
+      "sceneTreeRole": "debate",
+      "storyText": "She murmured, Small roots, steady hands, and almost carried the pot back home where nothing could go wrong.",
+      "pageTurnHook": "Then a worm popped up like a tiny question mark.",
+      "illustrationBrief": "Lina hesitates near the garden gate, the clay pot in her hands, a small worm peeking from the soil in a friendly way."
+    },
+    {
+      "beat": "midpoint",
+      "sceneTreeRole": "midpoint",
+      "storyText": "Lina made a paper sun map, shifted a watering can, and found a bright triangle no one else had noticed.",
+      "pageTurnHook": "The triangle shrank as clouds rolled in.",
+      "illustrationBrief": "Lina kneels with a simple paper sun map beside the garden bed, finding a warm triangle of light for the sprout."
+    },
+    {
+      "beat": "trial",
+      "sceneTreeRole": "trial",
+      "storyText": "Rain spattered her map, mud swallowed one boot, and the sprout drooped lower than her hope.",
+      "pageTurnHook": "Lina had to ask for help before the pot filled with rain.",
+      "illustrationBrief": "Lina stands in gentle rain and mud, one boot stuck, shielding the small clay pot with her hands while the sprout droops."
+    },
+    {
+      "beat": "climax",
+      "sceneTreeRole": "climax",
+      "storyText": "She called, Small roots, many hands, one garden, and neighbors lifted cages, shared mulch, and made a dry bright hill for the sprout.",
+      "pageTurnHook": "By sunset, one leaf stood tall.",
+      "illustrationBrief": "Lina works with friendly neighbors moving tomato cages and adding mulch, the sprout rising on a small sunny hill as rain clears."
+    },
+    {
+      "beat": "resolution",
+      "sceneTreeRole": "resolution",
+      "storyText": "Lina visited every afternoon, and the garden learned to leave room for small roots and many hands.",
+      "pageTurnHook": "A second leaf waved hello.",
+      "illustrationBrief": "Lina waters the now-healthy sprout in the community garden at golden hour, neighbors' plots nearby, calm and hopeful."
+    }
+  ]
+}
