@@ -1,23 +1,13 @@
 // tests/fulfillment/api-shipping-quote.test.ts
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import {
-	LuluFulfillmentService,
-	ShippingQuoteService,
-} from '$lib/services/fulfillment';
-import {
-	POST as shippingPOST,
-	__setShippingApiDeps,
-} from '../../src/routes/api/shipping-quote/+server';
+import { POST as shippingPOST } from '../../src/routes/api/shipping-quote/+server';
 import { callPost } from './api-helpers';
-import { createMockLulu, makeAddress } from './fixtures';
+import { makeAddress } from './fixtures';
+import { wireFulfillmentDeps } from './wireFulfillmentDeps';
 
 function wire() {
-	const luluHttp = createMockLulu();
-	const lulu = new LuluFulfillmentService({ http: luluHttp, webhookSecret: 's' });
-	const quoteService = new ShippingQuoteService({ lulu });
-	__setShippingApiDeps({ quoteService });
-	return { luluHttp };
+	return wireFulfillmentDeps();
 }
 
 describe('POST /api/shipping-quote', () => {

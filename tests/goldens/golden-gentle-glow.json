@@ -1,0 +1,8 @@
+{
+  "_meta": {
+    "family": "gentle-glow",
+    "theme": "bedtime",
+    "generatedBy": "synthesizeTemplateTree",
+    "note": "See tests/goldens/golden-story-quality.test.ts — this fixture is a placeholder. The gate test generates the tree at runtime via synthesizeTemplateTree for determinism."
+  }
+}

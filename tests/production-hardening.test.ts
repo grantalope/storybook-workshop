@@ -43,6 +43,7 @@ function fullyConfiguredProd(): ProductionConfigEnv {
 		LULU_CLIENT_ID: "lulu_id_test",
 		LULU_CLIENT_SECRET: "lulu_secret_test",
 		LULU_WEBHOOK_SECRET: "lulu_webhook_test",
+		OPS_API_TOKEN: "ops_test_value",
 		RESEND_API_KEY: "re_test",
 	};
 }
@@ -121,6 +122,7 @@ describe("ensureProductionConfig — NODE_ENV misspell heuristic (blocker #5)", 
 			LULU_CLIENT_ID: "id",
 			LULU_CLIENT_SECRET: "secret",
 			LULU_WEBHOOK_SECRET: "wh",
+			OPS_API_TOKEN: "ops",
 			RESEND_API_KEY: "re",
 		};
 		const findings = ensureProductionConfig(env, { warn });
@@ -276,6 +278,17 @@ describe("ensureProductionConfig — fatal findings (production)", () => {
 		}
 	});
 
+	it("throws on missing OPS_API_TOKEN in production", () => {
+		const env = partialProd({ OPS_API_TOKEN: undefined });
+		expect(() => ensureProductionConfig(env)).toThrow(ProductionConfigError);
+		try {
+			ensureProductionConfig(env);
+		} catch (e) {
+			const err = e as ProductionConfigError;
+			expect(err.findings.some((f) => f.code === "missing_ops_api_token" && f.level === "fatal")).toBe(true);
+		}
+	});
+
 	it("aggregates multiple fatal findings into a single error", () => {
 		const env: ProductionConfigEnv = {
 			NODE_ENV: "production",
@@ -297,6 +310,7 @@ describe("ensureProductionConfig — fatal findings (production)", () => {
 					"missing_lulu_client_secret",
 					"missing_stripe_webhook_secret",
 					"missing_lulu_webhook_secret",
+					"missing_ops_api_token",
 				]),
 			);
 			expect(err.message).toContain("ProductionConfigError");

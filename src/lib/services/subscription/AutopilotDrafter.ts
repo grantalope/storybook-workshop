@@ -25,7 +25,7 @@ import type {
 	ThemeId,
 } from './types';
 import type { SubscriptionService } from './SubscriptionService';
-import { MS_PER_DAY } from './SubscriptionService';
+import { MS_PER_DAY, nextCadenceAt } from './SubscriptionService';
 import { getThemeAtSlot } from './SeriesThemeRegistry';
 
 // ---------------------------------------------------------------------------
@@ -130,6 +130,7 @@ export class AutopilotDrafter {
 							subscriptionId: sub.id,
 						},
 					});
+					sub.nextBookAt = nextCadenceAt(sub.nextBookAt, sub.cadence);
 				}
 			}
 		}
@@ -229,6 +230,10 @@ export class AutopilotDrafter {
 		if (opts.action === 'approve') {
 			draft.status = 'approved';
 			draft.approvedAt = now;
+			const sub = this._subs.get(opts.subscriptionId);
+			if (sub) {
+				sub.activeDraftIds = sub.activeDraftIds.filter((id) => id !== opts.draftId);
+			}
 		} else if (opts.action === 'redo') {
 			draft.status = 'redo_requested';
 		} else if (opts.action === 'swap_theme') {
