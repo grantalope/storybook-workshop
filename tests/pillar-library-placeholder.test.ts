@@ -343,6 +343,7 @@ describe('PillarManifestClient fallback chain', () => {
         const fetcher = vi.fn(async (url: string) => {
             calls.push(url);
             if (url === '/api/world/pillar-library/manifest') return notFound();
+            if (url === '/pillar-library-v2/manifest.json') return notFound();
             return okResponse([entry(11), entry(12)]);
         });
         __test.setFetchOverride(fetcher);
@@ -351,6 +352,7 @@ describe('PillarManifestClient fallback chain', () => {
         expect(getCachedManifestSource()).toBe('placeholder');
         expect(calls).toEqual([
             '/api/world/pillar-library/manifest',
+            '/pillar-library-v2/manifest.json',
             '/pillar-library-v1-placeholder/manifest.json',
         ]);
     });
@@ -360,6 +362,7 @@ describe('PillarManifestClient fallback chain', () => {
             if (url === '/api/world/pillar-library/manifest') {
                 throw new Error('ECONNREFUSED');
             }
+            if (url === '/pillar-library-v2/manifest.json') return notFound();
             return okResponse([entry(21)]);
         });
         __test.setFetchOverride(fetcher);
@@ -373,6 +376,7 @@ describe('PillarManifestClient fallback chain', () => {
             if (url === '/api/world/pillar-library/manifest') {
                 return okResponse([]);
             }
+            if (url === '/pillar-library-v2/manifest.json') return notFound();
             return okResponse([entry(33)]);
         });
         __test.setFetchOverride(fetcher);
@@ -395,6 +399,7 @@ describe('PillarManifestClient fallback chain', () => {
             if (url === '/api/world/pillar-library/manifest') {
                 return primaryOk ? okResponse([entry(91)]) : notFound();
             }
+            if (url === '/pillar-library-v2/manifest.json') return notFound();
             return okResponse([entry(81)]);
         });
         __test.setFetchOverride(fetcher);
@@ -413,6 +418,7 @@ describe('PillarManifestClient fallback chain', () => {
         const placeholderRaw = readFileSync(MANIFEST_PATH, 'utf8');
         const fetcher = vi.fn(async (url: string) => {
             if (url === '/api/world/pillar-library/manifest') return notFound();
+            if (url === '/pillar-library-v2/manifest.json') return notFound();
             return new Response(placeholderRaw, {
                 status: 200,
                 headers: { 'Content-Type': 'application/json' },
@@ -451,10 +457,11 @@ describe('Station 2 ForgeHero: pillar grid consumes manifest', () => {
         }
     });
 
-    it('grid surfaces all 50 placeholder pillars when WB primary is down', async () => {
+    it('grid surfaces all 50 placeholder pillars when WB primary and v2 are down', async () => {
         const placeholderRaw = readFileSync(MANIFEST_PATH, 'utf8');
         const fetcher = vi.fn(async (url: string) => {
             if (url === '/api/world/pillar-library/manifest') return notFound();
+            if (url === '/pillar-library-v2/manifest.json') return notFound();
             return new Response(placeholderRaw, {
                 status: 200,
                 headers: { 'Content-Type': 'application/json' },
