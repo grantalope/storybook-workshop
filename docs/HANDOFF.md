@@ -90,6 +90,7 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 |---|---|---|---:|---:|---:|---|---|
 | 2026-06-12 | archetype PORTRAITS | feat/img-pillars | 150 | 150 | 0 | no | LANE-DONE |
 | 2026-06-12 | archetype PORTRAITS correction pass | feat/img-pillars | 150 | 150 | 0 | no | LANE-DONE |
+| 2026-06-12 | archetype PORTRAITS thumb q85 normalization | feat/img-pillars | 150 | 150 | 0 | no | LANE-DONE |
 
 | id | bytes |
 |---|---:|
