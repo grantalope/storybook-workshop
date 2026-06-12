@@ -89,6 +89,7 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | date | lane | branch | portraits | thumbs | portrait <=100KB | push | status |
 |---|---|---|---:|---:|---:|---|---|
 | 2026-06-12 | archetype PORTRAITS | feat/img-pillars | 150 | 150 | 0 | no | LANE-DONE |
+| 2026-06-12 | archetype PORTRAITS correction pass | feat/img-pillars | 150 | 150 | 0 | no | LANE-DONE |
 
 | id | bytes |
 |---|---:|
@@ -109,12 +110,12 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | p015 | 2653303 |
 | p016 | 2600706 |
 | p017 | 2553605 |
-| p018 | 3125237 |
+| p018 | 2519587 |
 | p019 | 2494384 |
 | p020 | 2709314 |
 | p021 | 2518349 |
 | p022 | 2608078 |
-| p023 | 2275338 |
+| p023 | 2609484 |
 | p024 | 2714039 |
 | p025 | 2660607 |
 | p026 | 2583603 |
@@ -161,10 +162,10 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | p067 | 2721895 |
 | p068 | 2577844 |
 | p069 | 2699377 |
-| p070 | 2137763 |
+| p070 | 2663289 |
 | p071 | 2468364 |
 | p072 | 2408015 |
-| p073 | 2198531 |
+| p073 | 2748933 |
 | p074 | 2532839 |
 | p075 | 2559184 |
 | p076 | 2610958 |
@@ -178,8 +179,8 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | p084 | 2766022 |
 | p085 | 2862909 |
 | p086 | 2680746 |
-| p087 | 2523209 |
-| p088 | 1828385 |
+| p087 | 2609447 |
+| p088 | 2680556 |
 | p089 | 2593624 |
 | p090 | 2648549 |
 | p091 | 2681843 |
@@ -191,7 +192,7 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | p097 | 2661335 |
 | p098 | 2496607 |
 | p099 | 2567365 |
-| p100 | 2032496 |
+| p100 | 2728153 |
 | p101 | 2648751 |
 | p102 | 2611896 |
 | p103 | 2460351 |
@@ -221,9 +222,9 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | p127 | 2696805 |
 | p128 | 2638434 |
 | p129 | 2771211 |
-| p130 | 1995424 |
+| p130 | 2607185 |
 | p131 | 2263218 |
-| p132 | 1875419 |
+| p132 | 2683552 |
 | p133 | 2562231 |
 | p134 | 2551064 |
 | p135 | 2724202 |
@@ -240,5 +241,5 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | p146 | 2601318 |
 | p147 | 2680042 |
 | p148 | 2729032 |
-| p149 | 1789758 |
-| p150 | 2191814 |
+| p149 | 2751351 |
+| p150 | 2722267 |
