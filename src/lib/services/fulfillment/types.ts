@@ -251,7 +251,7 @@ export interface StripeWebhookEvent {
 		| 'payment_intent.payment_failed'
 		| 'charge.refunded'
 		| string;
-	data: { object: { id: string; metadata?: Record<string, string> } };
+	data: { object: { id: string; payment_intent?: string | null; metadata?: Record<string, string> } };
 }
 
 // ---------------------------------------------------------------------------
@@ -264,6 +264,38 @@ export interface OrderStore {
 	listByParent(email: string): Promise<Order[]>;
 	getByStripePaymentIntent(id: string): Promise<Order | undefined>;
 	getByLuluJob(id: string): Promise<Order | undefined>;
+}
+
+export interface ApplyStripeWebhookEventOnceInput {
+	eventId: string;
+	eventType: string;
+	paymentIntentId: string;
+	expectedState?: OrderState;
+	toState?: OrderState;
+	actor: TransitionActor;
+	reason: string;
+	meta?: Record<string, unknown>;
+	at: number;
+}
+
+export type StripeWebhookApplyOutcome = 'applied' | 'duplicate' | 'ignored';
+
+export interface StripeWebhookApplyResult {
+	outcome: StripeWebhookApplyOutcome;
+	reason?: 'unknown_payment_intent' | 'state_mismatch';
+	order?: Order;
+	previousState?: OrderState;
+	currentState?: OrderState;
+}
+
+export interface WebhookOrderStore extends OrderStore {
+	applyStripeWebhookEventOnce(
+		input: ApplyStripeWebhookEventOnceInput,
+	): Promise<StripeWebhookApplyResult>;
+}
+
+export function isWebhookOrderStore(store: OrderStore): store is WebhookOrderStore {
+	return typeof (store as Partial<WebhookOrderStore>).applyStripeWebhookEventOnce === 'function';
 }
 
 export interface QualityClaimStore {

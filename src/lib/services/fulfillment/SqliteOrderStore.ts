@@ -11,7 +11,15 @@ import { mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname } from 'node:path';
 import type DatabaseConstructor from 'better-sqlite3';
-import type { Order, OrderStore, QualityClaim, QualityClaimStore } from './types';
+import type {
+	ApplyStripeWebhookEventOnceInput,
+	Order,
+	QualityClaim,
+	QualityClaimStore,
+	StripeWebhookApplyResult,
+	TransitionLogEntry,
+	WebhookOrderStore,
+} from './types';
 
 type SqliteDatabase = DatabaseConstructor.Database;
 type SqliteDatabaseConstructor = typeof DatabaseConstructor;
@@ -25,7 +33,7 @@ export interface SqliteStoreOptions {
 }
 
 export interface SqliteStores {
-	orderStore: OrderStore;
+	orderStore: WebhookOrderStore;
 	qualityClaimStore: QualityClaimStore;
 	close(): void;
 	dbPath: string;
@@ -84,6 +92,45 @@ CREATE TABLE IF NOT EXISTS quality_claims (
 CREATE INDEX IF NOT EXISTS idx_quality_claims_status ON quality_claims(status);
 `;
 
+const V2_DDL_SQL = `
+CREATE TABLE IF NOT EXISTS processed_webhook_events (
+	event_id TEXT PRIMARY KEY,
+	type TEXT NOT NULL,
+	payment_intent_id TEXT,
+	order_id TEXT,
+	outcome TEXT NOT NULL,
+	reason TEXT,
+	processed_at INTEGER NOT NULL,
+	FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_processed_webhook_events_order_id
+	ON processed_webhook_events(order_id);
+CREATE INDEX IF NOT EXISTS idx_processed_webhook_events_payment_intent_id
+	ON processed_webhook_events(payment_intent_id);
+
+CREATE TABLE IF NOT EXISTS refund_ledger (
+	order_id TEXT NOT NULL,
+	claim_id TEXT NOT NULL,
+	refund_kind TEXT NOT NULL,
+	amount_cents INTEGER NOT NULL,
+	currency TEXT NOT NULL,
+	status TEXT NOT NULL,
+	stripe_refund_id TEXT,
+	stripe_payment_intent_id TEXT,
+	idempotency_key TEXT NOT NULL,
+	error_message TEXT,
+	response_json TEXT,
+	created_at INTEGER NOT NULL,
+	updated_at INTEGER NOT NULL,
+	PRIMARY KEY (order_id, claim_id, refund_kind),
+	FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_refund_ledger_status ON refund_ledger(status);
+CREATE INDEX IF NOT EXISTS idx_refund_ledger_claim_id ON refund_ledger(claim_id);
+`;
+
 const SELECT_VERSION_SQL = 'SELECT value FROM schema_meta WHERE key = ?';
 const UPSERT_VERSION_SQL = `
 INSERT INTO schema_meta (key, value)
@@ -134,6 +181,21 @@ const SELECT_CLAIM_BY_ID_SQL = 'SELECT json FROM quality_claims WHERE id = ?';
 const SELECT_PENDING_CLAIMS_SQL =
 	"SELECT json FROM quality_claims WHERE status = 'pending' ORDER BY updated_at ASC, id ASC";
 
+const INSERT_WEBHOOK_EVENT_SQL = `
+INSERT OR IGNORE INTO processed_webhook_events (
+	event_id,
+	type,
+	payment_intent_id,
+	outcome,
+	processed_at
+)
+VALUES (?, ?, ?, 'processing', ?)`;
+
+const UPDATE_WEBHOOK_EVENT_SQL = `
+UPDATE processed_webhook_events
+SET order_id = ?, outcome = ?, reason = ?
+WHERE event_id = ?`;
+
 export function sqliteAvailable(): boolean {
 	return loadSqliteModule().Database !== null;
 }
@@ -171,8 +233,11 @@ export function createSqliteStores(opts: SqliteStoreOptions = {}): SqliteStores 
 	}
 }
 
-export class SqliteOrderStore implements OrderStore {
+export class SqliteOrderStore implements WebhookOrderStore {
 	private readonly putTxn: (order: Order) => void;
+	private readonly applyWebhookTxn: (
+		input: ApplyStripeWebhookEventOnceInput,
+	) => StripeWebhookApplyResult;
 	private readonly getByIdStmt;
 	private readonly listByParentStmt;
 	private readonly getByStripeStmt;
@@ -182,11 +247,9 @@ export class SqliteOrderStore implements OrderStore {
 		const upsertOrder = db.prepare(UPSERT_ORDER_SQL);
 		const deleteTransitions = db.prepare(DELETE_TRANSITIONS_SQL);
 		const insertTransition = db.prepare(INSERT_TRANSITION_SQL);
-		this.getByIdStmt = db.prepare(SELECT_ORDER_BY_ID_SQL);
-		this.listByParentStmt = db.prepare(SELECT_ORDERS_BY_PARENT_SQL);
-		this.getByStripeStmt = db.prepare(SELECT_ORDER_BY_STRIPE_SQL);
-		this.getByLuluStmt = db.prepare(SELECT_ORDER_BY_LULU_SQL);
-		this.putTxn = db.transaction((order: Order) => {
+		const insertWebhookEvent = db.prepare(INSERT_WEBHOOK_EVENT_SQL);
+		const updateWebhookEvent = db.prepare(UPDATE_WEBHOOK_EVENT_SQL);
+		const writeOrder = (order: Order) => {
 			upsertOrder.run(
 				order.id,
 				order.state,
@@ -207,6 +270,66 @@ export class SqliteOrderStore implements OrderStore {
 					JSON.stringify(entry),
 				);
 			});
+		};
+		this.getByIdStmt = db.prepare(SELECT_ORDER_BY_ID_SQL);
+		this.listByParentStmt = db.prepare(SELECT_ORDERS_BY_PARENT_SQL);
+		this.getByStripeStmt = db.prepare(SELECT_ORDER_BY_STRIPE_SQL);
+		this.getByLuluStmt = db.prepare(SELECT_ORDER_BY_LULU_SQL);
+		this.putTxn = db.transaction((order: Order) => {
+			writeOrder(order);
+		});
+		this.applyWebhookTxn = db.transaction((input: ApplyStripeWebhookEventOnceInput): StripeWebhookApplyResult => {
+			const inserted = insertWebhookEvent.run(
+				input.eventId,
+				input.eventType,
+				input.paymentIntentId,
+				input.at,
+			);
+			if (inserted.changes === 0) {
+				return { outcome: 'duplicate' };
+			}
+
+			const row = this.getByStripeStmt.get(input.paymentIntentId) as JsonRow | undefined;
+			if (!row) {
+				updateWebhookEvent.run(null, 'ignored', 'unknown_payment_intent', input.eventId);
+				return { outcome: 'ignored', reason: 'unknown_payment_intent' };
+			}
+
+			const order = parseOrder(row);
+			if (input.expectedState && order.state !== input.expectedState) {
+				updateWebhookEvent.run(order.id, 'ignored', 'state_mismatch', input.eventId);
+				return {
+					outcome: 'ignored',
+					reason: 'state_mismatch',
+					order,
+					currentState: order.state,
+				};
+			}
+
+			const to = input.toState ?? order.state;
+			const entry: TransitionLogEntry = {
+				from: order.state,
+				to,
+				at: input.at,
+				actor: input.actor,
+				reason: input.reason,
+				meta: input.meta,
+			};
+			const next: Order = {
+				...order,
+				state: to,
+				transitions: [...order.transitions, entry],
+				updatedAt: input.at,
+			};
+
+			writeOrder(next);
+			updateWebhookEvent.run(order.id, 'applied', null, input.eventId);
+			return {
+				outcome: 'applied',
+				order: next,
+				previousState: order.state,
+				currentState: next.state,
+			};
 		});
 	}
 
@@ -231,6 +354,12 @@ export class SqliteOrderStore implements OrderStore {
 	async getByLuluJob(id: string): Promise<Order | undefined> {
 		const row = this.getByLuluStmt.get(id) as JsonRow | undefined;
 		return row ? parseOrder(row) : undefined;
+	}
+
+	async applyStripeWebhookEventOnce(
+		input: ApplyStripeWebhookEventOnceInput,
+	): Promise<StripeWebhookApplyResult> {
+		return this.applyWebhookTxn(input);
 	}
 }
 
@@ -310,12 +439,16 @@ function migrateDatabase(db: SqliteDatabase): void {
 		db.exec(CREATE_SCHEMA_META_SQL);
 		const versionRow = db.prepare(SELECT_VERSION_SQL).get('version') as VersionRow | undefined;
 		const version = versionRow ? Number(versionRow.value) : 0;
-		if (version > 1) {
-			throw new Error(`SqliteOrderStore: database schema version ${version} is newer than supported v1`);
+		if (version > 2) {
+			throw new Error(`SqliteOrderStore: database schema version ${version} is newer than supported v2`);
 		}
-		if (version === 1) return;
-		db.exec(V1_DDL_SQL);
-		db.prepare(UPSERT_VERSION_SQL).run('version', '1');
+		if (version === 0) {
+			db.exec(V1_DDL_SQL);
+		}
+		if (version < 2) {
+			db.exec(V2_DDL_SQL);
+			db.prepare(UPSERT_VERSION_SQL).run('version', '2');
+		}
 	});
 	migrate();
 }

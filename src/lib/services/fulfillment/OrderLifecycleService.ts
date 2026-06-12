@@ -19,10 +19,13 @@ import type {
 	Order,
 	OrderState,
 	OrderStore,
+	ApplyStripeWebhookEventOnceInput,
+	StripeWebhookApplyResult,
 	TransitionActor,
 	TransitionLogEntry,
 	ShippingAddress,
 	ShippingOption,
+	WebhookOrderStore,
 } from './types';
 import { DEFAULT_CANCEL_WINDOW_MS } from './types';
 import type { BookFormat } from '$lib/services/assemble/types';
@@ -283,8 +286,9 @@ function lastTransitionAt(order: Order, to: OrderState): number | null {
 // In-memory OrderStore implementation (browser + tests)
 // ---------------------------------------------------------------------------
 
-export class InMemoryOrderStore implements OrderStore {
+export class InMemoryOrderStore implements WebhookOrderStore {
 	private _map = new Map<string, Order>();
+	private _processedWebhookEvents = new Set<string>();
 
 	async get(id: string): Promise<Order | undefined> {
 		return this._map.get(id);
@@ -305,6 +309,58 @@ export class InMemoryOrderStore implements OrderStore {
 		for (const o of this._map.values()) if (o.luluJobId === id) return o;
 		return undefined;
 	}
+
+	applyStripeWebhookEventOnce(
+		input: ApplyStripeWebhookEventOnceInput,
+	): Promise<StripeWebhookApplyResult> {
+		if (this._processedWebhookEvents.has(input.eventId)) {
+			return Promise.resolve({ outcome: 'duplicate' });
+		}
+
+		this._processedWebhookEvents.add(input.eventId);
+		const order = this._getByStripePaymentIntentSync(input.paymentIntentId);
+		if (!order) {
+			return Promise.resolve({ outcome: 'ignored', reason: 'unknown_payment_intent' });
+		}
+
+		if (input.expectedState && order.state !== input.expectedState) {
+			return Promise.resolve({
+				outcome: 'ignored',
+				reason: 'state_mismatch',
+				order,
+				currentState: order.state,
+			});
+		}
+
+		const to = input.toState ?? order.state;
+		const entry: TransitionLogEntry = {
+			from: order.state,
+			to,
+			at: input.at,
+			actor: input.actor,
+			reason: input.reason,
+			meta: input.meta,
+		};
+		const next: Order = {
+			...order,
+			state: to,
+			transitions: [...order.transitions, entry],
+			updatedAt: input.at,
+		};
+		this._map.set(order.id, next);
+		return Promise.resolve({
+			outcome: 'applied',
+			order: next,
+			previousState: order.state,
+			currentState: next.state,
+		});
+	}
+
+	private _getByStripePaymentIntentSync(id: string): Order | undefined {
+		for (const o of this._map.values()) if (o.stripePaymentIntentId === id) return o;
+		return undefined;
+	}
+
 	/** Test/debug helper. */
 	_all(): Order[] {
 		return [...this._map.values()];
