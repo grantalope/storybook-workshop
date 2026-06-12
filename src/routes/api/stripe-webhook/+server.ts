@@ -125,7 +125,11 @@ export const POST: RequestHandler = async ({ request }) => {
 
 	if (event.type === 'charge.refunded') {
 		// Audit log only; state machine has no refunded state.
-		const piId = event.data.object.id;
+		// In Stripe's charge.refunded event, event.data.object is the Charge, NOT the PaymentIntent.
+		// The PaymentIntent ID is at event.data.object.payment_intent, not .id (which is ch_...).
+		// Bug was: using .id here caused getByStripePaymentIntent(ch_...) to always return null,
+		// so ALL refund events were silently swallowed with no audit trail.
+		const piId = (event.data.object.payment_intent ?? event.data.object.id) as string;
 		const order = await orderDeps.store.getByStripePaymentIntent(piId);
 		if (order) {
 			const updated = {
