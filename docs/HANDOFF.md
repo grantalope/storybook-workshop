@@ -101,3 +101,9 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
   (prop-gen content miss + matting failed to key green). Layer-C needs the QC
   pass qc-similarity only gives Layer B. Next step: img2img harmonization pass
   on the 4090 (lighting/palette unification + contact shadows).
+
+## /loop machinery (architect, 2026-06-12) — for revived sessions
+- Loop board + DONE definition: assets merged (portraits/books/props healthy) + harmonization >=7 applied + narrator candidates delivered (D:/devbox/storybook-narrator/, HUMAN picks voice) + /demo merged+loads + G7 clean + book #3 >=8/10 (D:/devbox/storybook-real-book-3/) + gates ALL PASS + only human-input items remain (voice pick, Stripe/Lulu sandbox creds, final eyeball).
+- Loop workflows live at the architect box: C:/Users/grant/.claude/projects/D--devbox-pachinko-app-src-routes-game-narrative-debug-dashboard/<session>/workflows/scripts/loop*-*.js — resume newest by mtime with its resumeFromRunId.
+- Revival stack: 45-min in-session revival-beat cron (touches D:/devbox/storybook-loop-heartbeat.txt) + hourly loop-driver cron + Windows scheduled task StorybookLoopRevive (revives via `claude -c -p` when heartbeat >75min stale; log D:/devbox/storybook-loop-revive.log).
+- Rules: sonnet/haiku agents only; codex = images only; local LLM for mechanical; gates (pnpm gates) = merge bar; merges via detached worktrees; retro at loop end authors next loop goals in docs/goals/.
