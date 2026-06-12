@@ -190,3 +190,38 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | 2026-06-12 | example-books-final-verify | feat/img-books | p024/spread-setup.jpg | 673350 | RESUME-SKIP VISUAL-OK LANE-DONE |
 | 2026-06-12 | example-books-final-verify | feat/img-books | p024/spread-trial.jpg | 666577 | RESUME-SKIP VISUAL-OK LANE-DONE |
 | 2026-06-12 | example-books-final-verify | feat/img-books | p024/story.json | 3266 | RESUME-SKIP VISUAL-OK LANE-DONE |
+
+| date | lane | branch | id | bytes | status |
+|---|---|---|---|---:|---|
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p002/cover.jpg | 552354 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p002/hero-portrait.jpg | 460078 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p002/spread-climax.jpg | 648029 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p002/spread-midpoint.jpg | 647687 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p002/spread-resolution.jpg | 519929 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p002/spread-setup.jpg | 519804 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p002/spread-trial.jpg | 568278 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p002/story.json | 3516 | JSON-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p005/cover.jpg | 441319 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p005/hero-portrait.jpg | 400786 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p005/spread-climax.jpg | 470137 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p005/spread-midpoint.jpg | 453146 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p005/spread-resolution.jpg | 458634 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p005/spread-setup.jpg | 457544 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p005/spread-trial.jpg | 457094 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p005/story.json | 3342 | JSON-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p011/cover.jpg | 709032 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p011/hero-portrait.jpg | 493856 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p011/spread-climax.jpg | 685340 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p011/spread-midpoint.jpg | 672895 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p011/spread-resolution.jpg | 674908 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p011/spread-setup.jpg | 571114 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p011/spread-trial.jpg | 528781 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p011/story.json | 3323 | JSON-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p024/cover.jpg | 677149 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p024/hero-portrait.jpg | 555712 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p024/spread-climax.jpg | 697897 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p024/spread-midpoint.jpg | 664935 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p024/spread-resolution.jpg | 584099 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p024/spread-setup.jpg | 673350 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p024/spread-trial.jpg | 666577 | RESUME-SKIP VISUAL-OK LANE-DONE |
+| 2026-06-12 | example-books-idempotent-verify | feat/img-books | p024/story.json | 3266 | JSON-OK LANE-DONE |
