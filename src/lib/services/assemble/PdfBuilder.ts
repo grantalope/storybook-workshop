@@ -9,7 +9,12 @@
  *     tag the document as CMYK-intended-output so the print-vendor pipeline
  *     can colorspace-convert at RIP time). The Lulu spec validator
  *     enforces the tag is present.
- *   - 300dpi raster compose: PNG inputs assumed already 300dpi.
+ *   - 300dpi raster compose: PNG/JPEG inputs assumed already 300dpi.
+ *   - Page rasters are JPEG-encoded at q≈0.88 by default (visually lossless
+ *     for print at 300dpi — text is part of the raster anyway) via the
+ *     injectable encodePageRaster boundary. Raw-PNG embedding produced a
+ *     353MB interior PDF for a 29-spread book; JPEG q88 targets <60MB.
+ *     Set pageImageFormat: 'png' for the legacy lossless path.
  *   - Bleed marks: 0.125in trim marks drawn at each corner.
  *   - Fonts: only one embedded subset (Helvetica via pdf-lib StandardFont)
  *     to keep PDF small. The font-embed list goes into the audit record.
@@ -24,6 +29,12 @@
 import { PDFDocument, PDFName, PDFString, StandardFonts, rgb, type PDFFont } from 'pdf-lib';
 import type { BookAssetBundle, BookFormat } from './types';
 import { FORMAT_DIMENSIONS } from './types';
+import {
+	DEFAULT_JPEG_QUALITY,
+	encodePageRaster as defaultEncodePageRaster,
+	sniffImageFormat
+} from './encodePageRaster';
+import type { PageImageFormat, PageRasterEncoder } from './encodePageRaster';
 
 const PT_PER_IN = 72;
 
@@ -47,6 +58,12 @@ export interface PdfStyleCardContent {
 	lookFor: string;
 	tryItYourself: string;
 	respectNote?: string;
+	/** Target embed format for page rasters. Default 'jpeg' (q≈0.88, ~6× smaller). */
+	pageImageFormat?: PageImageFormat;
+	/** JPEG quality in 0..1. Default 0.88. Ignored when pageImageFormat='png'. */
+	pageImageQuality?: number;
+	/** Injectable raster transcoder — defaults to the env-probing encodePageRaster. */
+	encodePageRaster?: PageRasterEncoder;
 }
 
 export interface PdfBuildOutput {
@@ -55,11 +72,8 @@ export interface PdfBuildOutput {
 	bleedMarkCount: number;
 	cmykMarkerPresent: boolean;
 	pageCount: number;
-}
-
-async function blobToBytes(blob: Blob): Promise<Uint8Array> {
-	const ab = await blob.arrayBuffer();
-	return new Uint8Array(ab);
+	/** How many page rasters were actually embedded per format. */
+	rasterFormatCounts: { jpeg: number; png: number };
 }
 
 function inToPt(inches: number): number {
@@ -119,31 +133,54 @@ function attachCmykOutputIntent(doc: PDFDocument): boolean {
 	return true;
 }
 
-async function addPngPage(
+interface PageRasterConfig {
+	format: PageImageFormat;
+	quality: number;
+	encode: PageRasterEncoder;
+}
+
+async function addImagePage(
 	doc: PDFDocument,
-	pngBlob: Blob,
-	format: BookFormat
-): Promise<{ bleedMarks: number }> {
-	const bytes = await blobToBytes(pngBlob);
-	let img;
-	try {
-		img = await doc.embedPng(bytes);
-	} catch {
-		// Fallback: tests / node may pass non-PNG placeholders; use a blank page.
-		const dims = FORMAT_DIMENSIONS[format];
-		const w = inToPt(dims.trimWidthIn + 2 * dims.bleedIn);
-		const h = inToPt(dims.trimHeightIn + 2 * dims.bleedIn);
-		const page = doc.addPage([w, h]);
-		const m = drawBleedMarks(page, dims.trimWidthIn, dims.trimHeightIn, dims.bleedIn);
-		return { bleedMarks: m };
-	}
+	rasterBlob: Blob,
+	format: BookFormat,
+	cfg: PageRasterConfig
+): Promise<{ bleedMarks: number; embeddedFormat: PageImageFormat | 'none' }> {
 	const dims = FORMAT_DIMENSIONS[format];
 	const w = inToPt(dims.trimWidthIn + 2 * dims.bleedIn);
 	const h = inToPt(dims.trimHeightIn + 2 * dims.bleedIn);
+
+	let img;
+	let embeddedFormat: PageImageFormat | 'none' = 'none';
+	try {
+		const encoded = await cfg.encode(rasterBlob, { format: cfg.format, quality: cfg.quality });
+		// Trust magic bytes over the encoder's self-report — embedJpg on PNG
+		// bytes (or vice versa) throws deep inside pdf-lib.
+		const actual = sniffImageFormat(encoded.bytes);
+		if (actual === 'jpeg') {
+			img = await doc.embedJpg(encoded.bytes);
+			embeddedFormat = 'jpeg';
+		} else {
+			img = await doc.embedPng(encoded.bytes);
+			embeddedFormat = 'png';
+		}
+	} catch {
+		// Encoder or embed failed — retry the original bytes as PNG (legacy
+		// path), then fall through to a blank page for non-image placeholders.
+		try {
+			const original = new Uint8Array(await rasterBlob.arrayBuffer());
+			img = await doc.embedPng(original);
+			embeddedFormat = 'png';
+		} catch {
+			const page = doc.addPage([w, h]);
+			const m = drawBleedMarks(page, dims.trimWidthIn, dims.trimHeightIn, dims.bleedIn);
+			return { bleedMarks: m, embeddedFormat: 'none' };
+		}
+	}
+
 	const page = doc.addPage([w, h]);
 	page.drawImage(img, { x: 0, y: 0, width: w, height: h });
 	const m = drawBleedMarks(page, dims.trimWidthIn, dims.trimHeightIn, dims.bleedIn);
-	return { bleedMarks: m };
+	return { bleedMarks: m, embeddedFormat };
 }
 
 function addBlankPage(doc: PDFDocument, format: BookFormat): { bleedMarks: number } {
@@ -264,6 +301,12 @@ export async function buildPdf(input: PdfBuildInput): Promise<PdfBuildOutput> {
 
 	let bleedMarkCount = 0;
 	const fmt = input.bundle.format;
+	const rasterCfg: PageRasterConfig = {
+		format: input.pageImageFormat ?? 'jpeg',
+		quality: input.pageImageQuality ?? DEFAULT_JPEG_QUALITY,
+		encode: input.encodePageRaster ?? defaultEncodePageRaster
+	};
+	const rasterFormatCounts = { jpeg: 0, png: 0 };
 
 	// Page order per spec §3.9.
 	const pageOrder: Array<{ label: string; png?: Blob }> = [
@@ -284,8 +327,9 @@ export async function buildPdf(input: PdfBuildInput): Promise<PdfBuildOutput> {
 
 	for (const item of pageOrder) {
 		if (item.png) {
-			const r = await addPngPage(doc, item.png, fmt);
+			const r = await addImagePage(doc, item.png, fmt, rasterCfg);
 			bleedMarkCount += r.bleedMarks;
+			if (r.embeddedFormat !== 'none') rasterFormatCounts[r.embeddedFormat]++;
 		} else if (item.label === 'back-blurb') {
 			// Render blurb as text-only page with helv font.
 			const dims = FORMAT_DIMENSIONS[fmt];
@@ -317,6 +361,7 @@ export async function buildPdf(input: PdfBuildInput): Promise<PdfBuildOutput> {
 		fontEmbedSummary,
 		bleedMarkCount,
 		cmykMarkerPresent,
-		pageCount: doc.getPageCount()
+		pageCount: doc.getPageCount(),
+		rasterFormatCounts
 	};
 }

@@ -28,6 +28,7 @@ import {
 import { overlayBookNames } from './NameOverlayCompositor';
 import { composeCover, computeSpineWidthIn } from './CoverComposer';
 import { buildPdf } from './PdfBuilder';
+import type { PageImageFormat, PageRasterEncoder } from './encodePageRaster';
 import { validatePdf } from './LuluPdfSpecValidator';
 import { buildEpub } from './EpubBuilder';
 import { buildReadAlongBundle } from './ReadAlongBundleBuilder';
@@ -56,6 +57,12 @@ export interface AssembleOptions {
 	includeStyleCard?: boolean;
 	/** Optional override for the selected style pack id. */
 	stylePackId?: string;
+	/** Interior page raster embed format. Default 'jpeg' (q≈0.88, ~6× smaller PDF). */
+	pageImageFormat?: PageImageFormat;
+	/** JPEG quality in 0..1. Default 0.88. Ignored when pageImageFormat='png'. */
+	pageImageQuality?: number;
+	/** Injectable raster transcoder (tests / custom pipelines). */
+	encodePageRaster?: PageRasterEncoder;
 	/** Optional override for testing the validator pre-check. */
 	skipValidation?: boolean;
 }
@@ -205,6 +212,9 @@ export async function assemble(
 		spineWidthIn: cover.canvas.spineWidthIn,
 		styleCard: shouldIncludeStyleCard && selectedStylePack ? styleCardContent(selectedStylePack) : undefined,
 		blankPageCount: styleBlankPageCount,
+		pageImageFormat: options.pageImageFormat,
+		pageImageQuality: options.pageImageQuality,
+		encodePageRaster: options.encodePageRaster
 	});
 
 	// ── (d) LuluPdfSpecValidator ───────────────────────────────────────────

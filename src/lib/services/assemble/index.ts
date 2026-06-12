@@ -9,6 +9,13 @@ export * from './types';
 export { overlayName, overlayBookNames, replaceHeroName } from './NameOverlayCompositor';
 export { composeCover, computeSpineWidthIn, computeCoverCanvas } from './CoverComposer';
 export { buildPdf } from './PdfBuilder';
+export { encodePageRaster, sniffImageFormat, DEFAULT_JPEG_QUALITY } from './encodePageRaster';
+export type {
+	PageImageFormat,
+	PageRasterEncoder,
+	EncodePageRasterOptions,
+	EncodedPageRaster
+} from './encodePageRaster';
 export { validatePdf } from './LuluPdfSpecValidator';
 export { buildEpub } from './EpubBuilder';
 export { buildReadAlongBundle, generateShortcode } from './ReadAlongBundleBuilder';
