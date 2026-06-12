@@ -172,7 +172,7 @@ describe('P0 — shipping costCents fail-closed and server-quoted', () => {
 			qualityClaimStore: deps.claimStore,
 			idGen: deps.idGen,
 			nowSource: deps.clock.now,
-		} as Parameters<typeof __setOrderApiDeps>[0]);
+		} as unknown as Parameters<typeof __setOrderApiDeps>[0]);
 
 		const r = await callPost(orderPOST, { body: validBody() });
 		expect(r.status).toBe(503);
@@ -286,7 +286,7 @@ describe('P0 — shipping costCents fail-closed and server-quoted', () => {
 
 function stripeCreateCalls(deps: ReturnType<typeof wireAll>) {
 	return (
-		deps.stripeHttp as {
+		deps.stripeHttp as unknown as {
 			calls: Array<{ method: string; args: unknown }>;
 		}
 	).calls.filter((call) => call.method === 'createPaymentIntent');

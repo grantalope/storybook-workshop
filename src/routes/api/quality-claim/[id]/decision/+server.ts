@@ -40,7 +40,8 @@ export const POST: RequestHandler = async ({ request, params }) => {
 	if (body.decision !== 'approved_refund') {
 		return json({ error: 'invalid_decision', decision: body.decision }, { status: 400 });
 	}
-	if (!Number.isInteger(body.amountCents) || body.amountCents <= 0) {
+	const amountCents = body.amountCents;
+	if (typeof amountCents !== 'number' || !Number.isInteger(amountCents) || amountCents <= 0) {
 		return json({ error: 'invalid_refund_amount' }, { status: 400 });
 	}
 
@@ -63,7 +64,6 @@ export const POST: RequestHandler = async ({ request, params }) => {
 		return json({ error: 'missing_payment_intent' }, { status: 409 });
 	}
 
-	const amountCents = body.amountCents as number;
 	const idempotencyKey = refundIdempotencyKey(order.id, claim.id, amountCents);
 	const started = await store.beginRefundOnce({
 		orderId: order.id,

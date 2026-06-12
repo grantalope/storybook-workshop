@@ -45,6 +45,7 @@ import {
 	makeAddress,
 	makeShippingOption,
 	makeConsent,
+	type MockStripeCall,
 } from '../fulfillment/fixtures';
 import { wireFulfillmentDeps } from '../fulfillment/wireFulfillmentDeps';
 
@@ -428,14 +429,14 @@ describe('POST /api/order/[id] — confirm (real Stripe Elements path)', () => {
 		const deps = wireDeps({ piStatus: 'succeeded' });
 		const post = await callPost(orderPOST, { body: validBody() });
 		const orderId = post.data.orderId;
-		const before = deps.stripeHttp.calls.filter(
+		const before = stripeCalls(deps).filter(
 			(c) => c.method === 'getPaymentIntent',
 		).length;
 		await callPost(orderIdPOST, {
 			params: { id: orderId },
 			body: { action: 'confirm' },
 		});
-		const after = deps.stripeHttp.calls.filter(
+		const after = stripeCalls(deps).filter(
 			(c) => c.method === 'getPaymentIntent',
 		).length;
 		expect(after).toBe(before + 1);
@@ -452,6 +453,10 @@ describe('POST /api/order/[id] — confirm (real Stripe Elements path)', () => {
 		expect(r.data.error).toBe('unknown_action');
 	});
 });
+
+function stripeCalls(deps: ReturnType<typeof wireDeps>): MockStripeCall[] {
+	return (deps.stripeHttp as unknown as { calls: MockStripeCall[] }).calls;
+}
 
 // ---------------------------------------------------------------------------
 // /api/order POST does NOT require client-side bookCostCents (server-as-truth)

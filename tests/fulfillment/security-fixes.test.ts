@@ -120,7 +120,6 @@ describe("SECURITY: server-side pricing (CRITICAL price-tampering fix)", () => {
 	it("server computes bookCostCents when client OMITS the field (server is authoritative)", async () => {
 		const { created } = setupDeps();
 		const body = { ...VALID_BODY };
-		delete (body as Partial<typeof VALID_BODY>).bookCostCents;
 		const res = await orderPost({ request: makeRequest(body), locals: {} } as never);
 		expect(res.status).toBe(200);
 		expect(created[0]?.amountCents).toBe(3598);

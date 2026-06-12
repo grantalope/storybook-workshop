@@ -73,6 +73,10 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | 2026-06-11 | privacy-allowlist LANE-DONE | fix/privacy-fictional-names | 102 → 102 (20 warnings) | 1164 passed / 4 skipped / 103 files | `pnpm lint`: eslint not found | CLEAN (source diff real-PII grep; `allowNames` only privacy + author scene-render path) | c3b5c18 | not pushed |
 | 2026-06-11 | privacy-allowlist LANE-DONE | fix/privacy-fictional-names | 102 → 102 (20 warnings) | 1166 passed / 4 skipped / 103 files | `pnpm lint`: eslint not found | CLEAN (source added-line real-PII grep; `allowNames` only privacy + author scene-render path) | ded65d0 | not pushed |
 
+| date | lane | branch | full tests | gates | check ratchet | G6-money | G7-security | commits | push | status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-06-12 | bh-a-money-integrity | fix/bh-a-money-integrity | 1372 passed / 4 skipped / 136 files | ALL PASS / 40.6s | 109 → 106 errors (baseline tightened) | PASS / 370 pass | WARN allow-listed / 2 findings | 5625828, e403c39, e2f24b7, d2a6783, final closeout commit | no | LANE-DONE |
+
 ## Architect log 2026-06-11 (Fable)
 
 - MERGED: T1 feat/wfc-scene-grammar (b68a302) + T4 feat/art-history-styles (8d9d98c)

@@ -8,9 +8,9 @@ import {
 	createSqliteStores,
 	InMemoryOrderStore,
 	sqliteAvailable,
+	type FulfillmentOrderStore,
 	type Order,
 	type SqliteStores,
-	type WebhookOrderStore,
 } from '$lib/services/fulfillment';
 import { POST as stripeWebhookPOST } from '../../src/routes/api/stripe-webhook/+server';
 import { callPost } from './api-helpers';
@@ -22,7 +22,7 @@ const tempDirs: string[] = [];
 
 interface StoreHarness {
 	name: string;
-	store: WebhookOrderStore;
+	store: FulfillmentOrderStore;
 	close(): void;
 }
 

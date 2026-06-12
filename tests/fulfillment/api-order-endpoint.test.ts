@@ -11,6 +11,7 @@ import {
 	makeAddress,
 	makeShippingOption,
 	makeConsent,
+	type MockStripeCall,
 } from './fixtures';
 import { wireFulfillmentDeps } from './wireFulfillmentDeps';
 
@@ -71,7 +72,7 @@ describe('POST /api/order — validation errors (pre-Stripe)', () => {
 		const r = await callPost(orderPOST, { body });
 		expect(r.status).toBe(400);
 		expect(r.data.error).toBe('pages_out_of_range');
-		expect(deps.stripeHttp.calls.length).toBe(0); // no Stripe call
+		expect(stripeCalls(deps)).toHaveLength(0); // no Stripe call
 	});
 
 	it('400 pages_not_multiple_of', async () => {
@@ -98,6 +99,10 @@ describe('POST /api/order — validation errors (pre-Stripe)', () => {
 		expect(r.data.error).toBe('invalid_address');
 	});
 });
+
+function stripeCalls(deps: ReturnType<typeof wireDeps>): MockStripeCall[] {
+	return (deps.stripeHttp as unknown as { calls: MockStripeCall[] }).calls;
+}
 
 describe('GET /api/order/[id] — status projection', () => {
 	beforeEach(() => {
