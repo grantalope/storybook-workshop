@@ -85,3 +85,15 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 - SANDBOX LESSON: do NOT pass `-s workspace-write` for worktree lanes — git
   metadata lives under the main repo .git; config default (danger-full-access)
   is required for commits. Lanes are architect-managed.
+
+## Compose pilot 2026-06-11 (Fable)
+
+- COMPOSE PILOT: scripts/pregen/compose-pilot.mjs — first 3 bank-composed spreads
+  (book pilot-1: setup/climax/resolution; desert + compass + p001/p002; real engine
+  path collapseLayout -> planComposition -> PIL compositor; zero direct-gen
+  fallbacks; ~1.9 s/spread at 1536x1184). Visual verdict 6/10 pre-harmonization:
+  grounding/scale/textZone-clear all hold; main defect is a BANK QC issue —
+  propC/compass/flat-painted.png is a green-screen landscape, not a compass
+  (prop-gen content miss + matting failed to key green). Layer-C needs the QC
+  pass qc-similarity only gives Layer B. Next step: img2img harmonization pass
+  on the 4090 (lighting/palette unification + contact shadows).
