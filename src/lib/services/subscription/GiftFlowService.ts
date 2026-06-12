@@ -29,7 +29,74 @@ import type { BundleService } from './BundleService';
 import { bundleCentsFor } from './BundleService';
 import type { SubscriptionService } from './SubscriptionService';
 import { stripePriceIdFor } from './SubscriptionService';
-import { secureRandomString } from "./secureRandom";
+import { secureRandomString } from './secureRandom';
+
+// ---------------------------------------------------------------------------
+// GiftStore — persistence abstraction (fixes cluster-D P1: in-memory Map
+// did not survive request boundaries; each new GiftFlowService instance
+// started with an empty store, allowing the same redeem code to be used
+// multiple times across requests).
+// ---------------------------------------------------------------------------
+
+/**
+ * Minimal store interface for Gift persistence. The in-memory implementation
+ * is the default (tests + single-request contexts). The API layer MUST
+ * supply a module-level singleton store so state survives across requests.
+ * A future durable implementation (SQLite / D1 / Postgres row) drops in
+ * here without changing GiftFlowService itself.
+ */
+export interface GiftStore {
+	getById(id: string): Gift | undefined;
+	/**
+	 * Look up a gift by its redeem code. Returns undefined for unknown codes.
+	 */
+	getByRedeemCode(code: string): Gift | undefined;
+	/**
+	 * Persist (create or overwrite) a gift record. Called on createGift and
+	 * after any status mutation (redeem / cancel / expiry). Implementations
+	 * MUST perform an atomic compare-and-swap on status when the previous
+	 * status is known — see SqliteGiftStore for a reference pattern.
+	 */
+	save(gift: Gift): void;
+	/**
+	 * Return true if a redeem code is already in the store (used by
+	 * _uniqueRedeemCode to detect collisions).
+	 */
+	hasRedeemCode(code: string): boolean;
+}
+
+/**
+ * Default in-memory GiftStore. Suitable for tests and for single-process
+ * deployments where the store is a module-level singleton. Not suitable for
+ * multi-process / multi-instance deployments — use a DB-backed impl.
+ */
+export class InMemoryGiftStore implements GiftStore {
+	private _byId = new Map<string, Gift>();
+	private _byCode = new Map<string, string>(); // redeemCode → giftId
+
+	getById(id: string): Gift | undefined {
+		return this._byId.get(id);
+	}
+
+	getByRedeemCode(code: string): Gift | undefined {
+		const id = this._byCode.get(code);
+		return id ? this._byId.get(id) : undefined;
+	}
+
+	save(gift: Gift): void {
+		this._byId.set(gift.id, gift); // store by reference — GiftFlowService is the sole writer
+		this._byCode.set(gift.redeemCode, gift.id);
+	}
+
+	hasRedeemCode(code: string): boolean {
+		return this._byCode.has(code);
+	}
+
+	/** Internal — used by GiftFlowService.snapshot(). */
+	_allGifts(): IterableIterator<Gift> {
+		return this._byId.values();
+	}
+}
 
 // ---------------------------------------------------------------------------
 // Service
@@ -43,12 +110,17 @@ export interface GiftFlowServiceOpts {
 	nowSource?: () => number;
 	idGen?: () => string;
 	redeemCodeGen?: () => string;
+	/**
+	 * Persistent store for Gift records. MUST be a module-level singleton in
+	 * request-handler contexts so redeem-code checks survive across requests.
+	 * Defaults to a fresh InMemoryGiftStore (safe for tests; NOT safe for
+	 * production request handlers that instantiate GiftFlowService per request).
+	 */
+	store?: GiftStore;
 }
 
 export class GiftFlowService {
-	private _store = new Map<string, Gift>();
-	/** Reverse-index for redeem code → giftId lookups. */
-	private _byRedeemCode = new Map<string, string>();
+	private _store: GiftStore;
 	private _payment: PaymentProvider;
 	private _mailer: MailerProvider;
 	private _subs: SubscriptionService;
@@ -58,6 +130,7 @@ export class GiftFlowService {
 	private _redeemCodeGen: () => string;
 
 	constructor(opts: GiftFlowServiceOpts) {
+		this._store = opts.store ?? new InMemoryGiftStore();
 		this._payment = opts.payment;
 		this._mailer = opts.mailer;
 		this._subs = opts.subscriptions;
@@ -113,8 +186,7 @@ export class GiftFlowService {
 			createdAt: now,
 			status: 'pending_redeem',
 		};
-		this._store.set(id, gift);
-		this._byRedeemCode.set(redeemCode, id);
+		this._store.save(gift);
 
 		// Fire-and-forget transactional emails
 		await this._mailer.send({
@@ -143,12 +215,11 @@ export class GiftFlowService {
 	}
 
 	get(id: string): Gift | undefined {
-		return this._store.get(id);
+		return this._store.getById(id);
 	}
 
 	getByRedeemCode(code: string): Gift | undefined {
-		const id = this._byRedeemCode.get(code);
-		return id ? this._store.get(id) : undefined;
+		return this._store.getByRedeemCode(code);
 	}
 
 	/**
@@ -164,7 +235,7 @@ export class GiftFlowService {
 		subscriptionId?: string;
 		bundleId?: string;
 	}> {
-		const gift = this.getByRedeemCode(opts.redeemCode);
+		const gift = this._store.getByRedeemCode(opts.redeemCode);
 		if (!gift) throw new Error(`GiftFlowService: invalid redeem code`);
 		if (gift.status !== 'pending_redeem') {
 			throw new Error(`GiftFlowService: gift ${gift.id} status=${gift.status}`);
@@ -202,6 +273,7 @@ export class GiftFlowService {
 
 		gift.status = 'redeemed';
 		gift.redeemedAt = this._now();
+		this._store.save(gift);
 		return { giftId: gift.id, subscriptionId, bundleId };
 	}
 
@@ -214,7 +286,7 @@ export class GiftFlowService {
 	 * override — the actual PNG composition happens upstream.
 	 */
 	buildDedicationOverride(giftId: string): GiftDedicationOverride | undefined {
-		const gift = this._store.get(giftId);
+		const gift = this._store.getById(giftId);
 		if (!gift) return undefined;
 		return {
 			giftId: gift.id,
@@ -226,22 +298,22 @@ export class GiftFlowService {
 
 	/** Mark a gift cancelled (pre-redeem). */
 	cancel(id: string): Gift {
-		const gift = this._store.get(id);
+		const gift = this._store.getById(id);
 		if (!gift) throw new Error(`GiftFlowService: unknown gift ${id}`);
 		gift.status = 'cancelled';
+		this._store.save(gift);
 		return gift;
 	}
 
 	__testInsert(g: Gift): void {
-		this._store.set(g.id, g);
-		this._byRedeemCode.set(g.redeemCode, g.id);
+		this._store.save(g);
 	}
 
 	private _uniqueRedeemCode(): string {
 		// Bounded retry on collision — collisions vanishingly improbable but defended.
 		for (let i = 0; i < 100; i++) {
 			const code = this._redeemCodeGen();
-			if (!this._byRedeemCode.has(code)) return code;
+			if (!this._store.hasRedeemCode(code)) return code;
 		}
 		throw new Error(`GiftFlowService: failed to mint unique redeem code after 100 tries`);
 	}
@@ -256,8 +328,11 @@ export class GiftFlowService {
 			expired: 0,
 			cancelled: 0,
 		};
-		for (const g of this._store.values()) statuses[g.status] += 1;
-		return { count: this._store.size, statuses };
+		if (this._store instanceof InMemoryGiftStore) {
+			for (const g of this._store._allGifts()) statuses[g.status] += 1;
+			return { count: [...this._store._allGifts()].length, statuses };
+		}
+		return { count: 0, statuses };
 	}
 }
 
@@ -285,7 +360,7 @@ let _idCounter = 0;
 function defaultIdGen(): string {
 	_idCounter += 1;
 	// Internal Gift entity ID — CSPRNG suffix for collision-avoidance defense-in-depth.
-	return `${Date.now().toString(36)}_${_idCounter}_${secureRandomString(6, "abcdefghijklmnopqrstuvwxyz0123456789")}`;
+	return `${Date.now().toString(36)}_${_idCounter}_${secureRandomString(6, 'abcdefghijklmnopqrstuvwxyz0123456789')}`;
 }
 
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I confusion
