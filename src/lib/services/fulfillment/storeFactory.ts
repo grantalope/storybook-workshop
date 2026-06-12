@@ -10,12 +10,12 @@ import {
 } from './SqliteOrderStore';
 import { InMemoryOrderStore } from './OrderLifecycleService';
 import { InMemoryQualityClaimStore } from './QualityGuaranteeHandler';
-import type { QualityClaimStore, WebhookOrderStore } from './types';
+import type { FulfillmentOrderStore, QualityClaimStore } from './types';
 
 export type StoreRuntime = 'node-prod' | 'vitest' | 'browser';
 
 export interface DefaultFulfillmentStores {
-	orderStore: WebhookOrderStore;
+	orderStore: FulfillmentOrderStore;
 	qualityClaimStore: QualityClaimStore;
 	kind: 'sqlite' | 'memory';
 	close(): void;

@@ -8,11 +8,11 @@ import {
 	QualityGuaranteeHandler,
 	ShippingQuoteService,
 	StripeCheckoutService,
+	type FulfillmentOrderStore,
 	type LuluShippingCostResponse,
 	type QualityClaimStore,
 	type ShippingOption,
 	type StripeHttpClient,
-	type WebhookOrderStore,
 } from '$lib/services/fulfillment';
 import { __setLuluWebhookApiDeps } from '../../src/routes/api/lulu-webhook/+server';
 import { __setOrderApiDeps } from '../../src/routes/api/order/+server';
@@ -47,7 +47,7 @@ export const DEFAULT_SERVER_SHIPPING_OPTIONS: ShippingOption[] = [
 ];
 
 export interface WireFulfillmentDepsOptions {
-	store?: WebhookOrderStore;
+	store?: FulfillmentOrderStore;
 	claimStore?: QualityClaimStore;
 	stripeHttp?: StripeHttpClient;
 	luluHttp?: ReturnType<typeof createMockLulu>;
