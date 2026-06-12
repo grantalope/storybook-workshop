@@ -2966,3 +2966,42 @@ RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612
 | p089/story.json | 3331 |
 
 LANE-DONE
+
+RAW results table (id -> bytes), 2026-06-12, lane example-books-codex55-20260612-selected-four-idempotent-final, branch feat/img-books:
+
+| id | bytes |
+|---|---:|
+| p006/cover.jpg | 466710 |
+| p006/hero-portrait.jpg | 350302 |
+| p006/spread-setup.jpg | 499584 |
+| p006/spread-midpoint.jpg | 522254 |
+| p006/spread-trial.jpg | 514262 |
+| p006/spread-climax.jpg | 533997 |
+| p006/spread-resolution.jpg | 495489 |
+| p006/story.json | 3421 |
+| p065/cover.jpg | 501378 |
+| p065/hero-portrait.jpg | 460550 |
+| p065/spread-setup.jpg | 496227 |
+| p065/spread-midpoint.jpg | 476051 |
+| p065/spread-trial.jpg | 455700 |
+| p065/spread-climax.jpg | 489600 |
+| p065/spread-resolution.jpg | 515534 |
+| p065/story.json | 3371 |
+| p083/cover.jpg | 472374 |
+| p083/hero-portrait.jpg | 353643 |
+| p083/spread-setup.jpg | 481976 |
+| p083/spread-midpoint.jpg | 501813 |
+| p083/spread-trial.jpg | 465807 |
+| p083/spread-climax.jpg | 467767 |
+| p083/spread-resolution.jpg | 474207 |
+| p083/story.json | 3279 |
+| p089/cover.jpg | 420128 |
+| p089/hero-portrait.jpg | 402867 |
+| p089/spread-setup.jpg | 414159 |
+| p089/spread-midpoint.jpg | 454775 |
+| p089/spread-trial.jpg | 447370 |
+| p089/spread-climax.jpg | 470972 |
+| p089/spread-resolution.jpg | 401308 |
+| p089/story.json | 3331 |
+
+LANE-DONE
