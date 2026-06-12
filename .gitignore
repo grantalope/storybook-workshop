@@ -16,3 +16,6 @@ test-results/
 .vite/
 scripts/pregen/.bank/
 scripts/pregen/.compose-pilot/
+
+# Portrait PNGs archived — originals at .portraits-png-archive/ (untracked)
+static/pillar-library-v2/portraits/*.png
