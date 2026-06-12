@@ -106,10 +106,17 @@ describe('StripeCheckoutService.refund', () => {
 		expect((call.args as { amountCents: number }).amountCents).toBe(500);
 	});
 
+	it('forwards refund idempotency key', async () => {
+		await svc.refund('pi_1', 500, 'order:ord_1:claim:claim_1:refund:500');
+		const call = mock.calls.find((c) => c.method === 'refund')!;
+		expect(call.idempotencyKey).toBe('order:ord_1:claim:claim_1:refund:500');
+	});
+
 	it('throws on missing piId / non-positive amount', async () => {
 		await expect(svc.refund('')).rejects.toThrow(/paymentIntentId required/);
 		await expect(svc.refund('pi_1', 0)).rejects.toThrow(/refund amount must be positive/);
 		await expect(svc.refund('pi_1', -1)).rejects.toThrow(/refund amount must be positive/);
+		await expect(svc.refund('pi_1', 100, ' ')).rejects.toThrow(/idempotency key/);
 	});
 });
 

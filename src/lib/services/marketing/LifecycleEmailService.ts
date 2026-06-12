@@ -180,12 +180,16 @@ export class LifecycleEmailService {
 				secret: this.opts.serverSecret,
 			});
 		}
+		// Render locally with full vars (may include kid_name for personalization).
 		const rendered = renderEmail({ template, to: contact.email, vars });
+		// Strip kid_name before sending to external CRM — child first name must
+		// not leave the device/process as a named attribute (privacy fix cluster-D).
+		const { kid_name: _stripped, ...varsForCrm } = vars;
 		try {
 			return await this.opts.crm.send({
 				template,
 				to: contact.email,
-				vars,
+				vars: varsForCrm,
 				tags: this._tagsForContact(contact),
 				subject: rendered.subject,
 				text: rendered.text,
@@ -206,8 +210,11 @@ export class LifecycleEmailService {
 			link,
 			unsubscribe_bucket: 'marketing',
 		};
-		if (contact.tags.kidFirstName) {
-			vars.kid_name = contact.tags.kidFirstName;
+		// kidFirstName: fetch from in-memory-only gate store, NEVER from contact.tags.
+		// kid_name is used for local renderEmail only; it is stripped before crm.send().
+		const kidName = this.opts.gate.getKidName(contact.email);
+		if (kidName) {
+			vars.kid_name = kidName;
 		}
 		if (template === 'lifecycle_T24h') {
 			vars.promo_code = 'BEDTIME10';

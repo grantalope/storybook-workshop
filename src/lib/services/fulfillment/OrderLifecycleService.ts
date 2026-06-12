@@ -19,6 +19,14 @@ import type {
 	Order,
 	OrderState,
 	OrderStore,
+	ApplyStripeWebhookEventOnceInput,
+	BeginRefundOnceInput,
+	CompleteRefundInput,
+	FailRefundInput,
+	FulfillmentOrderStore,
+	RefundLedgerEntry,
+	RefundLedgerResult,
+	StripeWebhookApplyResult,
 	TransitionActor,
 	TransitionLogEntry,
 	ShippingAddress,
@@ -283,8 +291,10 @@ function lastTransitionAt(order: Order, to: OrderState): number | null {
 // In-memory OrderStore implementation (browser + tests)
 // ---------------------------------------------------------------------------
 
-export class InMemoryOrderStore implements OrderStore {
+export class InMemoryOrderStore implements FulfillmentOrderStore {
 	private _map = new Map<string, Order>();
+	private _processedWebhookEvents = new Set<string>();
+	private _refundLedger = new Map<string, RefundLedgerEntry>();
 
 	async get(id: string): Promise<Order | undefined> {
 		return this._map.get(id);
@@ -305,8 +315,128 @@ export class InMemoryOrderStore implements OrderStore {
 		for (const o of this._map.values()) if (o.luluJobId === id) return o;
 		return undefined;
 	}
+
+	applyStripeWebhookEventOnce(
+		input: ApplyStripeWebhookEventOnceInput,
+	): Promise<StripeWebhookApplyResult> {
+		if (this._processedWebhookEvents.has(input.eventId)) {
+			return Promise.resolve({ outcome: 'duplicate' });
+		}
+
+		this._processedWebhookEvents.add(input.eventId);
+		const order = this._getByStripePaymentIntentSync(input.paymentIntentId);
+		if (!order) {
+			return Promise.resolve({ outcome: 'ignored', reason: 'unknown_payment_intent' });
+		}
+
+		if (input.expectedState && order.state !== input.expectedState) {
+			return Promise.resolve({
+				outcome: 'ignored',
+				reason: 'state_mismatch',
+				order,
+				currentState: order.state,
+			});
+		}
+
+		const to = input.toState ?? order.state;
+		const entry: TransitionLogEntry = {
+			from: order.state,
+			to,
+			at: input.at,
+			actor: input.actor,
+			reason: input.reason,
+			meta: input.meta,
+		};
+		const next: Order = {
+			...order,
+			state: to,
+			transitions: [...order.transitions, entry],
+			updatedAt: input.at,
+		};
+		this._map.set(order.id, next);
+		return Promise.resolve({
+			outcome: 'applied',
+			order: next,
+			previousState: order.state,
+			currentState: next.state,
+		});
+	}
+
+	private _getByStripePaymentIntentSync(id: string): Order | undefined {
+		for (const o of this._map.values()) if (o.stripePaymentIntentId === id) return o;
+		return undefined;
+	}
+
+	beginRefundOnce(input: BeginRefundOnceInput): Promise<RefundLedgerResult> {
+		const key = refundLedgerKey(input.orderId, input.claimId, input.refundKind);
+		const existing = this._refundLedger.get(key);
+		if (existing) {
+			return Promise.resolve({ outcome: 'existing', entry: { ...existing } });
+		}
+
+		const entry: RefundLedgerEntry = {
+			orderId: input.orderId,
+			claimId: input.claimId,
+			refundKind: input.refundKind,
+			amountCents: input.amountCents,
+			currency: input.currency,
+			status: 'pending',
+			stripePaymentIntentId: input.stripePaymentIntentId,
+			idempotencyKey: input.idempotencyKey,
+			createdAt: input.at,
+			updatedAt: input.at,
+		};
+		this._refundLedger.set(key, entry);
+		return Promise.resolve({ outcome: 'started', entry: { ...entry } });
+	}
+
+	completeRefund(input: CompleteRefundInput): Promise<RefundLedgerEntry> {
+		const key = refundLedgerKey(input.orderId, input.claimId, input.refundKind);
+		const existing = this._refundLedger.get(key);
+		if (!existing) throw new Error('refund ledger entry not found');
+		const entry: RefundLedgerEntry = {
+			...existing,
+			status: input.result.status,
+			stripeRefundId: input.result.id,
+			stripePaymentIntentId: input.result.paymentIntentId,
+			errorMessage: undefined,
+			response: input.result,
+			updatedAt: input.at,
+		};
+		this._refundLedger.set(key, entry);
+		return Promise.resolve({ ...entry });
+	}
+
+	failRefund(input: FailRefundInput): Promise<RefundLedgerEntry> {
+		const key = refundLedgerKey(input.orderId, input.claimId, input.refundKind);
+		const existing = this._refundLedger.get(key);
+		if (!existing) throw new Error('refund ledger entry not found');
+		const entry: RefundLedgerEntry = {
+			...existing,
+			status: 'failed',
+			errorMessage: input.errorMessage,
+			response: undefined,
+			updatedAt: input.at,
+		};
+		this._refundLedger.set(key, entry);
+		return Promise.resolve({ ...entry });
+	}
+
+	getRefundLedgerEntry(
+		orderId: string,
+		claimId: string,
+		refundKind: string,
+	): Promise<RefundLedgerEntry | undefined> {
+		const entry = this._refundLedger.get(refundLedgerKey(orderId, claimId, refundKind));
+		return Promise.resolve(entry ? { ...entry } : undefined);
+	}
+
 	/** Test/debug helper. */
 	_all(): Order[] {
 		return [...this._map.values()];
 	}
+}
+
+function refundLedgerKey(orderId: string, claimId: string, refundKind: string): string {
+	return `${orderId}\0${claimId}\0${refundKind}`;
 }

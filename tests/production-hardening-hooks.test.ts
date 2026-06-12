@@ -54,6 +54,7 @@ const FULLY_CONFIGURED_PROD: Record<string, string> = {
 	LULU_CLIENT_ID: "lulu_id_test",
 	LULU_CLIENT_SECRET: "lulu_secret_test",
 	LULU_WEBHOOK_SECRET: "lulu_webhook_test",
+	OPS_API_TOKEN: "ops_test_value",
 	RESEND_API_KEY: "re_test",
 };
 

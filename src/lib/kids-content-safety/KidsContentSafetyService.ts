@@ -324,3 +324,25 @@ function nowMs(): number {
 // Singleton — `kidsContentSafetyService` is the canonical entry point that
 // every workshop caller (and the kernel manifest module()) imports.
 export const kidsContentSafetyService = new KidsContentSafetyService();
+
+// Wire the singleton into the globalThis slot that StoryAuthorService reads.
+//
+// StoryAuthorService.getKidsContentSafety() expects the KidsContentSafetyLike
+// interface (scan → { passed, categories, confidence }). The real service returns
+// { passed, reports, scanLatencyMs, backend }. Adapt here so callers never see
+// the permissive stub once this module is loaded.
+//
+// Assigned unconditionally (browser + Node) — vitest loads this module too so
+// tests that import from '$lib/kids-content-safety' also get the real gate.
+if (typeof globalThis !== 'undefined') {
+    (globalThis as Record<string, unknown>).__kidsContentSafetyService = {
+        async scan(text: string): Promise<{ passed: boolean; categories: string[]; confidence: number }> {
+            const result = await kidsContentSafetyService.scan(text, { source: 'story_author' });
+            const categories = result.reports.map((r) => r.category);
+            const confidence = result.reports.length > 0
+                ? Math.max(...result.reports.map((r) => r.confidence))
+                : 0;
+            return { passed: result.passed, categories, confidence };
+        },
+    };
+}

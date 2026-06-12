@@ -211,6 +211,40 @@ sqliteDescribe('SqliteOrderStore', () => {
 		}
 	});
 
+	it('creates fresh databases at schema v2 with webhook and refund ledger tables', () => {
+		const stores = openStores();
+		try {
+			expect(readText(stores.dbPath, "SELECT value FROM schema_meta WHERE key = 'version'")).toBe('2');
+			expect(tableExists(stores.dbPath, 'processed_webhook_events')).toBe(true);
+			expect(tableExists(stores.dbPath, 'refund_ledger')).toBe(true);
+		} finally {
+			stores.close();
+		}
+	});
+
+	it('upgrades an existing v1 database to schema v2 idempotently', () => {
+		const dbPath = tempDbPath();
+		createLegacyV1Database(dbPath);
+
+		const first = openStores(dbPath);
+		try {
+			expect(readText(dbPath, "SELECT value FROM schema_meta WHERE key = 'version'")).toBe('2');
+			expect(tableExists(dbPath, 'processed_webhook_events')).toBe(true);
+			expect(tableExists(dbPath, 'refund_ledger')).toBe(true);
+		} finally {
+			first.close();
+		}
+
+		const second = openStores(dbPath);
+		try {
+			expect(readText(dbPath, "SELECT value FROM schema_meta WHERE key = 'version'")).toBe('2');
+			expect(tableExists(dbPath, 'processed_webhook_events')).toBe(true);
+			expect(tableExists(dbPath, 'refund_ledger')).toBe(true);
+		} finally {
+			second.close();
+		}
+	});
+
 	it('honors ORDER_DB_PATH from injected env', () => {
 		const dbPath = tempDbPath();
 		const stores = createSqliteStores({ env: { ORDER_DB_PATH: dbPath } });
@@ -309,6 +343,64 @@ function readPragma(dbPath: string, name: string): string {
 
 function transitionCount(dbPath: string, orderId: string): number {
 	return readScalar(dbPath, 'SELECT count(*) AS value FROM transitions WHERE order_id = ?', orderId);
+}
+
+function tableExists(dbPath: string, tableName: string): boolean {
+	return readScalar(
+		dbPath,
+		"SELECT count(*) AS value FROM sqlite_master WHERE type = 'table' AND name = ?",
+		tableName,
+	) === 1;
+}
+
+function createLegacyV1Database(dbPath: string): void {
+	const db = openRaw(dbPath);
+	try {
+		db.exec(`
+CREATE TABLE schema_meta (
+	key TEXT PRIMARY KEY,
+	value TEXT NOT NULL
+);
+INSERT INTO schema_meta (key, value) VALUES ('version', '1');
+
+CREATE TABLE orders (
+	id TEXT PRIMARY KEY,
+	state TEXT NOT NULL,
+	parent_email TEXT NOT NULL,
+	stripe_payment_intent_id TEXT,
+	lulu_job_id TEXT,
+	json TEXT NOT NULL,
+	updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX idx_orders_parent_email ON orders(parent_email);
+CREATE INDEX idx_orders_stripe_payment_intent_id ON orders(stripe_payment_intent_id);
+CREATE INDEX idx_orders_lulu_job_id ON orders(lulu_job_id);
+
+CREATE TABLE transitions (
+	order_id TEXT NOT NULL,
+	seq INTEGER NOT NULL,
+	from_state TEXT,
+	to_state TEXT NOT NULL,
+	at INTEGER NOT NULL,
+	json TEXT NOT NULL,
+	PRIMARY KEY (order_id, seq),
+	FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
+
+CREATE TABLE quality_claims (
+	id TEXT PRIMARY KEY,
+	order_id TEXT,
+	status TEXT NOT NULL,
+	json TEXT NOT NULL,
+	updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX idx_quality_claims_status ON quality_claims(status);
+`);
+	} finally {
+		db.close();
+	}
 }
 
 function appendTransition(order: Order, entry: TransitionLogEntry): Order {

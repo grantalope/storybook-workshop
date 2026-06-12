@@ -61,12 +61,19 @@ export class StripeCheckoutService {
 	}
 
 	/** Issue a refund. `amountCents` undefined = full refund. */
-	async refund(paymentIntentId: string, amountCents?: number): Promise<RefundResult> {
+	async refund(
+		paymentIntentId: string,
+		amountCents?: number,
+		idempotencyKey?: string,
+	): Promise<RefundResult> {
 		if (!paymentIntentId) throw new Error('Stripe: paymentIntentId required');
 		if (amountCents !== undefined && amountCents <= 0) {
 			throw new Error('Stripe: refund amount must be positive');
 		}
-		return this._http.refund(paymentIntentId, amountCents);
+		if (idempotencyKey !== undefined && idempotencyKey.trim().length === 0) {
+			throw new Error('Stripe: refund idempotency key must be non-empty');
+		}
+		return this._http.refund(paymentIntentId, amountCents, idempotencyKey);
 	}
 
 	/**
@@ -238,12 +245,12 @@ export function createFetchStripeHttpClient(
 				currency: data.currency.toUpperCase(),
 			};
 		},
-		async refund(paymentIntentId, amountCents) {
+		async refund(paymentIntentId, amountCents, idempotencyKey) {
 			const form: Record<string, unknown> = { payment_intent: paymentIntentId };
 			if (amountCents !== undefined) form.amount = amountCents;
 			const res = await fetchImpl(`${apiBase}/refunds`, {
 				method: 'POST',
-				headers: authHeaders(),
+				headers: authHeaders(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
 				body: flatten(form),
 			});
 			if (!res.ok) throw new Error(`Stripe refund: ${res.status}`);

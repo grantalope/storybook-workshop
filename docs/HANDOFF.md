@@ -73,6 +73,10 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | 2026-06-11 | privacy-allowlist LANE-DONE | fix/privacy-fictional-names | 102 → 102 (20 warnings) | 1164 passed / 4 skipped / 103 files | `pnpm lint`: eslint not found | CLEAN (source diff real-PII grep; `allowNames` only privacy + author scene-render path) | c3b5c18 | not pushed |
 | 2026-06-11 | privacy-allowlist LANE-DONE | fix/privacy-fictional-names | 102 → 102 (20 warnings) | 1166 passed / 4 skipped / 103 files | `pnpm lint`: eslint not found | CLEAN (source added-line real-PII grep; `allowNames` only privacy + author scene-render path) | ded65d0 | not pushed |
 
+| date | lane | branch | full tests | gates | check ratchet | G6-money | G7-security | commits | push | status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-06-12 | bh-a-money-integrity | fix/bh-a-money-integrity | 1372 passed / 4 skipped / 136 files | ALL PASS / 40.6s | 109 → 106 errors (baseline tightened) | PASS / 370 pass | WARN allow-listed / 2 findings | 5625828, e403c39, e2f24b7, d2a6783, final closeout commit | no | LANE-DONE |
+
 ## Architect log 2026-06-11 (Fable)
 
 - MERGED: T1 feat/wfc-scene-grammar (b68a302) + T4 feat/art-history-styles (8d9d98c)
@@ -400,3 +404,15 @@ default untouched for vitest/browser; `better-sqlite3` optionalDependency; no co
 | p148 | 2729032 |
 | p149 | 2751351 |
 | p150 | 2722267 |
+
+## Compose pilot 2026-06-11 (Fable)
+
+- COMPOSE PILOT: scripts/pregen/compose-pilot.mjs — first 3 bank-composed spreads
+  (book pilot-1: setup/climax/resolution; desert + compass + p001/p002; real engine
+  path collapseLayout -> planComposition -> PIL compositor; zero direct-gen
+  fallbacks; ~1.9 s/spread at 1536x1184). Visual verdict 6/10 pre-harmonization:
+  grounding/scale/textZone-clear all hold; main defect is a BANK QC issue —
+  propC/compass/flat-painted.png is a green-screen landscape, not a compass
+  (prop-gen content miss + matting failed to key green). Layer-C needs the QC
+  pass qc-similarity only gives Layer B. Next step: img2img harmonization pass
+  on the 4090 (lighting/palette unification + contact shadows).

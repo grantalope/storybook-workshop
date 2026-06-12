@@ -8,8 +8,12 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import {
 	StripeCheckoutService,
-	OrderLifecycleError,
+	isWebhookOrderStore,
+	type OrderStore,
 	type StripeHttpClient,
+	type OrderState,
+	type StripeWebhookApplyResult,
+	type WebhookOrderStore,
 } from '$lib/services/fulfillment';
 import { __getOrderApiDeps } from '../order/+server';
 
@@ -79,74 +83,122 @@ export const POST: RequestHandler = async ({ request }) => {
 		return json({ error: 'malformed_payload', message: (e as Error).message }, { status: 400 });
 	}
 
+	if (!hasEventId(event)) {
+		return json({ error: 'malformed_payload', message: 'missing Stripe event id' }, { status: 400 });
+	}
+
+	const store = requireWebhookOrderStore(orderDeps.store);
+	if (!store) {
+		return json({ error: 'webhook_store_missing_capability' }, { status: 500 });
+	}
+	const at = orderDeps.nowSource();
+
 	if (event.type === 'payment_intent.succeeded') {
-		const piId = event.data.object.id;
-		const order = await orderDeps.store.getByStripePaymentIntent(piId);
-		if (!order) {
-			return json({ ok: true, ignored: 'unknown_payment_intent' });
+		const piId = paymentIntentIdFromPaymentIntentEvent(event);
+		if (!piId) return json({ error: 'malformed_payload', message: 'missing PaymentIntent id' }, { status: 400 });
+		const result = await store.applyStripeWebhookEventOnce({
+			eventId: event.id,
+			eventType: event.type,
+			paymentIntentId: piId,
+			expectedState: 'pending_payment',
+			toState: 'paid',
+			actor: 'system',
+			reason: 'stripe_payment_intent_succeeded',
+			meta: { paymentIntentId: piId },
+			at,
+		});
+		if (result.outcome === 'applied' && result.order) {
+			await orderDeps.lifecycle._fireHandler('paid', result.order);
 		}
-		if (order.state !== 'pending_payment') {
-			return json({ ok: true, ignored: 'not_pending_payment', state: order.state });
-		}
-		try {
-			await orderDeps.lifecycle.transition(order.id, 'paid', 'system', {
-				reason: 'stripe_payment_intent_succeeded',
-				meta: { paymentIntentId: piId },
-			});
-			return json({ ok: true, transitioned: 'paid' });
-		} catch (e) {
-			if (e instanceof OrderLifecycleError) {
-				return json({ error: e.reason }, { status: 409 });
-			}
-			throw e;
-		}
+		return stripeOutcomeJson(result, { transitioned: 'paid' });
 	}
 
 	if (event.type === 'payment_intent.payment_failed') {
-		const piId = event.data.object.id;
-		const order = await orderDeps.store.getByStripePaymentIntent(piId);
-		if (!order) return json({ ok: true, ignored: 'unknown_payment_intent' });
-		if (order.state !== 'pending_payment') {
-			return json({ ok: true, ignored: 'not_pending_payment' });
+		const piId = paymentIntentIdFromPaymentIntentEvent(event);
+		if (!piId) return json({ error: 'malformed_payload', message: 'missing PaymentIntent id' }, { status: 400 });
+		const result = await store.applyStripeWebhookEventOnce({
+			eventId: event.id,
+			eventType: event.type,
+			paymentIntentId: piId,
+			expectedState: 'pending_payment',
+			toState: 'failed_validation',
+			actor: 'system',
+			reason: 'stripe_payment_failed',
+			meta: { paymentIntentId: piId },
+			at,
+		});
+		if (result.outcome === 'applied' && result.order) {
+			await orderDeps.lifecycle._fireHandler('failed_validation', result.order);
 		}
-		try {
-			await orderDeps.lifecycle.transition(order.id, 'failed_validation', 'system', {
-				reason: 'stripe_payment_failed',
-				meta: { paymentIntentId: piId },
-			});
-			return json({ ok: true, transitioned: 'failed_validation' });
-		} catch (e) {
-			if (e instanceof OrderLifecycleError) {
-				return json({ error: e.reason }, { status: 409 });
-			}
-			throw e;
-		}
+		return stripeOutcomeJson(result, { transitioned: 'failed_validation' });
 	}
 
 	if (event.type === 'charge.refunded') {
 		// Audit log only; state machine has no refunded state.
-		const piId = event.data.object.id;
-		const order = await orderDeps.store.getByStripePaymentIntent(piId);
-		if (order) {
-			const updated = {
-				...order,
-				transitions: [
-					...order.transitions,
-					{
-						from: order.state,
-						to: order.state,
-						at: Date.now(),
-						actor: 'system' as const,
-						reason: 'stripe_charge_refunded',
-						meta: { paymentIntentId: piId },
-					},
-				],
-				updatedAt: Date.now(),
-			};
-			await orderDeps.store.put(updated);
-		}
-		return json({ ok: true, audited: 'refund' });
+		const piId = paymentIntentIdFromChargeEvent(event);
+		if (!piId) return json({ error: 'malformed_payload', message: 'missing charge PaymentIntent id' }, { status: 400 });
+		const result = await store.applyStripeWebhookEventOnce({
+			eventId: event.id,
+			eventType: event.type,
+			paymentIntentId: piId,
+			actor: 'system',
+			reason: 'stripe_charge_refunded',
+			meta: { paymentIntentId: piId },
+			at,
+		});
+		return stripeOutcomeJson(result, { audited: 'refund' });
 	}
 
-	return json({ ok: true, ignored: 'unhandled_event_type', type: event.type });
+	console.info('[stripe-webhook] ignored unhandled event type', event.type);
+	return json({
+		ok: true,
+		received: true,
+		outcome: 'ignored',
+		ignored: true,
+		reason: 'unhandled_event_type',
+		type: event.type,
+	});
 };
+
+function requireWebhookOrderStore(store: OrderStore): WebhookOrderStore | null {
+	return isWebhookOrderStore(store) ? store : null;
+}
+
+function hasEventId(event: { id?: unknown }): event is { id: string } {
+	return typeof event.id === 'string' && event.id.length > 0;
+}
+
+function paymentIntentIdFromPaymentIntentEvent(event: { data?: { object?: { id?: unknown } } }): string | null {
+	const id = event.data?.object?.id;
+	return typeof id === 'string' && id.length > 0 ? id : null;
+}
+
+function paymentIntentIdFromChargeEvent(event: {
+	data?: { object?: { id?: unknown; payment_intent?: unknown } };
+}): string | null {
+	const piId = event.data?.object?.payment_intent ?? event.data?.object?.id;
+	return typeof piId === 'string' && piId.length > 0 ? piId : null;
+}
+
+function stripeOutcomeJson(
+	result: StripeWebhookApplyResult,
+	applied: { transitioned?: OrderState; audited?: 'refund' },
+) {
+	if (result.outcome === 'applied') {
+		return json({ ok: true, received: true, outcome: 'applied', ...applied });
+	}
+	if (result.outcome === 'duplicate') {
+		return json({ ok: true, received: true, outcome: 'duplicate', deduped: true });
+	}
+
+	const ignored =
+		result.reason === 'unknown_payment_intent' ? 'unknown_payment_intent' : 'not_pending_payment';
+	return json({
+		ok: true,
+		received: true,
+		outcome: 'ignored',
+		ignored,
+		state: result.currentState,
+		...applied,
+	});
+}

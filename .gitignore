@@ -15,3 +15,4 @@ test-results/
 .vitest-cache/
 .vite/
 scripts/pregen/.bank/
+scripts/pregen/.compose-pilot/

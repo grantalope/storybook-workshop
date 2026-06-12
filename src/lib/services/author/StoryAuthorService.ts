@@ -23,6 +23,7 @@
 import { createInferenceClient } from '../../inference/inferenceClient';
 import type { ChatRequest, ChatResponse } from '$lib/kernel-contracts/helpers/llr-fallback';
 import { privacyFilterService } from '$lib/privacy/PrivacyFilterService';
+import { kidsContentSafetyService } from '$lib/kids-content-safety';
 import { Tier2VocabPlanner, tier2VocabPlanner } from './Tier2VocabPlanner';
 import { StoryBudgetAllocator, storyBudgetAllocator } from './StoryBudgetAllocator';
 import { StoryGrammarValidator, storyGrammarValidator } from './StoryGrammarValidator';
@@ -103,10 +104,24 @@ const permissiveSafetyStub: KidsContentSafetyLike = {
 const PRIVACY_SCRUB_FAILED_BRIEF = 'the hero in a privacy-safe scene';
 
 function getKidsContentSafety(): KidsContentSafetyLike {
+  // Prefer a runtime-injected override (e.g. from a kernel-boot AppOrchestrator).
   const injected = (globalThis as any).__kidsContentSafetyService as
     | KidsContentSafetyLike
     | undefined;
-  return injected ?? permissiveSafetyStub;
+  if (injected) return injected;
+  // Fall back to the module-level singleton with an adapter that maps the
+  // richer ScanResult shape to the slim KidsContentSafetyLike contract.
+  return {
+    async scan(text: string) {
+      const result = await kidsContentSafetyService.scan(text, { source: 'story_author' });
+      const categories = result.reports.map((r) => r.category as string);
+      const confidence =
+        result.reports.length > 0
+          ? Math.max(...result.reports.map((r) => r.confidence))
+          : 0;
+      return { passed: result.passed, categories, confidence };
+    },
+  };
 }
 
 const _inf = createInferenceClient('storybook-workshop-author');

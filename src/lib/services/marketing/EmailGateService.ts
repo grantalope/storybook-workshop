@@ -83,6 +83,12 @@ export class EmailGateService {
 	private _contacts = new Map<string, CrmContact>();
 	/** Shortcode-to-email-to-cookie idempotency table. */
 	private _cookies = new Map<string, string>();
+	/**
+	 * In-memory-only kid name map: emailLower -> sanitized first name.
+	 * NEVER persisted to CrmContact.tags or shipped to external CRM.
+	 * Used only for local email rendering via getKidName().
+	 */
+	private _kidNames = new Map<string, string>();
 
 	constructor(private opts: EmailGateServiceOpts) {
 		if (!opts.serverSecret || opts.serverSecret.length < 8) {
@@ -114,6 +120,13 @@ export class EmailGateService {
 		this._cookies.set(cookieKey, cookie);
 
 		const key = opts.email.toLowerCase();
+
+		// kidFirstName: store in in-memory-only map, never in contact.tags.
+		if (opts.kidFirstName !== undefined) {
+			const clean = sanitizeName(opts.kidFirstName);
+			if (clean) this._kidNames.set(key, clean);
+		}
+
 		let contact = this._contacts.get(key);
 		if (!contact) {
 			contact = {
@@ -125,7 +138,7 @@ export class EmailGateService {
 					themePicked: opts.themePicked,
 					lengthTier: opts.lengthTier,
 					pillarArchetypeFamily: opts.pillarArchetypeFamily,
-					kidFirstName: sanitizeName(opts.kidFirstName),
+					// kidFirstName intentionally omitted from tags (privacy fix cluster-D).
 				},
 				unsubscribed: { ...DEFAULT_UNSUB },
 				lastShortcode: opts.shortcode,
@@ -143,12 +156,22 @@ export class EmailGateService {
 			if (opts.pillarArchetypeFamily) {
 				contact.tags.pillarArchetypeFamily = opts.pillarArchetypeFamily;
 			}
+			// kidFirstName: update in-memory map only, never contact.tags.
 			if (opts.kidFirstName !== undefined) {
-				contact.tags.kidFirstName = sanitizeName(opts.kidFirstName);
+				const clean = sanitizeName(opts.kidFirstName);
+				if (clean) this._kidNames.set(key, clean);
 			}
 		}
 
 		return { contact, cookieValue: cookie, reused: false };
+	}
+
+	/**
+	 * Return the in-memory-only kid name for local email rendering.
+	 * MUST NOT be forwarded to crm.send() vars.
+	 */
+	getKidName(email: string): string | undefined {
+		return this._kidNames.get(email.toLowerCase());
 	}
 
 	/** Look up a contact (caller uses to drive lifecycle dispatch). */
@@ -211,6 +234,7 @@ export class EmailGateService {
 	/** Hard-delete a contact (GDPR account delete cascade). */
 	deleteContact(email: string): boolean {
 		const key = email.toLowerCase();
+		this._kidNames.delete(key); // purge in-memory kid name (privacy)
 		return this._contacts.delete(key);
 	}
 

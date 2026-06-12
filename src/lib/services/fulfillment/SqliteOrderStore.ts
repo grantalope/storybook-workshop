@@ -11,7 +11,21 @@ import { mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname } from 'node:path';
 import type DatabaseConstructor from 'better-sqlite3';
-import type { Order, OrderStore, QualityClaim, QualityClaimStore } from './types';
+import type {
+	ApplyStripeWebhookEventOnceInput,
+	BeginRefundOnceInput,
+	CompleteRefundInput,
+	FailRefundInput,
+	FulfillmentOrderStore,
+	Order,
+	QualityClaim,
+	QualityClaimStore,
+	RefundLedgerEntry,
+	RefundLedgerResult,
+	RefundResult,
+	StripeWebhookApplyResult,
+	TransitionLogEntry,
+} from './types';
 
 type SqliteDatabase = DatabaseConstructor.Database;
 type SqliteDatabaseConstructor = typeof DatabaseConstructor;
@@ -25,7 +39,7 @@ export interface SqliteStoreOptions {
 }
 
 export interface SqliteStores {
-	orderStore: OrderStore;
+	orderStore: FulfillmentOrderStore;
 	qualityClaimStore: QualityClaimStore;
 	close(): void;
 	dbPath: string;
@@ -37,6 +51,22 @@ interface JsonRow {
 
 interface VersionRow {
 	value: string;
+}
+
+interface RefundLedgerRow {
+	orderId: string;
+	claimId: string;
+	refundKind: string;
+	amountCents: number;
+	currency: string;
+	status: RefundResult['status'];
+	stripeRefundId: string | null;
+	stripePaymentIntentId: string;
+	idempotencyKey: string;
+	errorMessage: string | null;
+	responseJson: string | null;
+	createdAt: number;
+	updatedAt: number;
 }
 
 const DEFAULT_DB_PATH = './data/orders.db';
@@ -82,6 +112,45 @@ CREATE TABLE IF NOT EXISTS quality_claims (
 );
 
 CREATE INDEX IF NOT EXISTS idx_quality_claims_status ON quality_claims(status);
+`;
+
+const V2_DDL_SQL = `
+CREATE TABLE IF NOT EXISTS processed_webhook_events (
+	event_id TEXT PRIMARY KEY,
+	type TEXT NOT NULL,
+	payment_intent_id TEXT,
+	order_id TEXT,
+	outcome TEXT NOT NULL,
+	reason TEXT,
+	processed_at INTEGER NOT NULL,
+	FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_processed_webhook_events_order_id
+	ON processed_webhook_events(order_id);
+CREATE INDEX IF NOT EXISTS idx_processed_webhook_events_payment_intent_id
+	ON processed_webhook_events(payment_intent_id);
+
+CREATE TABLE IF NOT EXISTS refund_ledger (
+	order_id TEXT NOT NULL,
+	claim_id TEXT NOT NULL,
+	refund_kind TEXT NOT NULL,
+	amount_cents INTEGER NOT NULL,
+	currency TEXT NOT NULL,
+	status TEXT NOT NULL,
+	stripe_refund_id TEXT,
+	stripe_payment_intent_id TEXT,
+	idempotency_key TEXT NOT NULL,
+	error_message TEXT,
+	response_json TEXT,
+	created_at INTEGER NOT NULL,
+	updated_at INTEGER NOT NULL,
+	PRIMARY KEY (order_id, claim_id, refund_kind),
+	FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_refund_ledger_status ON refund_ledger(status);
+CREATE INDEX IF NOT EXISTS idx_refund_ledger_claim_id ON refund_ledger(claim_id);
 `;
 
 const SELECT_VERSION_SQL = 'SELECT value FROM schema_meta WHERE key = ?';
@@ -134,6 +203,74 @@ const SELECT_CLAIM_BY_ID_SQL = 'SELECT json FROM quality_claims WHERE id = ?';
 const SELECT_PENDING_CLAIMS_SQL =
 	"SELECT json FROM quality_claims WHERE status = 'pending' ORDER BY updated_at ASC, id ASC";
 
+const INSERT_WEBHOOK_EVENT_SQL = `
+INSERT OR IGNORE INTO processed_webhook_events (
+	event_id,
+	type,
+	payment_intent_id,
+	outcome,
+	processed_at
+)
+VALUES (?, ?, ?, 'processing', ?)`;
+
+const UPDATE_WEBHOOK_EVENT_SQL = `
+UPDATE processed_webhook_events
+SET order_id = ?, outcome = ?, reason = ?
+WHERE event_id = ?`;
+
+const INSERT_REFUND_LEDGER_SQL = `
+INSERT OR IGNORE INTO refund_ledger (
+	order_id,
+	claim_id,
+	refund_kind,
+	amount_cents,
+	currency,
+	status,
+	stripe_payment_intent_id,
+	idempotency_key,
+	created_at,
+	updated_at
+)
+VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?)`;
+
+const SELECT_REFUND_LEDGER_SQL = `
+SELECT
+	order_id AS orderId,
+	claim_id AS claimId,
+	refund_kind AS refundKind,
+	amount_cents AS amountCents,
+	currency,
+	status,
+	stripe_refund_id AS stripeRefundId,
+	stripe_payment_intent_id AS stripePaymentIntentId,
+	idempotency_key AS idempotencyKey,
+	error_message AS errorMessage,
+	response_json AS responseJson,
+	created_at AS createdAt,
+	updated_at AS updatedAt
+FROM refund_ledger
+WHERE order_id = ? AND claim_id = ? AND refund_kind = ?`;
+
+const COMPLETE_REFUND_LEDGER_SQL = `
+UPDATE refund_ledger
+SET
+	status = ?,
+	stripe_refund_id = ?,
+	stripe_payment_intent_id = ?,
+	error_message = NULL,
+	response_json = ?,
+	updated_at = ?
+WHERE order_id = ? AND claim_id = ? AND refund_kind = ?`;
+
+const FAIL_REFUND_LEDGER_SQL = `
+UPDATE refund_ledger
+SET
+	status = 'failed',
+	error_message = ?,
+	response_json = NULL,
+	updated_at = ?
+WHERE order_id = ? AND claim_id = ? AND refund_kind = ?`;
+
 export function sqliteAvailable(): boolean {
 	return loadSqliteModule().Database !== null;
 }
@@ -171,22 +308,30 @@ export function createSqliteStores(opts: SqliteStoreOptions = {}): SqliteStores 
 	}
 }
 
-export class SqliteOrderStore implements OrderStore {
+export class SqliteOrderStore implements FulfillmentOrderStore {
 	private readonly putTxn: (order: Order) => void;
+	private readonly applyWebhookTxn: (
+		input: ApplyStripeWebhookEventOnceInput,
+	) => StripeWebhookApplyResult;
+	private readonly beginRefundTxn: (input: BeginRefundOnceInput) => RefundLedgerResult;
+	private readonly completeRefundTxn: (input: CompleteRefundInput) => RefundLedgerEntry;
+	private readonly failRefundTxn: (input: FailRefundInput) => RefundLedgerEntry;
 	private readonly getByIdStmt;
 	private readonly listByParentStmt;
 	private readonly getByStripeStmt;
 	private readonly getByLuluStmt;
+	private readonly getRefundLedgerStmt;
 
 	constructor(db: SqliteDatabase) {
 		const upsertOrder = db.prepare(UPSERT_ORDER_SQL);
 		const deleteTransitions = db.prepare(DELETE_TRANSITIONS_SQL);
 		const insertTransition = db.prepare(INSERT_TRANSITION_SQL);
-		this.getByIdStmt = db.prepare(SELECT_ORDER_BY_ID_SQL);
-		this.listByParentStmt = db.prepare(SELECT_ORDERS_BY_PARENT_SQL);
-		this.getByStripeStmt = db.prepare(SELECT_ORDER_BY_STRIPE_SQL);
-		this.getByLuluStmt = db.prepare(SELECT_ORDER_BY_LULU_SQL);
-		this.putTxn = db.transaction((order: Order) => {
+		const insertWebhookEvent = db.prepare(INSERT_WEBHOOK_EVENT_SQL);
+		const updateWebhookEvent = db.prepare(UPDATE_WEBHOOK_EVENT_SQL);
+		const insertRefundLedger = db.prepare(INSERT_REFUND_LEDGER_SQL);
+		const completeRefundLedger = db.prepare(COMPLETE_REFUND_LEDGER_SQL);
+		const failRefundLedger = db.prepare(FAIL_REFUND_LEDGER_SQL);
+		const writeOrder = (order: Order) => {
 			upsertOrder.run(
 				order.id,
 				order.state,
@@ -207,6 +352,112 @@ export class SqliteOrderStore implements OrderStore {
 					JSON.stringify(entry),
 				);
 			});
+		};
+		this.getByIdStmt = db.prepare(SELECT_ORDER_BY_ID_SQL);
+		this.listByParentStmt = db.prepare(SELECT_ORDERS_BY_PARENT_SQL);
+		this.getByStripeStmt = db.prepare(SELECT_ORDER_BY_STRIPE_SQL);
+		this.getByLuluStmt = db.prepare(SELECT_ORDER_BY_LULU_SQL);
+		this.getRefundLedgerStmt = db.prepare(SELECT_REFUND_LEDGER_SQL);
+		this.putTxn = db.transaction((order: Order) => {
+			writeOrder(order);
+		});
+		this.applyWebhookTxn = db.transaction((input: ApplyStripeWebhookEventOnceInput): StripeWebhookApplyResult => {
+			const inserted = insertWebhookEvent.run(
+				input.eventId,
+				input.eventType,
+				input.paymentIntentId,
+				input.at,
+			);
+			if (inserted.changes === 0) {
+				return { outcome: 'duplicate' };
+			}
+
+			const row = this.getByStripeStmt.get(input.paymentIntentId) as JsonRow | undefined;
+			if (!row) {
+				updateWebhookEvent.run(null, 'ignored', 'unknown_payment_intent', input.eventId);
+				return { outcome: 'ignored', reason: 'unknown_payment_intent' };
+			}
+
+			const order = parseOrder(row);
+			if (input.expectedState && order.state !== input.expectedState) {
+				updateWebhookEvent.run(order.id, 'ignored', 'state_mismatch', input.eventId);
+				return {
+					outcome: 'ignored',
+					reason: 'state_mismatch',
+					order,
+					currentState: order.state,
+				};
+			}
+
+			const to = input.toState ?? order.state;
+			const entry: TransitionLogEntry = {
+				from: order.state,
+				to,
+				at: input.at,
+				actor: input.actor,
+				reason: input.reason,
+				meta: input.meta,
+			};
+			const next: Order = {
+				...order,
+				state: to,
+				transitions: [...order.transitions, entry],
+				updatedAt: input.at,
+			};
+
+			writeOrder(next);
+			updateWebhookEvent.run(order.id, 'applied', null, input.eventId);
+			return {
+				outcome: 'applied',
+				order: next,
+				previousState: order.state,
+				currentState: next.state,
+			};
+		});
+		this.beginRefundTxn = db.transaction((input: BeginRefundOnceInput): RefundLedgerResult => {
+			const inserted = insertRefundLedger.run(
+				input.orderId,
+				input.claimId,
+				input.refundKind,
+				input.amountCents,
+				input.currency,
+				input.stripePaymentIntentId,
+				input.idempotencyKey,
+				input.at,
+				input.at,
+			);
+			const entry = this.readRefundLedgerEntry(input.orderId, input.claimId, input.refundKind);
+			if (!entry) throw new Error('refund ledger insert failed');
+			return { outcome: inserted.changes === 0 ? 'existing' : 'started', entry };
+		});
+		this.completeRefundTxn = db.transaction((input: CompleteRefundInput): RefundLedgerEntry => {
+			const updated = completeRefundLedger.run(
+				input.result.status,
+				input.result.id,
+				input.result.paymentIntentId,
+				JSON.stringify(input.result),
+				input.at,
+				input.orderId,
+				input.claimId,
+				input.refundKind,
+			);
+			if (updated.changes === 0) throw new Error('refund ledger entry not found');
+			const entry = this.readRefundLedgerEntry(input.orderId, input.claimId, input.refundKind);
+			if (!entry) throw new Error('refund ledger update failed');
+			return entry;
+		});
+		this.failRefundTxn = db.transaction((input: FailRefundInput): RefundLedgerEntry => {
+			const updated = failRefundLedger.run(
+				input.errorMessage,
+				input.at,
+				input.orderId,
+				input.claimId,
+				input.refundKind,
+			);
+			if (updated.changes === 0) throw new Error('refund ledger entry not found');
+			const entry = this.readRefundLedgerEntry(input.orderId, input.claimId, input.refundKind);
+			if (!entry) throw new Error('refund ledger update failed');
+			return entry;
 		});
 	}
 
@@ -231,6 +482,43 @@ export class SqliteOrderStore implements OrderStore {
 	async getByLuluJob(id: string): Promise<Order | undefined> {
 		const row = this.getByLuluStmt.get(id) as JsonRow | undefined;
 		return row ? parseOrder(row) : undefined;
+	}
+
+	async applyStripeWebhookEventOnce(
+		input: ApplyStripeWebhookEventOnceInput,
+	): Promise<StripeWebhookApplyResult> {
+		return this.applyWebhookTxn(input);
+	}
+
+	async beginRefundOnce(input: BeginRefundOnceInput): Promise<RefundLedgerResult> {
+		return this.beginRefundTxn(input);
+	}
+
+	async completeRefund(input: CompleteRefundInput): Promise<RefundLedgerEntry> {
+		return this.completeRefundTxn(input);
+	}
+
+	async failRefund(input: FailRefundInput): Promise<RefundLedgerEntry> {
+		return this.failRefundTxn(input);
+	}
+
+	async getRefundLedgerEntry(
+		orderId: string,
+		claimId: string,
+		refundKind: string,
+	): Promise<RefundLedgerEntry | undefined> {
+		return this.readRefundLedgerEntry(orderId, claimId, refundKind);
+	}
+
+	private readRefundLedgerEntry(
+		orderId: string,
+		claimId: string,
+		refundKind: string,
+	): RefundLedgerEntry | undefined {
+		const row = this.getRefundLedgerStmt.get(orderId, claimId, refundKind) as
+			| RefundLedgerRow
+			| undefined;
+		return row ? parseRefundLedgerEntry(row) : undefined;
 	}
 }
 
@@ -310,12 +598,16 @@ function migrateDatabase(db: SqliteDatabase): void {
 		db.exec(CREATE_SCHEMA_META_SQL);
 		const versionRow = db.prepare(SELECT_VERSION_SQL).get('version') as VersionRow | undefined;
 		const version = versionRow ? Number(versionRow.value) : 0;
-		if (version > 1) {
-			throw new Error(`SqliteOrderStore: database schema version ${version} is newer than supported v1`);
+		if (version > 2) {
+			throw new Error(`SqliteOrderStore: database schema version ${version} is newer than supported v2`);
 		}
-		if (version === 1) return;
-		db.exec(V1_DDL_SQL);
-		db.prepare(UPSERT_VERSION_SQL).run('version', '1');
+		if (version === 0) {
+			db.exec(V1_DDL_SQL);
+		}
+		if (version < 2) {
+			db.exec(V2_DDL_SQL);
+			db.prepare(UPSERT_VERSION_SQL).run('version', '2');
+		}
 	});
 	migrate();
 }
@@ -335,4 +627,22 @@ function parseOrder(row: JsonRow): Order {
 
 function parseClaim(row: JsonRow): QualityClaim {
 	return JSON.parse(row.json) as QualityClaim;
+}
+
+function parseRefundLedgerEntry(row: RefundLedgerRow): RefundLedgerEntry {
+	return {
+		orderId: row.orderId,
+		claimId: row.claimId,
+		refundKind: row.refundKind,
+		amountCents: row.amountCents,
+		currency: row.currency,
+		status: row.status,
+		stripeRefundId: row.stripeRefundId ?? undefined,
+		stripePaymentIntentId: row.stripePaymentIntentId,
+		idempotencyKey: row.idempotencyKey,
+		errorMessage: row.errorMessage ?? undefined,
+		response: row.responseJson ? (JSON.parse(row.responseJson) as RefundResult) : undefined,
+		createdAt: row.createdAt,
+		updatedAt: row.updatedAt,
+	};
 }
