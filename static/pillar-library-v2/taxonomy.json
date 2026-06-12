@@ -1,0 +1,2607 @@
+{
+  "_meta": {
+    "name": "pillar-library kid-archetype taxonomy",
+    "version": 1,
+    "generated": "2026-06-10",
+    "generator": "build_taxonomy.py (deterministic, seed below)",
+    "designPrinciple": "Population-adjusted weighting: the library mirrors a globally blended kid population rather than a curated inclusion showcase. Features occur incidentally at natural rates and are never the identity \u2014 the vibe is the identity. Photo matching is local-only (CLIP cosine in browser); this file is the pillar library.",
+    "weights": {
+      "seedSearch": {
+        "baseSeed": 20260609,
+        "acceptedSeed": 20260739,
+        "rule": "first seed in [base, base+499] whose realized 150-sample marginals satisfy the guardrails",
+        "guardrails": {
+          "skinToneShare": [
+            0.06,
+            0.3
+          ],
+          "hairTextureShare": [
+            0.06,
+            0.3
+          ],
+          "curlyPlusCoilyShare": [
+            0.35,
+            0.41
+          ],
+          "ageBandShare": {
+            "2-4": [
+              0.25,
+              0.35
+            ],
+            "4-6": [
+              0.3,
+              0.4
+            ],
+            "6-9": [
+              0.3,
+              0.4
+            ]
+          },
+          "boyGirlShare": [
+            0.43,
+            0.53
+          ],
+          "androgynousCount": [
+            2,
+            9
+          ]
+        }
+      },
+      "ageBand": {
+        "2-4": 0.3,
+        "4-6": 0.35,
+        "6-9": 0.35
+      },
+      "skinTone": {
+        "1": 0.1,
+        "2": 0.18,
+        "3": 0.22,
+        "4": 0.22,
+        "5": 0.18,
+        "6": 0.1
+      },
+      "hairTextureBySkinTone": {
+        "1": {
+          "straight": 0.42,
+          "wavy": 0.36,
+          "curly": 0.18,
+          "coily": 0.04
+        },
+        "2": {
+          "straight": 0.38,
+          "wavy": 0.37,
+          "curly": 0.2,
+          "coily": 0.05
+        },
+        "3": {
+          "straight": 0.36,
+          "wavy": 0.36,
+          "curly": 0.2,
+          "coily": 0.08
+        },
+        "4": {
+          "straight": 0.3,
+          "wavy": 0.33,
+          "curly": 0.22,
+          "coily": 0.15
+        },
+        "5": {
+          "straight": 0.2,
+          "wavy": 0.26,
+          "curly": 0.24,
+          "coily": 0.3
+        },
+        "6": {
+          "straight": 0.12,
+          "wavy": 0.19,
+          "curly": 0.24,
+          "coily": 0.45
+        }
+      },
+      "hairColorBySkinTone": {
+        "1": {
+          "black": 0.08,
+          "dark brown": 0.18,
+          "brown": 0.22,
+          "light brown": 0.2,
+          "blonde": 0.22,
+          "red": 0.1
+        },
+        "2": {
+          "black": 0.12,
+          "dark brown": 0.22,
+          "brown": 0.24,
+          "light brown": 0.18,
+          "blonde": 0.16,
+          "red": 0.08
+        },
+        "3": {
+          "black": 0.3,
+          "dark brown": 0.3,
+          "brown": 0.22,
+          "light brown": 0.1,
+          "blonde": 0.06,
+          "red": 0.02
+        },
+        "4": {
+          "black": 0.46,
+          "dark brown": 0.32,
+          "brown": 0.15,
+          "light brown": 0.05,
+          "blonde": 0.015,
+          "red": 0.005
+        },
+        "5": {
+          "black": 0.6,
+          "dark brown": 0.31,
+          "brown": 0.08,
+          "light brown": 0.008,
+          "blonde": 0.001,
+          "red": 0.001
+        },
+        "6": {
+          "black": 0.68,
+          "dark brown": 0.27,
+          "brown": 0.045,
+          "light brown": 0.003,
+          "blonde": 0.001,
+          "red": 0.001
+        }
+      },
+      "gender": {
+        "girl": 0.48,
+        "boy": 0.48,
+        "androgynous": 0.04
+      },
+      "hairLengthByGender": {
+        "boy": {
+          "short": 0.6,
+          "medium": 0.32,
+          "long": 0.08
+        },
+        "girl": {
+          "short": 0.12,
+          "medium": 0.38,
+          "long": 0.5
+        },
+        "androgynous": {
+          "short": 0.35,
+          "medium": 0.45,
+          "long": 0.2
+        }
+      },
+      "featureQuotas": {
+        "glasses": 30,
+        "freckles": 15,
+        "braces": "round(0.08 * |6-9 band|) = 5 (6-9 only)",
+        "birthmark": 4,
+        "hijab": 4,
+        "hearing aid": 1,
+        "wheelchair": 1,
+        "vitiligo": 1,
+        "maxFeaturesPerKid": 2,
+        "minNoFeatureShare": 0.6
+      },
+      "coverageFloor": "1 archetype seeded per (skinTone x hairTexture) cell (24 cells) before weighted sampling of the remaining 126 \u2014 guarantees the CLIP-match library has no empty cell while keeping population weighting for the bulk"
+    },
+    "realizedCounts": {
+      "ageBand": {
+        "2-4": 42,
+        "4-6": 51,
+        "6-9": 57
+      },
+      "gender": {
+        "androgynous": 9,
+        "boy": 71,
+        "girl": 70
+      },
+      "skinTone": {
+        "1": 20,
+        "2": 20,
+        "3": 34,
+        "4": 32,
+        "5": 23,
+        "6": 21
+      },
+      "hairTexture": {
+        "coily": 30,
+        "curly": 31,
+        "straight": 45,
+        "wavy": 44
+      },
+      "hairColor": {
+        "black": 54,
+        "blonde": 14,
+        "brown": 21,
+        "dark brown": 46,
+        "light brown": 11,
+        "red": 4
+      },
+      "hairLength": {
+        "long": 46,
+        "medium": 48,
+        "short": 56
+      },
+      "features": {
+        "birthmark": 4,
+        "braces": 5,
+        "freckles": 15,
+        "glasses": 30,
+        "hearing aid": 1,
+        "hijab": 4,
+        "vitiligo": 1,
+        "wheelchair": 1
+      },
+      "noFeatureCount": 95,
+      "noFeatureShare": 0.633
+    }
+  },
+  "archetypes": [
+    {
+      "id": "p001",
+      "displayName": "curly-haired bookworm",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 4,
+      "hair": {
+        "color": "black",
+        "texture": "curly",
+        "length": "medium"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "cozy-corner bookworm",
+      "dnaPrompt": "A young girl with warm tan-brown skin, a round face, warm dimpled cheeks, and warm brown eyes. Black hair, full of springy curls, falling in ringlets to the ears. Dressed in an oversized cable-knit cardigan. Wears mint-green round glasses. Signature accessory: a well-loved picture book."
+    },
+    {
+      "id": "p002",
+      "displayName": "coily-haired drummer",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 6,
+      "hair": {
+        "color": "black",
+        "texture": "coily",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "pots-and-pans drummer",
+      "dnaPrompt": "A school-age girl with deep ebony skin with cool undertones, an oval face, warm dimpled cheeks, and warm brown eyes. Black hair, tightly coiled, in long box braids with bead tips. Dressed in a bandana and denim jacket. Signature accessory: an upturned tin pot."
+    },
+    {
+      "id": "p003",
+      "displayName": "wavy-haired climber",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 5,
+      "hair": {
+        "color": "dark brown",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "tree-branch climber",
+      "dnaPrompt": "A school-age girl with rich deep-brown skin, an oval face, sun-warmed cheeks, and deep brown eyes. Dark brown hair, softly wavy, in twin braids. Dressed in scuffed jeans and a grass-stained tee. Wears cherry-red round glasses. Signature accessory: a leafy twig tucked behind one ear."
+    },
+    {
+      "id": "p004",
+      "displayName": "curly-haired musician",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 2,
+      "hair": {
+        "color": "light brown",
+        "texture": "curly",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "hum-along musician",
+      "dnaPrompt": "A young boy with fair peachy skin with warm undertones, an oval face, sun-warmed cheeks, and bright blue eyes. Light brown hair, full of springy curls, in a bouncy crop. Dressed in a band tee and soft corduroys. Signature accessory: a shiny harmonica."
+    },
+    {
+      "id": "p005",
+      "displayName": "curly-haired dancer",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 5,
+      "hair": {
+        "color": "brown",
+        "texture": "curly",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "twirling dancer",
+      "dnaPrompt": "A toddler boy with rich deep-brown skin, a soft square face, soft rosy cheeks, and warm brown eyes. Brown hair, full of springy curls, in a curly mop with a side part. Dressed in a swishy practice skirt over leggings. Signature accessory: ballet slippers slung over one shoulder."
+    },
+    {
+      "id": "p006",
+      "displayName": "wavy-haired puddle-jumper",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 6,
+      "hair": {
+        "color": "black",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "rainy-day puddle-jumper",
+      "dnaPrompt": "A school-age boy with deep ebony skin with cool undertones, an oval face, soft rosy cheeks, and deep brown eyes. Black hair, softly wavy, in a breezy short cut. Dressed in a yellow slicker and tall rain boots. Signature accessory: a tiny clear umbrella."
+    },
+    {
+      "id": "p007",
+      "displayName": "sleek-haired athlete",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 4,
+      "hair": {
+        "color": "black",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [
+        "freckles"
+      ],
+      "vibe": "playground athlete",
+      "dnaPrompt": "A toddler boy with warm tan-brown skin, a round face, cheeks dusted with freckles, and warm brown eyes. Black hair, sleek and straight, in a smooth side-parted cut. Dressed in a bright track jacket and shorts. Signature accessory: a small foam basketball."
+    },
+    {
+      "id": "p008",
+      "displayName": "sleek-haired helper",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 6,
+      "hair": {
+        "color": "dark brown",
+        "texture": "straight",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "everyone's helper",
+      "dnaPrompt": "A school-age girl with deep ebony skin with cool undertones, a round face, soft rosy cheeks, and deep brown eyes. Dark brown hair, sleek and straight, in a sleek high ponytail. Dressed in a rolled-sleeve button-up and khakis. Signature accessory: a little red wagon handle."
+    },
+    {
+      "id": "p009",
+      "displayName": "sleek-haired bookworm",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 3,
+      "hair": {
+        "color": "dark brown",
+        "texture": "straight",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "cozy-corner bookworm",
+      "dnaPrompt": "A young boy with light olive-gold skin, an oval face, warm dimpled cheeks, and warm brown eyes. Dark brown hair, sleek and straight, in a tidy crew cut. Dressed in an oversized cable-knit cardigan. Signature accessory: a well-loved picture book."
+    },
+    {
+      "id": "p010",
+      "displayName": "curly-haired inventor",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 6,
+      "hair": {
+        "color": "black",
+        "texture": "curly",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "junk-drawer inventor",
+      "dnaPrompt": "A young girl with deep ebony skin with cool undertones, a soft square face, soft rosy cheeks, and warm brown eyes. Black hair, full of springy curls, tumbling past the shoulders in ringlets. Dressed in a tool belt over a graphic tee. Signature accessory: a gizmo of springs and bottle caps."
+    },
+    {
+      "id": "p011",
+      "displayName": "wavy-haired artist",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 2,
+      "hair": {
+        "color": "brown",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "paint-splattered artist",
+      "dnaPrompt": "A young boy with fair peachy skin with warm undertones, a heart-shaped face, warm dimpled cheeks, and bright blue eyes. Brown hair, softly wavy, in a tousled crop. Dressed in a paint-smudged smock over polka-dot leggings. Signature accessory: a battered box of crayons."
+    },
+    {
+      "id": "p012",
+      "displayName": "sleek-haired inventor",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 3,
+      "hair": {
+        "color": "black",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "junk-drawer inventor",
+      "dnaPrompt": "A young boy with light olive-gold skin, a soft square face, warm dimpled cheeks, and dark brown eyes. Black hair, sleek and straight, in a smooth side-parted cut. Dressed in a button-covered vest and cargo shorts. Wears round wire-frame glasses. Signature accessory: a fat roll of masking tape."
+    },
+    {
+      "id": "p013",
+      "displayName": "wavy-haired chef",
+      "ageBand": "4-6",
+      "gender": "androgynous",
+      "skinTone": 3,
+      "hair": {
+        "color": "black",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [
+        "freckles",
+        "glasses"
+      ],
+      "vibe": "tiny kitchen chef",
+      "dnaPrompt": "A young child with light olive-gold skin, a soft square face, cheeks dusted with freckles, and warm brown eyes. Black hair, softly wavy, in long loose waves. Dressed in a white apron with rolled sleeves. Wears round amber-frame glasses. Signature accessory: a tiny silver whisk."
+    },
+    {
+      "id": "p014",
+      "displayName": "raven-haired bookworm",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 5,
+      "hair": {
+        "color": "black",
+        "texture": "curly",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "cozy-corner bookworm",
+      "dnaPrompt": "A young girl with rich deep-brown skin, an oval face, full apple cheeks, and deep brown eyes. Black hair, full of springy curls, tumbling past the shoulders in ringlets. Dressed in a mustard sweater with elbow patches. Signature accessory: a well-loved picture book."
+    },
+    {
+      "id": "p015",
+      "displayName": "curly-haired baker",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 1,
+      "hair": {
+        "color": "light brown",
+        "texture": "curly",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "flour-dusted baker",
+      "dnaPrompt": "A young girl with very fair skin with cool rosy undertones, a heart-shaped face, sun-warmed cheeks, and warm hazel eyes. Light brown hair, full of springy curls, in a high ponytail of ringlets. Dressed in a gingham apron with flour handprints. Signature accessory: a little wooden rolling pin."
+    },
+    {
+      "id": "p016",
+      "displayName": "sleek-haired drummer",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 2,
+      "hair": {
+        "color": "blonde",
+        "texture": "straight",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "pots-and-pans drummer",
+      "dnaPrompt": "A school-age boy with fair peachy skin with warm undertones, an oval face, full apple cheeks, and gray-blue eyes. Blonde hair, sleek and straight, in a tidy crew cut. Dressed in a bandana and denim jacket. Signature accessory: an upturned tin pot."
+    },
+    {
+      "id": "p017",
+      "displayName": "sleek-haired musician",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 4,
+      "hair": {
+        "color": "black",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "hum-along musician",
+      "dnaPrompt": "A young girl with warm tan-brown skin, a round face, warm dimpled cheeks, and deep brown eyes. Black hair, sleek and straight, in a neat chin-length bob. Dressed in a polka-dot shirt with suspenders. A soft gap-toothed grin. Signature accessory: a shiny harmonica."
+    },
+    {
+      "id": "p018",
+      "displayName": "sleek-haired builder",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 1,
+      "hair": {
+        "color": "dark brown",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "block-stacking builder",
+      "dnaPrompt": "A toddler girl with very fair skin with cool rosy undertones, a round face, full apple cheeks, and warm hazel eyes. Dark brown hair, sleek and straight, in a chin-length bob with straight fringe. Dressed in denim overalls over a yellow tee. Wears cherry-red round glasses. Signature accessory: a red toy level."
+    },
+    {
+      "id": "p019",
+      "displayName": "coily-haired stargazer",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 3,
+      "hair": {
+        "color": "brown",
+        "texture": "coily",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "rooftop stargazer",
+      "dnaPrompt": "A school-age girl with light olive-gold skin, a soft square face, sun-warmed cheeks, and warm brown eyes. Brown hair, tightly coiled, in chunky twists. Dressed in a navy hoodie with a moon patch. A bright, open expression. Signature accessory: a cardboard tube telescope."
+    },
+    {
+      "id": "p020",
+      "displayName": "sleek-haired climber",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 5,
+      "hair": {
+        "color": "dark brown",
+        "texture": "straight",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "tree-branch climber",
+      "dnaPrompt": "A toddler boy with rich deep-brown skin, an oval face, warm dimpled cheeks, and deep brown eyes. Dark brown hair, sleek and straight, in a neat short cut. Dressed in scuffed jeans and a grass-stained tee. Signature accessory: a leafy twig tucked behind one ear."
+    },
+    {
+      "id": "p021",
+      "displayName": "red-haired inventor",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 2,
+      "hair": {
+        "color": "red",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [
+        "freckles"
+      ],
+      "vibe": "junk-drawer inventor",
+      "dnaPrompt": "A school-age girl with fair peachy skin with warm undertones, a soft square face, cheeks dusted with freckles, and light brown eyes. Red hair, sleek and straight, in a neat chin-length bob. Dressed in a tool belt over a graphic tee. Signature accessory: a gizmo of springs and bottle caps."
+    },
+    {
+      "id": "p022",
+      "displayName": "curly-haired drummer",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 6,
+      "hair": {
+        "color": "black",
+        "texture": "curly",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "pots-and-pans drummer",
+      "dnaPrompt": "A toddler girl with deep ebony skin with cool undertones, a round face, full apple cheeks, and deep brown eyes. Black hair, full of springy curls, falling in ringlets to the ears. Dressed in a bandana and denim jacket. Signature accessory: an upturned tin pot."
+    },
+    {
+      "id": "p023",
+      "displayName": "curly-haired gardener",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 5,
+      "hair": {
+        "color": "brown",
+        "texture": "curly",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "muddy-knees gardener",
+      "dnaPrompt": "A young boy with rich deep-brown skin, a soft square face, warm dimpled cheeks, and warm brown eyes. Brown hair, full of springy curls, tumbling past the collar in loose ringlets. Dressed in a sunhat and dirt-smudged dungarees. Signature accessory: a small tin watering can."
+    },
+    {
+      "id": "p024",
+      "displayName": "sleek-haired gardener",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 3,
+      "hair": {
+        "color": "dark brown",
+        "texture": "straight",
+        "length": "long"
+      },
+      "features": [
+        "hijab"
+      ],
+      "vibe": "muddy-knees gardener",
+      "dnaPrompt": "A school-age girl with light olive-gold skin, an oval face, full apple cheeks, and hazel eyes. A powder-blue hijab frames the face, a few dark brown strands peeking out at the brow. Dressed in a sunhat and dirt-smudged dungarees. Signature accessory: a clay pot with one sprout."
+    },
+    {
+      "id": "p025",
+      "displayName": "dark-haired builder",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 3,
+      "hair": {
+        "color": "dark brown",
+        "texture": "straight",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "block-stacking builder",
+      "dnaPrompt": "A young boy with light olive-gold skin, a soft square face, soft rosy cheeks, and warm brown eyes. Dark brown hair, sleek and straight, in a tidy crew cut. Dressed in denim overalls over a yellow tee. Signature accessory: a red toy level."
+    },
+    {
+      "id": "p026",
+      "displayName": "wavy-haired puzzle-solver",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 3,
+      "hair": {
+        "color": "brown",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "quiet puzzle-solver",
+      "dnaPrompt": "A toddler boy with light olive-gold skin, a soft square face, sun-warmed cheeks, and blue-gray eyes. Brown hair, softly wavy, in a breezy short cut. Dressed in a checkered tee and cardigan. Sturdy build with a confident stance. Signature accessory: a wooden puzzle cube."
+    },
+    {
+      "id": "p027",
+      "displayName": "coily-haired collector",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 6,
+      "hair": {
+        "color": "black",
+        "texture": "coily",
+        "length": "short"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "pocket-treasure collector",
+      "dnaPrompt": "A toddler girl with deep ebony skin with cool undertones, an oval face, soft rosy cheeks, and warm brown eyes. Black hair, tightly coiled, in a neat rounded crop. Dressed in a many-pocketed fishing vest. Wears round wire-frame glasses. Signature accessory: a jar of shiny pebbles."
+    },
+    {
+      "id": "p028",
+      "displayName": "sleek-haired artist",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 4,
+      "hair": {
+        "color": "dark brown",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "paint-splattered artist",
+      "dnaPrompt": "A young boy with warm tan-brown skin, a round face, warm dimpled cheeks, and deep brown eyes. Dark brown hair, sleek and straight, in a neat mop-top. Dressed in a paint-smudged smock over polka-dot leggings. Signature accessory: a fat round paintbrush."
+    },
+    {
+      "id": "p029",
+      "displayName": "wavy-haired musician",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 1,
+      "hair": {
+        "color": "dark brown",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "hum-along musician",
+      "dnaPrompt": "A young girl with very fair skin with cool rosy undertones, a heart-shaped face, soft rosy cheeks, and gray-blue eyes. Dark brown hair, softly wavy, in long loose waves. Dressed in a band tee and soft corduroys. Wears round wire-frame glasses. Signature accessory: a shiny harmonica."
+    },
+    {
+      "id": "p030",
+      "displayName": "sleek-haired storyteller",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 4,
+      "hair": {
+        "color": "black",
+        "texture": "straight",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "campfire storyteller",
+      "dnaPrompt": "A toddler girl with warm tan-brown skin, a soft square face, sun-warmed cheeks, and deep brown eyes. Black hair, sleek and straight, in a sleek high ponytail. Dressed in a scarf-draped chunky sweater. Small quick hands and scuffed knees. Signature accessory: a striped sock puppet."
+    },
+    {
+      "id": "p031",
+      "displayName": "coily-haired dreamer",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 1,
+      "hair": {
+        "color": "blonde",
+        "texture": "coily",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "head-in-the-clouds dreamer",
+      "dnaPrompt": "A school-age boy with very fair skin with cool rosy undertones, a heart-shaped face, soft rosy cheeks, and warm hazel eyes. Blonde hair, tightly coiled, in a soft cropped afro. Dressed in a soft cloud-print sweater. Signature accessory: a plush crescent moon."
+    },
+    {
+      "id": "p032",
+      "displayName": "curly-haired swimmer",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 1,
+      "hair": {
+        "color": "dark brown",
+        "texture": "curly",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "splash-happy swimmer",
+      "dnaPrompt": "A toddler girl with very fair skin with cool rosy undertones, an oval face, sun-warmed cheeks, and warm hazel eyes. Dark brown hair, full of springy curls, in a curly mop with a side part. Dressed in a sun-faded swim shirt with a towel cape. Signature accessory: a striped beach ball."
+    },
+    {
+      "id": "p033",
+      "displayName": "coily-haired swimmer",
+      "ageBand": "6-9",
+      "gender": "androgynous",
+      "skinTone": 4,
+      "hair": {
+        "color": "dark brown",
+        "texture": "coily",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "splash-happy swimmer",
+      "dnaPrompt": "A school-age child with warm tan-brown skin, a heart-shaped face, soft rosy cheeks, and warm brown eyes. Dark brown hair, tightly coiled, in loose twists. Dressed in a sun-faded swim shirt with a towel cape. Signature accessory: swim goggles around the neck."
+    },
+    {
+      "id": "p034",
+      "displayName": "curly-haired artist",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 1,
+      "hair": {
+        "color": "blonde",
+        "texture": "curly",
+        "length": "long"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "paint-splattered artist",
+      "dnaPrompt": "A young girl with very fair skin with cool rosy undertones, a soft square face, soft rosy cheeks, and light brown eyes. Blonde hair, full of springy curls, tumbling past the shoulders in ringlets. Dressed in a paint-smudged smock over polka-dot leggings. Wears mint-green round glasses. Signature accessory: a battered box of crayons."
+    },
+    {
+      "id": "p035",
+      "displayName": "coily-haired climber",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 4,
+      "hair": {
+        "color": "black",
+        "texture": "coily",
+        "length": "short"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "tree-branch climber",
+      "dnaPrompt": "A school-age boy with warm tan-brown skin, a soft square face, sun-warmed cheeks, and deep brown eyes. Black hair, tightly coiled, in a soft cropped afro. Dressed in scuffed jeans and a grass-stained tee. Wears round amber-frame glasses. Signature accessory: a leafy twig tucked behind one ear."
+    },
+    {
+      "id": "p036",
+      "displayName": "sleek-haired mapmaker",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 1,
+      "hair": {
+        "color": "blonde",
+        "texture": "straight",
+        "length": "long"
+      },
+      "features": [
+        "hearing aid"
+      ],
+      "vibe": "treasure-map mapmaker",
+      "dnaPrompt": "A young boy with very fair skin with cool rosy undertones, a heart-shaped face, soft rosy cheeks, and gray-blue eyes. Blonde hair, sleek and straight, in a long smooth braid. Dressed in a satchel slung over a plain tee. A small teal hearing aid sits behind one ear. Signature accessory: a rolled hand-drawn map."
+    },
+    {
+      "id": "p037",
+      "displayName": "sleek-haired baker",
+      "ageBand": "6-9",
+      "gender": "androgynous",
+      "skinTone": 3,
+      "hair": {
+        "color": "black",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [
+        "birthmark"
+      ],
+      "vibe": "flour-dusted baker",
+      "dnaPrompt": "A school-age child with light olive-gold skin, a heart-shaped face, full apple cheeks, and blue-gray eyes. Black hair, sleek and straight, in a neat chin-length bob. Dressed in rolled sleeves and a sugar-dusted apron. A small berry-colored birthmark marks the left cheek. Signature accessory: a little wooden rolling pin."
+    },
+    {
+      "id": "p038",
+      "displayName": "sleek-haired puzzle-solver",
+      "ageBand": "6-9",
+      "gender": "androgynous",
+      "skinTone": 1,
+      "hair": {
+        "color": "blonde",
+        "texture": "straight",
+        "length": "long"
+      },
+      "features": [
+        "vitiligo"
+      ],
+      "vibe": "quiet puzzle-solver",
+      "dnaPrompt": "A school-age child with very fair skin with cool rosy undertones, a heart-shaped face, sun-warmed cheeks, and soft green eyes. Blonde hair, sleek and straight, in a long smooth braid. Dressed in a comfy hoodie and soft pants. Soft pale vitiligo patches brighten the cheeks and hands. Signature accessory: a folded hand-drawn maze."
+    },
+    {
+      "id": "p039",
+      "displayName": "dark-haired drummer",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 3,
+      "hair": {
+        "color": "dark brown",
+        "texture": "curly",
+        "length": "medium"
+      },
+      "features": [
+        "braces"
+      ],
+      "vibe": "pots-and-pans drummer",
+      "dnaPrompt": "A school-age girl with light olive-gold skin, an oval face, full apple cheeks, and warm brown eyes. Dark brown hair, full of springy curls, in a curly mop with a side part. Dressed in a bandana and denim jacket. A wide smile shows colorful braces. Signature accessory: an upturned tin pot."
+    },
+    {
+      "id": "p040",
+      "displayName": "curly-haired mapmaker",
+      "ageBand": "2-4",
+      "gender": "androgynous",
+      "skinTone": 1,
+      "hair": {
+        "color": "dark brown",
+        "texture": "curly",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "treasure-map mapmaker",
+      "dnaPrompt": "A toddler with very fair skin with cool rosy undertones, a soft square face, full apple cheeks, and soft green eyes. Dark brown hair, full of springy curls, in a springy short cut. Dressed in a satchel slung over a plain tee. Signature accessory: a stubby pencil behind one ear."
+    },
+    {
+      "id": "p041",
+      "displayName": "coily-haired puzzle-solver",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 5,
+      "hair": {
+        "color": "brown",
+        "texture": "coily",
+        "length": "short"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "quiet puzzle-solver",
+      "dnaPrompt": "A school-age boy with rich deep-brown skin, a heart-shaped face, soft rosy cheeks, and deep brown eyes. Brown hair, tightly coiled, in a neat rounded crop. Dressed in a checkered tee and cardigan. Wears round amber-frame glasses. Signature accessory: a folded hand-drawn maze."
+    },
+    {
+      "id": "p042",
+      "displayName": "dark-haired puddle-jumper",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 4,
+      "hair": {
+        "color": "dark brown",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "rainy-day puddle-jumper",
+      "dnaPrompt": "A young boy with warm tan-brown skin, a round face, warm dimpled cheeks, and deep brown eyes. Dark brown hair, softly wavy, in a tousled crop. Dressed in a frog-green raincoat and galoshes. Wears round wire-frame glasses. Signature accessory: a folded paper boat."
+    },
+    {
+      "id": "p043",
+      "displayName": "honey-haired gardener",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 2,
+      "hair": {
+        "color": "light brown",
+        "texture": "curly",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "muddy-knees gardener",
+      "dnaPrompt": "A school-age boy with fair peachy skin with warm undertones, a heart-shaped face, full apple cheeks, and warm hazel eyes. Light brown hair, full of springy curls, in a springy short cut. Dressed in a sunhat and dirt-smudged dungarees. Signature accessory: a small tin watering can."
+    },
+    {
+      "id": "p044",
+      "displayName": "wavy-haired animal-lover",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 4,
+      "hair": {
+        "color": "black",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [
+        "hijab"
+      ],
+      "vibe": "gentle animal-lover",
+      "dnaPrompt": "A young girl with warm tan-brown skin, a round face, full apple cheeks, and deep brown eyes. A cream hijab frames the face, a few black strands peeking out at the brow. Dressed in a paw-print tee and soft joggers. Signature accessory: a floppy plush bunny."
+    },
+    {
+      "id": "p045",
+      "displayName": "dark-haired puzzle-solver",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 5,
+      "hair": {
+        "color": "dark brown",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "quiet puzzle-solver",
+      "dnaPrompt": "A young boy with rich deep-brown skin, a round face, warm dimpled cheeks, and deep brown eyes. Dark brown hair, softly wavy, in a breezy short cut. Dressed in a comfy hoodie and soft pants. Signature accessory: a wooden puzzle cube."
+    },
+    {
+      "id": "p046",
+      "displayName": "curly-haired storyteller",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 3,
+      "hair": {
+        "color": "black",
+        "texture": "curly",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "campfire storyteller",
+      "dnaPrompt": "A toddler boy with light olive-gold skin, an oval face, soft rosy cheeks, and warm brown eyes. Black hair, full of springy curls, in a springy short cut. Dressed in a cozy flannel shirt and jeans. Signature accessory: a tattered notebook of tales."
+    },
+    {
+      "id": "p047",
+      "displayName": "honey-haired inventor",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 1,
+      "hair": {
+        "color": "light brown",
+        "texture": "straight",
+        "length": "short"
+      },
+      "features": [
+        "braces",
+        "glasses"
+      ],
+      "vibe": "junk-drawer inventor",
+      "dnaPrompt": "A school-age boy with very fair skin with cool rosy undertones, a round face, full apple cheeks, and light brown eyes. Light brown hair, sleek and straight, in a neat short cut. Dressed in a button-covered vest and cargo shorts. Wears round amber-frame glasses. A wide smile shows colorful braces. Signature accessory: a gizmo of springs and bottle caps."
+    },
+    {
+      "id": "p048",
+      "displayName": "raven-haired dreamer",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 6,
+      "hair": {
+        "color": "black",
+        "texture": "coily",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "head-in-the-clouds dreamer",
+      "dnaPrompt": "A young girl with deep ebony skin with cool undertones, a round face, warm dimpled cheeks, and deep brown eyes. Black hair, tightly coiled, in chunky twists. Dressed in a star-dotted cozy set. Small quick hands and scuffed knees. Signature accessory: a plush crescent moon."
+    },
+    {
+      "id": "p049",
+      "displayName": "sleek-haired dreamer",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 4,
+      "hair": {
+        "color": "dark brown",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "head-in-the-clouds dreamer",
+      "dnaPrompt": "A toddler boy with warm tan-brown skin, a soft square face, warm dimpled cheeks, and warm brown eyes. Dark brown hair, sleek and straight, in a neat mop-top. Dressed in a soft cloud-print sweater. Signature accessory: a small dream journal."
+    },
+    {
+      "id": "p050",
+      "displayName": "sleek-haired explorer",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 3,
+      "hair": {
+        "color": "dark brown",
+        "texture": "straight",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "curious backyard explorer",
+      "dnaPrompt": "A school-age boy with light olive-gold skin, a round face, sun-warmed cheeks, and dark brown eyes. Dark brown hair, sleek and straight, in a tidy crew cut. Dressed in a khaki explorer vest over a striped tee. Signature accessory: a crinkled paper trail map."
+    },
+    {
+      "id": "p051",
+      "displayName": "sleek-haired swimmer",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 1,
+      "hair": {
+        "color": "blonde",
+        "texture": "straight",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "splash-happy swimmer",
+      "dnaPrompt": "A toddler boy with very fair skin with cool rosy undertones, a heart-shaped face, soft rosy cheeks, and soft green eyes. Blonde hair, sleek and straight, long and tucked behind the ears. Dressed in bright swim trunks and flip-flops. Signature accessory: a striped beach ball."
+    },
+    {
+      "id": "p052",
+      "displayName": "coily-haired baker",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 6,
+      "hair": {
+        "color": "black",
+        "texture": "coily",
+        "length": "short"
+      },
+      "features": [
+        "freckles"
+      ],
+      "vibe": "flour-dusted baker",
+      "dnaPrompt": "A toddler boy with deep ebony skin with cool undertones, an oval face, cheeks dusted with freckles, and deep brown eyes. Black hair, tightly coiled, in a soft cropped afro. Dressed in rolled sleeves and a sugar-dusted apron. Signature accessory: a star cookie cutter."
+    },
+    {
+      "id": "p053",
+      "displayName": "curly-haired helper",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 4,
+      "hair": {
+        "color": "black",
+        "texture": "curly",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "everyone's helper",
+      "dnaPrompt": "A school-age girl with warm tan-brown skin, an oval face, full apple cheeks, and deep brown eyes. Black hair, full of springy curls, falling in ringlets to the ears. Dressed in a bright sash of cloth patches. Signature accessory: a little red wagon handle."
+    },
+    {
+      "id": "p054",
+      "displayName": "curly-haired scientist",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 6,
+      "hair": {
+        "color": "black",
+        "texture": "curly",
+        "length": "long"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "kitchen-table scientist",
+      "dnaPrompt": "A school-age girl with deep ebony skin with cool undertones, a soft square face, soft rosy cheeks, and deep brown eyes. Black hair, full of springy curls, in a high ponytail of ringlets. Dressed in a slightly-too-big white lab coat. Wears navy rectangular glasses. Signature accessory: a rack of fizzing test tubes."
+    },
+    {
+      "id": "p055",
+      "displayName": "golden-haired chef",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 3,
+      "hair": {
+        "color": "blonde",
+        "texture": "wavy",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "tiny kitchen chef",
+      "dnaPrompt": "A young boy with light olive-gold skin, a heart-shaped face, sun-warmed cheeks, and dark brown eyes. Blonde hair, softly wavy, brushing the collar in soft waves. Dressed in a tomato-print apron and puffy chef hat. Signature accessory: a tiny silver whisk."
+    },
+    {
+      "id": "p056",
+      "displayName": "wavy-haired explorer",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 1,
+      "hair": {
+        "color": "dark brown",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "curious backyard explorer",
+      "dnaPrompt": "A toddler girl with very fair skin with cool rosy undertones, an oval face, warm dimpled cheeks, and bright blue eyes. Dark brown hair, softly wavy, in a tousled crop. Dressed in a khaki explorer vest over a striped tee. Wears round amber-frame glasses. Signature accessory: a small brass compass."
+    },
+    {
+      "id": "p057",
+      "displayName": "raven-haired explorer",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 4,
+      "hair": {
+        "color": "black",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "curious backyard explorer",
+      "dnaPrompt": "A toddler boy with warm tan-brown skin, a heart-shaped face, full apple cheeks, and deep brown eyes. Black hair, sleek and straight, in a smooth side-parted cut. Dressed in a pocketed olive jacket and sturdy shorts. Signature accessory: a crinkled paper trail map."
+    },
+    {
+      "id": "p058",
+      "displayName": "wavy-haired bookworm",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 3,
+      "hair": {
+        "color": "dark brown",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "cozy-corner bookworm",
+      "dnaPrompt": "A school-age girl with light olive-gold skin, a round face, full apple cheeks, and dark brown eyes. Dark brown hair, softly wavy, in twin braids. Dressed in an oversized cable-knit cardigan. Petite frame and an easy smile. Signature accessory: a teetering stack of tiny books."
+    },
+    {
+      "id": "p059",
+      "displayName": "soft-spoken builder",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 4,
+      "hair": {
+        "color": "dark brown",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "block-stacking builder",
+      "dnaPrompt": "A school-age girl with warm tan-brown skin, a soft square face, full apple cheeks, and deep brown eyes. Dark brown hair, sleek and straight, in a chin-length bob with straight fringe. Dressed in a carpenter apron with chunky pockets. Signature accessory: a wooden toy hammer."
+    },
+    {
+      "id": "p060",
+      "displayName": "sleek-haired birdwatcher",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 5,
+      "hair": {
+        "color": "brown",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "early-morning birdwatcher",
+      "dnaPrompt": "A young girl with rich deep-brown skin, a soft square face, full apple cheeks, and deep brown eyes. Brown hair, sleek and straight, in a neat chin-length bob. Dressed in an olive vest with a field-guide pocket. Signature accessory: a pair of toy binoculars."
+    },
+    {
+      "id": "p061",
+      "displayName": "brown-haired musician",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 5,
+      "hair": {
+        "color": "brown",
+        "texture": "curly",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "hum-along musician",
+      "dnaPrompt": "A toddler girl with rich deep-brown skin, a soft square face, full apple cheeks, and warm brown eyes. Brown hair, full of springy curls, tumbling past the shoulders in ringlets. Dressed in a band tee and soft corduroys. Signature accessory: a shiny harmonica."
+    },
+    {
+      "id": "p062",
+      "displayName": "curly-haired stargazer",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 3,
+      "hair": {
+        "color": "dark brown",
+        "texture": "curly",
+        "length": "short"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "rooftop stargazer",
+      "dnaPrompt": "A toddler girl with light olive-gold skin, an oval face, soft rosy cheeks, and dark brown eyes. Dark brown hair, full of springy curls, in a bouncy crop. Dressed in a navy hoodie with a moon patch. Wears navy rectangular glasses. Signature accessory: a cardboard tube telescope."
+    },
+    {
+      "id": "p063",
+      "displayName": "sleek-haired puddle-jumper",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 5,
+      "hair": {
+        "color": "black",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "rainy-day puddle-jumper",
+      "dnaPrompt": "A young boy with rich deep-brown skin, a heart-shaped face, full apple cheeks, and warm brown eyes. Black hair, sleek and straight, in a smooth side-parted cut. Dressed in a yellow slicker and tall rain boots. Wears round wire-frame glasses. Signature accessory: a folded paper boat."
+    },
+    {
+      "id": "p064",
+      "displayName": "wavy-haired builder",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 3,
+      "hair": {
+        "color": "dark brown",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "block-stacking builder",
+      "dnaPrompt": "A school-age boy with light olive-gold skin, a round face, sun-warmed cheeks, and dark brown eyes. Dark brown hair, softly wavy, in a breezy short cut. Dressed in denim overalls over a yellow tee. Signature accessory: a wooden toy hammer."
+    },
+    {
+      "id": "p065",
+      "displayName": "coily-haired explorer",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 5,
+      "hair": {
+        "color": "dark brown",
+        "texture": "coily",
+        "length": "long"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "curious backyard explorer",
+      "dnaPrompt": "A toddler girl with rich deep-brown skin, a soft square face, soft rosy cheeks, and deep brown eyes. Dark brown hair, tightly coiled, in shoulder-length locs. Dressed in a pocketed olive jacket and sturdy shorts. Wears round amber-frame glasses. Signature accessory: a small brass compass."
+    },
+    {
+      "id": "p066",
+      "displayName": "brown-haired animal-lover",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 1,
+      "hair": {
+        "color": "brown",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "gentle animal-lover",
+      "dnaPrompt": "A school-age boy with very fair skin with cool rosy undertones, a heart-shaped face, sun-warmed cheeks, and light brown eyes. Brown hair, softly wavy, in a tousled crop. Dressed in a paw-print tee and soft joggers. Signature accessory: a floppy plush bunny."
+    },
+    {
+      "id": "p067",
+      "displayName": "dark-haired explorer",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 5,
+      "hair": {
+        "color": "dark brown",
+        "texture": "straight",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "curious backyard explorer",
+      "dnaPrompt": "A school-age boy with rich deep-brown skin, an oval face, warm dimpled cheeks, and warm brown eyes. Dark brown hair, sleek and straight, in a neat short cut. Dressed in a khaki explorer vest over a striped tee. Signature accessory: a crinkled paper trail map."
+    },
+    {
+      "id": "p068",
+      "displayName": "sleek-haired collector",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 4,
+      "hair": {
+        "color": "dark brown",
+        "texture": "straight",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "pocket-treasure collector",
+      "dnaPrompt": "A toddler boy with warm tan-brown skin, a heart-shaped face, sun-warmed cheeks, and warm brown eyes. Dark brown hair, sleek and straight, in a tidy crew cut. Dressed in a jacket jingling with zippers. Signature accessory: a jar of shiny pebbles."
+    },
+    {
+      "id": "p069",
+      "displayName": "raven-haired puddle-jumper",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 2,
+      "hair": {
+        "color": "black",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "rainy-day puddle-jumper",
+      "dnaPrompt": "A young girl with fair peachy skin with warm undertones, a soft square face, soft rosy cheeks, and bright blue eyes. Black hair, softly wavy, in twin braids. Dressed in a frog-green raincoat and galoshes. Signature accessory: a tiny clear umbrella."
+    },
+    {
+      "id": "p070",
+      "displayName": "curly-haired collector",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 6,
+      "hair": {
+        "color": "dark brown",
+        "texture": "curly",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "pocket-treasure collector",
+      "dnaPrompt": "A toddler boy with deep ebony skin with cool undertones, a heart-shaped face, sun-warmed cheeks, and warm brown eyes. Dark brown hair, full of springy curls, falling in ringlets to the ears. Dressed in a jacket jingling with zippers. Signature accessory: a tin of bottle caps."
+    },
+    {
+      "id": "p071",
+      "displayName": "coily-haired gardener",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 3,
+      "hair": {
+        "color": "black",
+        "texture": "coily",
+        "length": "short"
+      },
+      "features": [
+        "birthmark",
+        "glasses"
+      ],
+      "vibe": "muddy-knees gardener",
+      "dnaPrompt": "A young boy with light olive-gold skin, a round face, warm dimpled cheeks, and warm brown eyes. Black hair, tightly coiled, in a soft cropped afro. Dressed in gardening gloves and a leaf-green smock. Wears navy rectangular glasses. A small berry-colored birthmark marks the left cheek. Signature accessory: a clay pot with one sprout."
+    },
+    {
+      "id": "p072",
+      "displayName": "raven-haired climber",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 4,
+      "hair": {
+        "color": "black",
+        "texture": "coily",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "tree-branch climber",
+      "dnaPrompt": "A school-age boy with warm tan-brown skin, an oval face, warm dimpled cheeks, and deep brown eyes. Black hair, tightly coiled, in a neat rounded crop. Dressed in knee-patched pants and a henley. Signature accessory: a coil of soft climbing rope."
+    },
+    {
+      "id": "p073",
+      "displayName": "wavy-haired dancer",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 2,
+      "hair": {
+        "color": "blonde",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "twirling dancer",
+      "dnaPrompt": "A toddler girl with fair peachy skin with warm undertones, a heart-shaped face, full apple cheeks, and light brown eyes. Blonde hair, softly wavy, in twin braids. Dressed in a swishy practice skirt over leggings. Signature accessory: ballet slippers slung over one shoulder."
+    },
+    {
+      "id": "p074",
+      "displayName": "curly-haired puddle-jumper",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 4,
+      "hair": {
+        "color": "light brown",
+        "texture": "curly",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "rainy-day puddle-jumper",
+      "dnaPrompt": "A toddler girl with warm tan-brown skin, a heart-shaped face, warm dimpled cheeks, and warm brown eyes. Light brown hair, full of springy curls, in a high ponytail of ringlets. Dressed in a frog-green raincoat and galoshes. Signature accessory: a tiny clear umbrella."
+    },
+    {
+      "id": "p075",
+      "displayName": "brown-haired climber",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 3,
+      "hair": {
+        "color": "brown",
+        "texture": "wavy",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "tree-branch climber",
+      "dnaPrompt": "A young girl with light olive-gold skin, a soft square face, sun-warmed cheeks, and dark brown eyes. Brown hair, softly wavy, brushing the collar in soft waves. Dressed in knee-patched pants and a henley. Signature accessory: a leafy twig tucked behind one ear."
+    },
+    {
+      "id": "p076",
+      "displayName": "raven-haired birdwatcher",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 4,
+      "hair": {
+        "color": "black",
+        "texture": "straight",
+        "length": "short"
+      },
+      "features": [
+        "wheelchair"
+      ],
+      "vibe": "early-morning birdwatcher",
+      "dnaPrompt": "A school-age boy with warm tan-brown skin, an oval face, warm dimpled cheeks, and warm brown eyes. Black hair, sleek and straight, in a tidy crew cut. Dressed in a floppy hat and zip-up fleece. Sits in a compact blue wheelchair with chunky wheels. Signature accessory: a card of taped-down feathers."
+    },
+    {
+      "id": "p077",
+      "displayName": "raven-haired gardener",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 5,
+      "hair": {
+        "color": "black",
+        "texture": "coily",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "muddy-knees gardener",
+      "dnaPrompt": "A young boy with rich deep-brown skin, an oval face, sun-warmed cheeks, and amber-brown eyes. Black hair, tightly coiled, in long neat cornrows. Dressed in gardening gloves and a leaf-green smock. Sturdy build with a confident stance. Signature accessory: a small tin watering can."
+    },
+    {
+      "id": "p078",
+      "displayName": "raven-haired helper",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 5,
+      "hair": {
+        "color": "black",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "everyone's helper",
+      "dnaPrompt": "A school-age girl with rich deep-brown skin, a round face, sun-warmed cheeks, and warm brown eyes. Black hair, sleek and straight, in a neat chin-length bob. Dressed in a rolled-sleeve button-up and khakis. Signature accessory: a little red wagon handle."
+    },
+    {
+      "id": "p079",
+      "displayName": "golden-haired bookworm",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 2,
+      "hair": {
+        "color": "blonde",
+        "texture": "curly",
+        "length": "long"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "cozy-corner bookworm",
+      "dnaPrompt": "A school-age girl with fair peachy skin with warm undertones, a soft square face, full apple cheeks, and light brown eyes. Blonde hair, full of springy curls, in a high ponytail of ringlets. Dressed in an oversized cable-knit cardigan. Wears round wire-frame glasses. Signature accessory: a teetering stack of tiny books."
+    },
+    {
+      "id": "p080",
+      "displayName": "raven-haired storyteller",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 5,
+      "hair": {
+        "color": "black",
+        "texture": "curly",
+        "length": "short"
+      },
+      "features": [
+        "freckles"
+      ],
+      "vibe": "campfire storyteller",
+      "dnaPrompt": "A school-age boy with rich deep-brown skin, an oval face, cheeks dusted with freckles, and deep brown eyes. Black hair, full of springy curls, in a springy short cut. Dressed in a scarf-draped chunky sweater. Signature accessory: a tattered notebook of tales."
+    },
+    {
+      "id": "p081",
+      "displayName": "honey-haired swimmer",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 3,
+      "hair": {
+        "color": "light brown",
+        "texture": "coily",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "splash-happy swimmer",
+      "dnaPrompt": "A young boy with light olive-gold skin, an oval face, soft rosy cheeks, and hazel eyes. Light brown hair, tightly coiled, in a neat rounded crop. Dressed in a sun-faded swim shirt with a towel cape. Signature accessory: a striped beach ball."
+    },
+    {
+      "id": "p082",
+      "displayName": "dark-haired chef",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 3,
+      "hair": {
+        "color": "dark brown",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "tiny kitchen chef",
+      "dnaPrompt": "A school-age boy with light olive-gold skin, a heart-shaped face, soft rosy cheeks, and green-flecked eyes. Dark brown hair, softly wavy, in a breezy short cut. Dressed in a white apron with rolled sleeves. Wears mint-green round glasses. Signature accessory: a tiny silver whisk."
+    },
+    {
+      "id": "p083",
+      "displayName": "dark-haired birdwatcher",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 1,
+      "hair": {
+        "color": "dark brown",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [
+        "hijab"
+      ],
+      "vibe": "early-morning birdwatcher",
+      "dnaPrompt": "A young girl with very fair skin with cool rosy undertones, a heart-shaped face, soft rosy cheeks, and gray-blue eyes. A soft lavender hijab frames the face, a few dark brown strands peeking out at the brow. Dressed in a floppy hat and zip-up fleece. Signature accessory: a pair of toy binoculars."
+    },
+    {
+      "id": "p084",
+      "displayName": "barefoot dreamer",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 5,
+      "hair": {
+        "color": "black",
+        "texture": "coily",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "head-in-the-clouds dreamer",
+      "dnaPrompt": "A toddler girl with rich deep-brown skin, a round face, soft rosy cheeks, and amber-brown eyes. Black hair, tightly coiled, in long box braids with bead tips. Dressed in a soft cloud-print sweater. A soft gap-toothed grin. Signature accessory: a small dream journal."
+    },
+    {
+      "id": "p085",
+      "displayName": "wavy-haired athlete",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 3,
+      "hair": {
+        "color": "red",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "playground athlete",
+      "dnaPrompt": "A young girl with light olive-gold skin, a round face, sun-warmed cheeks, and hazel eyes. Red hair, softly wavy, in long loose waves. Dressed in a bright track jacket and shorts. A bright, open expression. Signature accessory: a mini soccer ball."
+    },
+    {
+      "id": "p086",
+      "displayName": "giggly builder",
+      "ageBand": "4-6",
+      "gender": "androgynous",
+      "skinTone": 3,
+      "hair": {
+        "color": "dark brown",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "block-stacking builder",
+      "dnaPrompt": "A young child with light olive-gold skin, an oval face, full apple cheeks, and dark brown eyes. Dark brown hair, softly wavy, in long loose waves. Dressed in denim overalls over a yellow tee. Signature accessory: a red toy level."
+    },
+    {
+      "id": "p087",
+      "displayName": "raven-haired inventor",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 2,
+      "hair": {
+        "color": "black",
+        "texture": "straight",
+        "length": "long"
+      },
+      "features": [
+        "freckles"
+      ],
+      "vibe": "junk-drawer inventor",
+      "dnaPrompt": "A toddler girl with fair peachy skin with warm undertones, a heart-shaped face, cheeks dusted with freckles, and bright blue eyes. Black hair, sleek and straight, long with blunt bangs. Dressed in a button-covered vest and cargo shorts. Signature accessory: a fat roll of masking tape."
+    },
+    {
+      "id": "p088",
+      "displayName": "wavy-haired mapmaker",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 3,
+      "hair": {
+        "color": "light brown",
+        "texture": "wavy",
+        "length": "medium"
+      },
+      "features": [
+        "braces",
+        "glasses"
+      ],
+      "vibe": "treasure-map mapmaker",
+      "dnaPrompt": "A school-age girl with light olive-gold skin, an oval face, warm dimpled cheeks, and warm brown eyes. Light brown hair, softly wavy, brushing the collar in soft waves. Dressed in a satchel slung over a plain tee. Wears navy rectangular glasses. A wide smile shows colorful braces. Signature accessory: a rolled hand-drawn map."
+    },
+    {
+      "id": "p089",
+      "displayName": "honey-haired dancer",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 4,
+      "hair": {
+        "color": "light brown",
+        "texture": "curly",
+        "length": "medium"
+      },
+      "features": [
+        "braces"
+      ],
+      "vibe": "twirling dancer",
+      "dnaPrompt": "A school-age boy with warm tan-brown skin, a soft square face, sun-warmed cheeks, and deep brown eyes. Light brown hair, full of springy curls, in a curly mop with a side part. Dressed in comfy dance clothes and soft shoes. A wide smile shows colorful braces. Signature accessory: ballet slippers slung over one shoulder."
+    },
+    {
+      "id": "p090",
+      "displayName": "honey-haired animal-lover",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 1,
+      "hair": {
+        "color": "light brown",
+        "texture": "wavy",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "gentle animal-lover",
+      "dnaPrompt": "A young boy with very fair skin with cool rosy undertones, an oval face, sun-warmed cheeks, and bright blue eyes. Light brown hair, softly wavy, brushing the collar in soft waves. Dressed in a fox-eared hoodie. Signature accessory: a floppy plush bunny."
+    },
+    {
+      "id": "p091",
+      "displayName": "coily-haired animal-lover",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 6,
+      "hair": {
+        "color": "dark brown",
+        "texture": "coily",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "gentle animal-lover",
+      "dnaPrompt": "A young boy with deep ebony skin with cool undertones, a round face, warm dimpled cheeks, and amber-brown eyes. Dark brown hair, tightly coiled, in loose twists. Dressed in a fox-eared hoodie. Petite frame and an easy smile. Signature accessory: a floppy plush bunny."
+    },
+    {
+      "id": "p092",
+      "displayName": "wavy-haired storyteller",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 3,
+      "hair": {
+        "color": "dark brown",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "campfire storyteller",
+      "dnaPrompt": "A school-age girl with light olive-gold skin, an oval face, full apple cheeks, and warm brown eyes. Dark brown hair, softly wavy, in long loose waves. Dressed in a scarf-draped chunky sweater. Small quick hands and scuffed knees. Signature accessory: a tattered notebook of tales."
+    },
+    {
+      "id": "p093",
+      "displayName": "quick-footed explorer",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 4,
+      "hair": {
+        "color": "dark brown",
+        "texture": "straight",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "curious backyard explorer",
+      "dnaPrompt": "A school-age girl with warm tan-brown skin, an oval face, sun-warmed cheeks, and deep brown eyes. Dark brown hair, sleek and straight, in a neat pixie cut. Dressed in a pocketed olive jacket and sturdy shorts. Signature accessory: a crinkled paper trail map."
+    },
+    {
+      "id": "p094",
+      "displayName": "raven-haired drummer",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 2,
+      "hair": {
+        "color": "black",
+        "texture": "coily",
+        "length": "short"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "pots-and-pans drummer",
+      "dnaPrompt": "A young girl with fair peachy skin with warm undertones, a heart-shaped face, soft rosy cheeks, and warm hazel eyes. Black hair, tightly coiled, in a soft cropped afro. Dressed in a bandana and denim jacket. Wears round amber-frame glasses. Signature accessory: an upturned tin pot."
+    },
+    {
+      "id": "p095",
+      "displayName": "dark-haired athlete",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 3,
+      "hair": {
+        "color": "dark brown",
+        "texture": "straight",
+        "length": "short"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "playground athlete",
+      "dnaPrompt": "A school-age boy with light olive-gold skin, a round face, sun-warmed cheeks, and warm brown eyes. Dark brown hair, sleek and straight, in a tidy crew cut. Dressed in a numbered jersey and sweatbands. Wears navy rectangular glasses. Signature accessory: a small foam basketball."
+    },
+    {
+      "id": "p096",
+      "displayName": "raven-haired dancer",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 6,
+      "hair": {
+        "color": "black",
+        "texture": "curly",
+        "length": "medium"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "twirling dancer",
+      "dnaPrompt": "A young boy with deep ebony skin with cool undertones, an oval face, full apple cheeks, and warm brown eyes. Black hair, full of springy curls, falling in ringlets to the ears. Dressed in a swishy practice skirt over leggings. Wears round amber-frame glasses. Signature accessory: a ribbon wand."
+    },
+    {
+      "id": "p097",
+      "displayName": "wavy-haired drummer",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 2,
+      "hair": {
+        "color": "blonde",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "pots-and-pans drummer",
+      "dnaPrompt": "A school-age boy with fair peachy skin with warm undertones, a soft square face, warm dimpled cheeks, and warm hazel eyes. Blonde hair, softly wavy, in a tousled crop. Dressed in a bandana and denim jacket. Signature accessory: an upturned tin pot."
+    },
+    {
+      "id": "p098",
+      "displayName": "wavy-haired stargazer",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 3,
+      "hair": {
+        "color": "black",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [
+        "freckles"
+      ],
+      "vibe": "rooftop stargazer",
+      "dnaPrompt": "A young boy with light olive-gold skin, an oval face, cheeks dusted with freckles, and warm brown eyes. Black hair, softly wavy, in a breezy short cut. Dressed in a navy hoodie with a moon patch. Signature accessory: a cardboard tube telescope."
+    },
+    {
+      "id": "p099",
+      "displayName": "rosy-cheeked musician",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 3,
+      "hair": {
+        "color": "brown",
+        "texture": "wavy",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "hum-along musician",
+      "dnaPrompt": "A young girl with light olive-gold skin, a heart-shaped face, soft rosy cheeks, and dark brown eyes. Brown hair, softly wavy, in a chin-length bob. Dressed in a band tee and soft corduroys. A soft gap-toothed grin. Signature accessory: a shiny harmonica."
+    },
+    {
+      "id": "p100",
+      "displayName": "rosy-cheeked builder",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 3,
+      "hair": {
+        "color": "dark brown",
+        "texture": "wavy",
+        "length": "medium"
+      },
+      "features": [
+        "hijab",
+        "freckles"
+      ],
+      "vibe": "block-stacking builder",
+      "dnaPrompt": "A school-age girl with light olive-gold skin, a soft square face, cheeks dusted with freckles, and dark brown eyes. A sage-green hijab frames the face, a few dark brown strands peeking out at the brow. Dressed in denim overalls over a yellow tee. Signature accessory: a red toy level."
+    },
+    {
+      "id": "p101",
+      "displayName": "wavy-haired baker",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 2,
+      "hair": {
+        "color": "blonde",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [
+        "freckles"
+      ],
+      "vibe": "flour-dusted baker",
+      "dnaPrompt": "A school-age girl with fair peachy skin with warm undertones, an oval face, cheeks dusted with freckles, and light brown eyes. Blonde hair, softly wavy, in twin braids. Dressed in a gingham apron with flour handprints. Signature accessory: a little wooden rolling pin."
+    },
+    {
+      "id": "p102",
+      "displayName": "sleek-haired chef",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 3,
+      "hair": {
+        "color": "brown",
+        "texture": "straight",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "tiny kitchen chef",
+      "dnaPrompt": "A school-age boy with light olive-gold skin, a heart-shaped face, full apple cheeks, and dark brown eyes. Brown hair, sleek and straight, in a neat short cut. Dressed in a white apron with rolled sleeves. Signature accessory: a tiny silver whisk."
+    },
+    {
+      "id": "p103",
+      "displayName": "wavy-haired scientist",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 4,
+      "hair": {
+        "color": "brown",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "kitchen-table scientist",
+      "dnaPrompt": "A young boy with warm tan-brown skin, a soft square face, full apple cheeks, and deep brown eyes. Brown hair, softly wavy, in a tousled crop. Dressed in a slightly-too-big white lab coat. Petite frame and an easy smile. Signature accessory: a chunky magnifying glass."
+    },
+    {
+      "id": "p104",
+      "displayName": "wavy-haired dreamer",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 6,
+      "hair": {
+        "color": "black",
+        "texture": "wavy",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "head-in-the-clouds dreamer",
+      "dnaPrompt": "A toddler girl with deep ebony skin with cool undertones, a heart-shaped face, soft rosy cheeks, and deep brown eyes. Black hair, softly wavy, in a chin-length bob. Dressed in a soft cloud-print sweater. Signature accessory: a small dream journal."
+    },
+    {
+      "id": "p105",
+      "displayName": "dark-haired gardener",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 1,
+      "hair": {
+        "color": "dark brown",
+        "texture": "curly",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "muddy-knees gardener",
+      "dnaPrompt": "A young boy with very fair skin with cool rosy undertones, a heart-shaped face, full apple cheeks, and light brown eyes. Dark brown hair, full of springy curls, in a curly mop with a side part. Dressed in gardening gloves and a leaf-green smock. Signature accessory: a clay pot with one sprout."
+    },
+    {
+      "id": "p106",
+      "displayName": "raven-haired athlete",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 4,
+      "hair": {
+        "color": "black",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "playground athlete",
+      "dnaPrompt": "A young girl with warm tan-brown skin, a soft square face, warm dimpled cheeks, and deep brown eyes. Black hair, softly wavy, in long loose waves. Dressed in a numbered jersey and sweatbands. Small quick hands and scuffed knees. Signature accessory: a mini soccer ball."
+    },
+    {
+      "id": "p107",
+      "displayName": "brown-haired chef",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 2,
+      "hair": {
+        "color": "brown",
+        "texture": "wavy",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "tiny kitchen chef",
+      "dnaPrompt": "A toddler boy with fair peachy skin with warm undertones, a soft square face, sun-warmed cheeks, and light brown eyes. Brown hair, softly wavy, in a chin-length bob. Dressed in a tomato-print apron and puffy chef hat. Signature accessory: a tiny silver whisk."
+    },
+    {
+      "id": "p108",
+      "displayName": "brown-haired helper",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 1,
+      "hair": {
+        "color": "brown",
+        "texture": "straight",
+        "length": "long"
+      },
+      "features": [
+        "freckles"
+      ],
+      "vibe": "everyone's helper",
+      "dnaPrompt": "A young girl with very fair skin with cool rosy undertones, an oval face, cheeks dusted with freckles, and bright blue eyes. Brown hair, sleek and straight, long with blunt bangs. Dressed in a rolled-sleeve button-up and khakis. Signature accessory: a basket of clothespins."
+    },
+    {
+      "id": "p109",
+      "displayName": "dark-haired swimmer",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 6,
+      "hair": {
+        "color": "dark brown",
+        "texture": "coily",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "splash-happy swimmer",
+      "dnaPrompt": "A toddler girl with deep ebony skin with cool undertones, an oval face, sun-warmed cheeks, and deep brown eyes. Dark brown hair, tightly coiled, in chunky twists. Dressed in a sun-faded swim shirt with a towel cape. Signature accessory: swim goggles around the neck."
+    },
+    {
+      "id": "p110",
+      "displayName": "curly-haired birdwatcher",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 5,
+      "hair": {
+        "color": "black",
+        "texture": "curly",
+        "length": "medium"
+      },
+      "features": [
+        "freckles",
+        "glasses"
+      ],
+      "vibe": "early-morning birdwatcher",
+      "dnaPrompt": "A young girl with rich deep-brown skin, a heart-shaped face, cheeks dusted with freckles, and deep brown eyes. Black hair, full of springy curls, in a curly mop with a side part. Dressed in a floppy hat and zip-up fleece. Wears cherry-red round glasses. Signature accessory: a card of taped-down feathers."
+    },
+    {
+      "id": "p111",
+      "displayName": "coily-haired artist",
+      "ageBand": "6-9",
+      "gender": "androgynous",
+      "skinTone": 6,
+      "hair": {
+        "color": "black",
+        "texture": "coily",
+        "length": "short"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "paint-splattered artist",
+      "dnaPrompt": "A school-age child with deep ebony skin with cool undertones, a soft square face, full apple cheeks, and warm brown eyes. Black hair, tightly coiled, in a neat rounded crop. Dressed in a paint-smudged smock over polka-dot leggings. Wears round amber-frame glasses. Signature accessory: a fat round paintbrush."
+    },
+    {
+      "id": "p112",
+      "displayName": "sleek-haired scientist",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 2,
+      "hair": {
+        "color": "blonde",
+        "texture": "straight",
+        "length": "long"
+      },
+      "features": [
+        "freckles"
+      ],
+      "vibe": "kitchen-table scientist",
+      "dnaPrompt": "A toddler girl with fair peachy skin with warm undertones, a round face, cheeks dusted with freckles, and gray-blue eyes. Blonde hair, sleek and straight, in a sleek high ponytail. Dressed in a galaxy tee under an open lab coat. Signature accessory: a rack of fizzing test tubes."
+    },
+    {
+      "id": "p113",
+      "displayName": "raven-haired baker",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 2,
+      "hair": {
+        "color": "black",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "flour-dusted baker",
+      "dnaPrompt": "A young girl with fair peachy skin with warm undertones, an oval face, sun-warmed cheeks, and light brown eyes. Black hair, softly wavy, in twin braids. Dressed in a gingham apron with flour handprints. Signature accessory: a star cookie cutter."
+    },
+    {
+      "id": "p114",
+      "displayName": "raven-haired swimmer",
+      "ageBand": "4-6",
+      "gender": "androgynous",
+      "skinTone": 5,
+      "hair": {
+        "color": "black",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "splash-happy swimmer",
+      "dnaPrompt": "A young child with rich deep-brown skin, a heart-shaped face, warm dimpled cheeks, and deep brown eyes. Black hair, sleek and straight, in a neat chin-length bob. Dressed in a sun-faded swim shirt with a towel cape. Wears cherry-red round glasses. Signature accessory: swim goggles around the neck."
+    },
+    {
+      "id": "p115",
+      "displayName": "giggly storyteller",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 5,
+      "hair": {
+        "color": "black",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "campfire storyteller",
+      "dnaPrompt": "A toddler girl with rich deep-brown skin, an oval face, warm dimpled cheeks, and warm brown eyes. Black hair, softly wavy, in twin braids. Dressed in a scarf-draped chunky sweater. Petite frame and an easy smile. Signature accessory: a striped sock puppet."
+    },
+    {
+      "id": "p116",
+      "displayName": "coily-haired chef",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 5,
+      "hair": {
+        "color": "black",
+        "texture": "coily",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "tiny kitchen chef",
+      "dnaPrompt": "A school-age boy with rich deep-brown skin, a heart-shaped face, soft rosy cheeks, and warm brown eyes. Black hair, tightly coiled, in a soft cropped afro. Dressed in a white apron with rolled sleeves. Signature accessory: a wooden mixing spoon."
+    },
+    {
+      "id": "p117",
+      "displayName": "coily-haired mapmaker",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 4,
+      "hair": {
+        "color": "dark brown",
+        "texture": "coily",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "treasure-map mapmaker",
+      "dnaPrompt": "A school-age girl with warm tan-brown skin, an oval face, full apple cheeks, and warm brown eyes. Dark brown hair, tightly coiled, in a neat rounded crop. Dressed in a corduroy jacket with ink-stained cuffs. Signature accessory: a rolled hand-drawn map."
+    },
+    {
+      "id": "p118",
+      "displayName": "dark-haired mapmaker",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 4,
+      "hair": {
+        "color": "dark brown",
+        "texture": "coily",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "treasure-map mapmaker",
+      "dnaPrompt": "A toddler girl with warm tan-brown skin, a heart-shaped face, soft rosy cheeks, and deep brown eyes. Dark brown hair, tightly coiled, in shoulder-length locs. Dressed in a satchel slung over a plain tee. Signature accessory: a rolled hand-drawn map."
+    },
+    {
+      "id": "p119",
+      "displayName": "brown-haired storyteller",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 2,
+      "hair": {
+        "color": "brown",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [
+        "birthmark"
+      ],
+      "vibe": "campfire storyteller",
+      "dnaPrompt": "A school-age girl with fair peachy skin with warm undertones, an oval face, full apple cheeks, and light brown eyes. Brown hair, sleek and straight, in a neat chin-length bob. Dressed in a cozy flannel shirt and jeans. A coin-sized birthmark sits on the right forearm. Signature accessory: a striped sock puppet."
+    },
+    {
+      "id": "p120",
+      "displayName": "big-hearted inventor",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 4,
+      "hair": {
+        "color": "black",
+        "texture": "curly",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "junk-drawer inventor",
+      "dnaPrompt": "A toddler boy with warm tan-brown skin, an oval face, full apple cheeks, and deep brown eyes. Black hair, full of springy curls, in a bouncy crop. Dressed in a tool belt over a graphic tee. Signature accessory: a fat roll of masking tape."
+    },
+    {
+      "id": "p121",
+      "displayName": "raven-haired musician",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 6,
+      "hair": {
+        "color": "black",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "hum-along musician",
+      "dnaPrompt": "A toddler boy with deep ebony skin with cool undertones, a soft square face, warm dimpled cheeks, and deep brown eyes. Black hair, softly wavy, in a breezy short cut. Dressed in a band tee and soft corduroys. Signature accessory: a shiny harmonica."
+    },
+    {
+      "id": "p122",
+      "displayName": "brown-haired puzzle-solver",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 1,
+      "hair": {
+        "color": "brown",
+        "texture": "straight",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "quiet puzzle-solver",
+      "dnaPrompt": "A school-age boy with very fair skin with cool rosy undertones, a soft square face, soft rosy cheeks, and light brown eyes. Brown hair, sleek and straight, in a neat short cut. Dressed in a checkered tee and cardigan. Signature accessory: a folded hand-drawn maze."
+    },
+    {
+      "id": "p123",
+      "displayName": "curly-haired animal-lover",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 3,
+      "hair": {
+        "color": "red",
+        "texture": "curly",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "gentle animal-lover",
+      "dnaPrompt": "A young girl with light olive-gold skin, a soft square face, sun-warmed cheeks, and green-flecked eyes. Red hair, full of springy curls, in a high ponytail of ringlets. Dressed in a fox-eared hoodie. Signature accessory: a tiny bag of birdseed."
+    },
+    {
+      "id": "p124",
+      "displayName": "quick-footed puddle-jumper",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 3,
+      "hair": {
+        "color": "black",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "rainy-day puddle-jumper",
+      "dnaPrompt": "A toddler girl with light olive-gold skin, an oval face, full apple cheeks, and hazel eyes. Black hair, sleek and straight, in a neat chin-length bob. Dressed in a frog-green raincoat and galoshes. Petite frame and an easy smile. Signature accessory: a tiny clear umbrella."
+    },
+    {
+      "id": "p125",
+      "displayName": "sleek-haired stargazer",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 1,
+      "hair": {
+        "color": "blonde",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "rooftop stargazer",
+      "dnaPrompt": "A school-age boy with very fair skin with cool rosy undertones, a soft square face, sun-warmed cheeks, and light brown eyes. Blonde hair, sleek and straight, in a smooth side-parted cut. Dressed in a navy hoodie with a moon patch. Signature accessory: a jar of glow stars."
+    },
+    {
+      "id": "p126",
+      "displayName": "red-haired artist",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 2,
+      "hair": {
+        "color": "red",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "paint-splattered artist",
+      "dnaPrompt": "A young girl with fair peachy skin with warm undertones, a soft square face, sun-warmed cheeks, and light brown eyes. Red hair, softly wavy, in twin braids. Dressed in a rainbow-streaked apron and rolled jeans. Signature accessory: a battered box of crayons."
+    },
+    {
+      "id": "p127",
+      "displayName": "honey-haired climber",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 5,
+      "hair": {
+        "color": "light brown",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [
+        "braces"
+      ],
+      "vibe": "tree-branch climber",
+      "dnaPrompt": "A school-age boy with rich deep-brown skin, an oval face, full apple cheeks, and warm brown eyes. Light brown hair, softly wavy, in a breezy short cut. Dressed in scuffed jeans and a grass-stained tee. A wide smile shows colorful braces. Signature accessory: a coil of soft climbing rope."
+    },
+    {
+      "id": "p128",
+      "displayName": "wavy-haired collector",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 4,
+      "hair": {
+        "color": "black",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "pocket-treasure collector",
+      "dnaPrompt": "A school-age boy with warm tan-brown skin, a soft square face, full apple cheeks, and deep brown eyes. Black hair, softly wavy, in long loose waves. Dressed in a jacket jingling with zippers. Wears round amber-frame glasses. Signature accessory: a tin of bottle caps."
+    },
+    {
+      "id": "p129",
+      "displayName": "wavy-haired helper",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 5,
+      "hair": {
+        "color": "black",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [
+        "freckles"
+      ],
+      "vibe": "everyone's helper",
+      "dnaPrompt": "A toddler boy with rich deep-brown skin, an oval face, cheeks dusted with freckles, and deep brown eyes. Black hair, softly wavy, in a tousled crop. Dressed in a bright sash of cloth patches. Signature accessory: a basket of clothespins."
+    },
+    {
+      "id": "p130",
+      "displayName": "honey-haired stargazer",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 3,
+      "hair": {
+        "color": "light brown",
+        "texture": "curly",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "rooftop stargazer",
+      "dnaPrompt": "A toddler boy with light olive-gold skin, an oval face, warm dimpled cheeks, and hazel eyes. Light brown hair, full of springy curls, in a springy short cut. Dressed in a navy hoodie with a moon patch. Signature accessory: a cardboard tube telescope."
+    },
+    {
+      "id": "p131",
+      "displayName": "sleek-haired dancer",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 6,
+      "hair": {
+        "color": "black",
+        "texture": "straight",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "twirling dancer",
+      "dnaPrompt": "A young boy with deep ebony skin with cool undertones, a heart-shaped face, soft rosy cheeks, and deep brown eyes. Black hair, sleek and straight, in a tidy crew cut. Dressed in a swishy practice skirt over leggings. Signature accessory: ballet slippers slung over one shoulder."
+    },
+    {
+      "id": "p132",
+      "displayName": "raven-haired collector",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 6,
+      "hair": {
+        "color": "black",
+        "texture": "straight",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "pocket-treasure collector",
+      "dnaPrompt": "A toddler boy with deep ebony skin with cool undertones, an oval face, soft rosy cheeks, and amber-brown eyes. Black hair, sleek and straight, in a neat short cut. Dressed in a jacket jingling with zippers. Signature accessory: a tin of bottle caps."
+    },
+    {
+      "id": "p133",
+      "displayName": "golden-haired athlete",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 1,
+      "hair": {
+        "color": "blonde",
+        "texture": "straight",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "playground athlete",
+      "dnaPrompt": "A school-age boy with very fair skin with cool rosy undertones, a soft square face, full apple cheeks, and soft green eyes. Blonde hair, sleek and straight, in a smooth side-parted cut. Dressed in a numbered jersey and sweatbands. Signature accessory: a small foam basketball."
+    },
+    {
+      "id": "p134",
+      "displayName": "coily-haired scientist",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 6,
+      "hair": {
+        "color": "black",
+        "texture": "coily",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "kitchen-table scientist",
+      "dnaPrompt": "A school-age girl with deep ebony skin with cool undertones, a round face, sun-warmed cheeks, and deep brown eyes. Black hair, tightly coiled, in long box braids with bead tips. Dressed in a slightly-too-big white lab coat. Signature accessory: a chunky magnifying glass."
+    },
+    {
+      "id": "p135",
+      "displayName": "pint-sized mapmaker",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 2,
+      "hair": {
+        "color": "dark brown",
+        "texture": "curly",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "treasure-map mapmaker",
+      "dnaPrompt": "A toddler girl with fair peachy skin with warm undertones, a heart-shaped face, full apple cheeks, and warm hazel eyes. Dark brown hair, full of springy curls, tumbling past the shoulders in ringlets. Dressed in a corduroy jacket with ink-stained cuffs. Signature accessory: a stubby pencil behind one ear."
+    },
+    {
+      "id": "p136",
+      "displayName": "raven-haired stargazer",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 3,
+      "hair": {
+        "color": "black",
+        "texture": "straight",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "rooftop stargazer",
+      "dnaPrompt": "A school-age girl with light olive-gold skin, an oval face, warm dimpled cheeks, and warm brown eyes. Black hair, sleek and straight, long with blunt bangs. Dressed in a star-charted sweater. Sturdy build with a confident stance. Signature accessory: a jar of glow stars."
+    },
+    {
+      "id": "p137",
+      "displayName": "brown-haired baker",
+      "ageBand": "4-6",
+      "gender": "girl",
+      "skinTone": 4,
+      "hair": {
+        "color": "brown",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "flour-dusted baker",
+      "dnaPrompt": "A young girl with warm tan-brown skin, an oval face, full apple cheeks, and warm brown eyes. Brown hair, softly wavy, in a tousled crop. Dressed in rolled sleeves and a sugar-dusted apron. Wears mint-green round glasses. Signature accessory: a little wooden rolling pin."
+    },
+    {
+      "id": "p138",
+      "displayName": "coily-haired helper",
+      "ageBand": "6-9",
+      "gender": "androgynous",
+      "skinTone": 4,
+      "hair": {
+        "color": "brown",
+        "texture": "coily",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "everyone's helper",
+      "dnaPrompt": "A school-age child with warm tan-brown skin, a round face, full apple cheeks, and deep brown eyes. Brown hair, tightly coiled, in shoulder-length locs. Dressed in a bright sash of cloth patches. Small quick hands and scuffed knees. Signature accessory: a basket of clothespins."
+    },
+    {
+      "id": "p139",
+      "displayName": "coily-haired bookworm",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 6,
+      "hair": {
+        "color": "black",
+        "texture": "coily",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "cozy-corner bookworm",
+      "dnaPrompt": "A school-age boy with deep ebony skin with cool undertones, a round face, full apple cheeks, and deep brown eyes. Black hair, tightly coiled, in loose twists. Dressed in a mustard sweater with elbow patches. Signature accessory: a teetering stack of tiny books."
+    },
+    {
+      "id": "p140",
+      "displayName": "sunny birdwatcher",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 4,
+      "hair": {
+        "color": "black",
+        "texture": "straight",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "early-morning birdwatcher",
+      "dnaPrompt": "A school-age girl with warm tan-brown skin, a round face, soft rosy cheeks, and deep brown eyes. Black hair, sleek and straight, in a tidy cropped cut. Dressed in a floppy hat and zip-up fleece. Signature accessory: a pair of toy binoculars."
+    },
+    {
+      "id": "p141",
+      "displayName": "brown-haired collector",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 2,
+      "hair": {
+        "color": "brown",
+        "texture": "curly",
+        "length": "short"
+      },
+      "features": [
+        "freckles"
+      ],
+      "vibe": "pocket-treasure collector",
+      "dnaPrompt": "A young boy with fair peachy skin with warm undertones, a heart-shaped face, cheeks dusted with freckles, and soft green eyes. Brown hair, full of springy curls, in a springy short cut. Dressed in a jacket jingling with zippers. Signature accessory: a tin of bottle caps."
+    },
+    {
+      "id": "p142",
+      "displayName": "bright-eyed puzzle-solver",
+      "ageBand": "2-4",
+      "gender": "boy",
+      "skinTone": 6,
+      "hair": {
+        "color": "dark brown",
+        "texture": "coily",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "quiet puzzle-solver",
+      "dnaPrompt": "A toddler boy with deep ebony skin with cool undertones, a soft square face, warm dimpled cheeks, and warm brown eyes. Dark brown hair, tightly coiled, in loose twists. Dressed in a checkered tee and cardigan. Signature accessory: a wooden puzzle cube."
+    },
+    {
+      "id": "p143",
+      "displayName": "coily-haired birdwatcher",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 3,
+      "hair": {
+        "color": "dark brown",
+        "texture": "coily",
+        "length": "long"
+      },
+      "features": [],
+      "vibe": "early-morning birdwatcher",
+      "dnaPrompt": "A toddler girl with light olive-gold skin, an oval face, soft rosy cheeks, and hazel eyes. Dark brown hair, tightly coiled, in shoulder-length locs. Dressed in an olive vest with a field-guide pocket. Signature accessory: a pair of toy binoculars."
+    },
+    {
+      "id": "p144",
+      "displayName": "dark-haired dreamer",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 5,
+      "hair": {
+        "color": "dark brown",
+        "texture": "wavy",
+        "length": "medium"
+      },
+      "features": [
+        "birthmark"
+      ],
+      "vibe": "head-in-the-clouds dreamer",
+      "dnaPrompt": "A young boy with rich deep-brown skin, a soft square face, full apple cheeks, and warm brown eyes. Dark brown hair, softly wavy, in a chin-length bob. Dressed in a soft cloud-print sweater. A small berry-colored birthmark marks the left cheek. Signature accessory: a plush crescent moon."
+    },
+    {
+      "id": "p145",
+      "displayName": "dark-haired animal-lover",
+      "ageBand": "4-6",
+      "gender": "boy",
+      "skinTone": 4,
+      "hair": {
+        "color": "dark brown",
+        "texture": "coily",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "gentle animal-lover",
+      "dnaPrompt": "A young boy with warm tan-brown skin, a soft square face, sun-warmed cheeks, and deep brown eyes. Dark brown hair, tightly coiled, in a rounded afro. Dressed in a fox-eared hoodie. Petite frame and an easy smile. Signature accessory: a floppy plush bunny."
+    },
+    {
+      "id": "p146",
+      "displayName": "brown-haired dancer",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 2,
+      "hair": {
+        "color": "brown",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "twirling dancer",
+      "dnaPrompt": "A school-age boy with fair peachy skin with warm undertones, a round face, sun-warmed cheeks, and gray-blue eyes. Brown hair, softly wavy, in a tousled crop. Dressed in a swishy practice skirt over leggings. A soft gap-toothed grin. Signature accessory: a ribbon wand."
+    },
+    {
+      "id": "p147",
+      "displayName": "dark-haired artist",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 4,
+      "hair": {
+        "color": "dark brown",
+        "texture": "coily",
+        "length": "medium"
+      },
+      "features": [],
+      "vibe": "paint-splattered artist",
+      "dnaPrompt": "A toddler girl with warm tan-brown skin, a soft square face, warm dimpled cheeks, and deep brown eyes. Dark brown hair, tightly coiled, in chunky twists. Dressed in a rainbow-streaked apron and rolled jeans. Signature accessory: a fat round paintbrush."
+    },
+    {
+      "id": "p148",
+      "displayName": "giggly athlete",
+      "ageBand": "6-9",
+      "gender": "boy",
+      "skinTone": 3,
+      "hair": {
+        "color": "black",
+        "texture": "wavy",
+        "length": "short"
+      },
+      "features": [
+        "glasses"
+      ],
+      "vibe": "playground athlete",
+      "dnaPrompt": "A school-age boy with light olive-gold skin, a heart-shaped face, warm dimpled cheeks, and warm brown eyes. Black hair, softly wavy, in a breezy short cut. Dressed in a numbered jersey and sweatbands. Wears cherry-red round glasses. Signature accessory: a small foam basketball."
+    },
+    {
+      "id": "p149",
+      "displayName": "dark-haired scientist",
+      "ageBand": "2-4",
+      "gender": "girl",
+      "skinTone": 4,
+      "hair": {
+        "color": "dark brown",
+        "texture": "coily",
+        "length": "short"
+      },
+      "features": [],
+      "vibe": "kitchen-table scientist",
+      "dnaPrompt": "A toddler girl with warm tan-brown skin, a round face, soft rosy cheeks, and deep brown eyes. Dark brown hair, tightly coiled, in a neat rounded crop. Dressed in a slightly-too-big white lab coat. Signature accessory: a rack of fizzing test tubes."
+    },
+    {
+      "id": "p150",
+      "displayName": "dimple-cheeked scientist",
+      "ageBand": "6-9",
+      "gender": "girl",
+      "skinTone": 4,
+      "hair": {
+        "color": "dark brown",
+        "texture": "wavy",
+        "length": "long"
+      },
+      "features": [
+        "freckles"
+      ],
+      "vibe": "kitchen-table scientist",
+      "dnaPrompt": "A school-age girl with warm tan-brown skin, a heart-shaped face, cheeks dusted with freckles, and deep brown eyes. Dark brown hair, softly wavy, in twin braids. Dressed in a slightly-too-big white lab coat. Signature accessory: a rack of fizzing test tubes."
+    }
+  ]
+}
