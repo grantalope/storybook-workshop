@@ -1,0 +1,11 @@
+node_modules
+.svelte-kit
+build
+.git
+.github
+e2e
+tests
+*.log
+.env
+.env.*
+.DS_Store

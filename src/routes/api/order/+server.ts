@@ -403,7 +403,7 @@ async function resolveServerShippingOption(
 }
 
 // Re-export env helper for the host server hook to swap in real impls
-export function configureOrderApi(env: FulfillmentEnv): void {
+export function _configureOrderApi(env: FulfillmentEnv): void {
 	const stores = createDefaultFulfillmentStores({ runtime: 'node-prod' });
 	const store = stores.orderStore;
 	const stripe = createStripeService(env);
