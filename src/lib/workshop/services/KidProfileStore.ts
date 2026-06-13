@@ -1,3 +1,4 @@
+import { uuid } from '$lib/util/uuid';
 // @graph-layer: private
 // @rationale: private (parent kid roster — never leaves device)
 
@@ -39,7 +40,7 @@ export class KidProfileStore {
 		oneLineAbout?: string;
 	}): Promise<KidProfile> {
 		const now = Date.now();
-		const kidId = `kid-${crypto.randomUUID()}`;
+		const kidId = `kid-${uuid()}`;
 		const profile: KidProfile = {
 			kidId,
 			name: input.name.trim(),

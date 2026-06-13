@@ -1,3 +1,4 @@
+import { uuid } from '$lib/util/uuid';
 // @graph-layer: private
 // @rationale: private (per-kid workshop draft — never leaves device)
 
@@ -26,7 +27,7 @@ export class WorkshopDraftStore {
 
 	async create(input: { kidId: string; mode?: WorkshopMode }): Promise<WorkshopDraft> {
 		const now = Date.now();
-		const draftId = `draft-${crypto.randomUUID()}`;
+		const draftId = `draft-${uuid()}`;
 		const draft: WorkshopDraft = {
 			draftId,
 			kidId: input.kidId,

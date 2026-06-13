@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { uuid } from '$lib/util/uuid';
 	import { createEventDispatcher, onMount } from 'svelte';
 	import type { WorkshopOrchestrator } from '$lib/workshop/services/WorkshopOrchestrator';
 	import { currentOrchestrator } from '$lib/workshop/stores';
@@ -48,7 +49,7 @@
 		castEntries = [
 			...castEntries,
 			{
-				id: `cast-${crypto.randomUUID().slice(0, 8)}`,
+				id: `cast-${uuid().slice(0, 8)}`,
 				role: `${newCastRole} (${newCastName})`,
 				// Display metadata only. The privacy allowlist ignores this
 				// unless a trusted caller marks the entry fictional.

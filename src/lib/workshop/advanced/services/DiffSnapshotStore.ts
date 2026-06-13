@@ -1,3 +1,4 @@
+import { uuid } from '$lib/util/uuid';
 // @graph-layer: private
 // @rationale: per-draft snapshot history — never leaves device
 
