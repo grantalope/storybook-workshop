@@ -4,7 +4,7 @@ import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 const BOOKS_DIR = 'static/pillar-library-v2/example-books';
-const THRESHOLD = Number(process.argv[2]) || 0.6;
+const ABS_FLOOR = Number(process.argv[2]) || 0.70; // severe absolute floor
 
 function cosine(a, b) {
   let dot = 0;
@@ -61,9 +61,14 @@ for (const D of entries) {
   }
 
   const cosines = perSpread.map(s => s.cosine);
-  const meanConsistency = round4(cosines.reduce((a, b) => a + b, 0) / cosines.length);
+  const meanRaw = cosines.reduce((a, b) => a + b, 0) / cosines.length;
+  const std = Math.sqrt(cosines.reduce((a, b) => a + (b - meanRaw) ** 2, 0) / cosines.length);
+  const meanConsistency = round4(meanRaw);
   const minConsistency = round4(Math.min(...cosines));
-  const flagged = perSpread.filter(s => s.cosine < THRESHOLD).map(s => s.spread);
+  const relFloor = meanRaw - std; // per-book outlier: a spread notably below its book's own norm
+  const flagged = perSpread
+    .filter(s => s.cosine < ABS_FLOOR || s.cosine < relFloor)
+    .map(s => ({ spread: s.spread, cosine: s.cosine, reason: s.cosine < ABS_FLOOR ? 'below-abs-floor' : 'below-book-mean-minus-1std' }));
 
   books.push({
     book: D,
@@ -80,7 +85,7 @@ const meanConsistencyAcrossBooks = books.length > 0
   : 0;
 
 const overall = {
-  threshold: THRESHOLD,
+  absFloor: ABS_FLOOR, flagRule: "cosine < ABS_FLOOR(0.70) OR < book-mean-1std",
   nBooks: books.length,
   meanConsistencyAcrossBooks,
   totalFlaggedSpreads: books.reduce((a, b) => a + b.flagged.length, 0),
