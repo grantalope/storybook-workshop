@@ -1,39 +1,54 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	let { children } = $props();
-	const onExamples = $derived($page.url.pathname.startsWith('/examples'));
+	const path = $derived($page.url.pathname);
+	const onExamples = $derived(path.startsWith('/examples'));
+	const onApproach = $derived(path.startsWith('/approach'));
 </script>
 
-{#if !onExamples}
-	<a class="examples-pill" href="/examples" aria-label="See example storybooks">📖 Examples</a>
-{/if}
+<nav class="corner-pills" aria-label="Quick links">
+	{#if !onExamples}
+		<a class="pill examples" href="/examples" aria-label="See example storybooks">📖 Examples</a>
+	{/if}
+	{#if !onApproach}
+		<a class="pill science" href="/approach" aria-label="The science behind it">🔬 The Science</a>
+	{/if}
+</nav>
 
 {@render children()}
 
 <style>
-	.examples-pill {
+	.corner-pills {
 		position: fixed;
 		top: 0.75rem;
 		right: 0.75rem;
 		z-index: 1000;
+		display: flex;
+		gap: 0.5rem;
+	}
+	.pill {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.35rem;
 		padding: 0.5rem 0.9rem;
 		border-radius: 999px;
-		background: #ff8a5b;
 		color: #fff;
 		font-weight: 700;
-		font-size: 0.95rem;
+		font-size: 0.9rem;
 		text-decoration: none;
 		box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
 		transition: transform 0.12s ease, box-shadow 0.12s ease;
 	}
-	.examples-pill:hover {
+	.pill.examples { background: #ff8a5b; }
+	.pill.science { background: #5b8def; }
+	.pill:hover {
 		transform: translateY(-1px);
 		box-shadow: 0 5px 14px rgba(0, 0, 0, 0.24);
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.examples-pill { transition: none; }
+		.pill { transition: none; }
+	}
+	@media (max-width: 480px) {
+		.pill { font-size: 0.78rem; padding: 0.4rem 0.7rem; }
 	}
 </style>

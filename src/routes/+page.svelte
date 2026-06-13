@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import HeroBanner from '$lib/components/HeroBanner.svelte';
 	import { getWorkshopDraftStore } from '$lib/workshop/services/WorkshopDraftStore';
 	import { getKidProfileStore } from '$lib/workshop/services/KidProfileStore';
 	import { WorkshopOrchestrator } from '$lib/workshop/services/WorkshopOrchestrator';
@@ -63,6 +64,8 @@
 <svelte:head>
 	<title>Storybook Workshop</title>
 </svelte:head>
+
+<HeroBanner />
 
 <main class="workshop">
 	{#if booting}

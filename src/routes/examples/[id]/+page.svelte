@@ -360,7 +360,10 @@
 						{#if currentBeat.pageTurnHook}
 							<div class="page-turn-hook" role="note">
 								<span class="hook-icon">?</span>
-								<p class="hook-text">Turn the page... {currentBeat.pageTurnHook}</p>
+								<div class="hook-body">
+									<span class="hook-label" title="A talk-about-it question — dialogic reading (Whitehurst). Research-backed: builds vocabulary + comprehension.">Dialogic prompt</span>
+									<p class="hook-text">Turn the page... {currentBeat.pageTurnHook}</p>
+								</div>
 							</div>
 						{/if}
 					</div>
@@ -832,4 +835,7 @@
 			font-size: 0.8rem;
 		}
 	}
+
+	.hook-body { display: flex; flex-direction: column; gap: 0.2rem; }
+	.hook-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #5b8def; cursor: help; }
 </style>
