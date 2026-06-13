@@ -1,0 +1,29 @@
+{
+  "title": "Pip's Rainy Day Adventure",
+  "beats": [
+    {
+      "beat": "setup",
+      "storyText": "Pip the hedgehog was playing outside, feeling happy and bright! \"What a lovely day!\" he said. But then, dark clouds came, and Pip wondered, would it rain?"
+    },
+    {
+      "beat": "catalyst",
+      "storyText": "The wind started to blow, and Pip heard a loud rumble, \"Thunder!\" he exclaimed. But Pip did not like the rain, not one little bit. \"Why does it have to rain?\" he asked."
+    },
+    {
+      "beat": "rising",
+      "storyText": "Pip's friend, a squirrel named Squeaky, said, \"Don't worry, Pip, we can play inside!\" But Pip did not like the rain, not one little bit. \"What can we do inside?\" Pip asked, feeling sad."
+    },
+    {
+      "beat": "midpoint",
+      "storyText": "Squeaky suggested, \"We can have a dance party!\" Pip thought for a moment, \"But what about the thunder?\" But Pip did not like the rain, not one little bit. \"Can we dance with umbrellas?\" Pip asked, giggling."
+    },
+    {
+      "beat": "climax",
+      "storyText": "Just then, a big drop of rain fell on Pip's nose, and he laughed, \"This is fun!\" Squeaky said, \"See, Pip, the rain is not so bad!\" And Pip loved the rain, every little bit! \"Wheee!\" Pip exclaimed, twirling his umbrella."
+    },
+    {
+      "beat": "resolution",
+      "storyText": "From that day on, whenever it rained, Pip would say, \"Let's have a dance party!\" And he and Squeaky would spin and twirl, laughing and singing, \"We love the rain, every little bit!\" \"Can we have a rain party tomorrow?\" Pip asked, smiling."
+    }
+  ]
+}

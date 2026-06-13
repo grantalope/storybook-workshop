@@ -1,3 +1,4 @@
+// @ts-nocheck — standalone LFD tooling script (CLI/eval), not part of the typed app surface
 import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
