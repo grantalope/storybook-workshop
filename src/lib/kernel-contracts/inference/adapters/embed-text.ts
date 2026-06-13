@@ -1,7 +1,7 @@
 // @graph-layer: infrastructure
 // @rationale: infrastructure (kernel — layer-agnostic primitive: supervisor/ports/WAL/effects)
 
-import type { EmbedRequest, EmbedImageRequest } from '$lib/llr';
+import type { EmbedRequest, EmbedImageRequest } from '$lib/stubs/llr';
 import type { WorkloadDescriptor, WorkloadRunContext } from '$lib/kernel-contracts/workloads';
 
 export interface EmbeddingSurfaceLike {
