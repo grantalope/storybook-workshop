@@ -185,5 +185,5 @@ function validateEmail(email: string): void {
 let _idCounter = 0;
 function defaultIdGen(): string {
 	_idCounter += 1;
-	return `${Date.now().toString(36)}_${_idCounter}_${Math.random().toString(36).slice(2, 8)}`;
+	return `${Date.now().toString(36)}_${_idCounter}_${secureRandomString(8, '0123456789abcdefghijklmnopqrstuvwxyz')}`;
 }
