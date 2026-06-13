@@ -49,6 +49,12 @@ export interface PdfBuildInput {
 	spineWidthIn: number;
 	styleCard?: PdfStyleCardContent;
 	blankPageCount?: number;
+	/** Target embed format for page rasters. Default 'jpeg'. */
+	pageImageFormat?: PageImageFormat;
+	/** JPEG quality in 0..1. Default 0.88. Ignored when pageImageFormat='png'. */
+	pageImageQuality?: number;
+	/** Injectable raster transcoder — defaults to the env-probing encodePageRaster. */
+	encodePageRaster?: PageRasterEncoder;
 }
 
 export interface PdfStyleCardContent {
