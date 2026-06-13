@@ -1,5 +1,5 @@
 {
-  "svelteCheckMaxErrors": 79,
+  "svelteCheckMaxErrors": 71,
   "allowFail": [
     {
       "gate": "G3-privacy",

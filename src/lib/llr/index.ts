@@ -94,3 +94,45 @@ export const embedding = {
 		throw new Error("Storybook standalone: $lib/llr.embedding.embedBatch is a stub.");
 	},
 };
+
+// --- Kernel-migration-helper re-export surface (standalone stubs) ---
+// $lib/kernel-contracts/helpers/llr-fallback re-exports these. The pachinko
+// upstream provides a real kernel runtime + engine status stores; the
+// standalone storybook repo boots no kernel, so runtime/status are inert
+// stubs. cosineSimilarity is real (pure math).
+
+/** No-op runtime stub — no kernel is booted in standalone storybook. */
+export const runtime = {
+	async boot(): Promise<void> {},
+	isReady(): boolean {
+		return false;
+	},
+};
+
+type LlrStatusStore = { subscribe: (run: (v: { phase: string }) => void) => () => void };
+function inertStatusStore(): LlrStatusStore {
+	return {
+		subscribe: (run) => {
+			run({ phase: 'idle' });
+			return () => {};
+		},
+	};
+}
+/** Inert engine-status stores (no WebLLM telemetry in standalone). */
+export const llmStatusStore: LlrStatusStore = inertStatusStore();
+export const embeddingStatusStore: LlrStatusStore = inertStatusStore();
+
+/** Pure cosine similarity over two numeric vectors. */
+export function cosineSimilarity(a: ArrayLike<number>, b: ArrayLike<number>): number {
+	let dot = 0;
+	let na = 0;
+	let nb = 0;
+	const n = Math.min(a.length, b.length);
+	for (let i = 0; i < n; i++) {
+		dot += a[i] * b[i];
+		na += a[i] * a[i];
+		nb += b[i] * b[i];
+	}
+	const denom = Math.sqrt(na) * Math.sqrt(nb);
+	return denom === 0 ? 0 : dot / denom;
+}
