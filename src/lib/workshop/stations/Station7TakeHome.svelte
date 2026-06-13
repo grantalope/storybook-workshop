@@ -35,8 +35,8 @@
 		| 'success'
 		| 'error';
 
-	let phase: Phase = 'choose';
-	let errorMsg = '';
+	let phase = $state<Phase>('choose');
+	let errorMsg = $state('');
 	let downloaded = $state(false);
 
 	const s6 = orchestrator.draft.outputs.s6;

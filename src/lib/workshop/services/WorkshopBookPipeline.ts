@@ -21,6 +21,7 @@
 //   5. Returns Output (pdfBlob + shortcode + hash + pageCount)
 
 import { assemble } from '$lib/services/assemble/BookAssembler';
+import { sha256Hex as sha256HexUtil } from '$lib/util/sha256';
 import type {
 	AnimationManifest,
 	AssembledBook,
@@ -126,11 +127,8 @@ function sanitizeStationSupportingCast(
 }
 
 async function blobHash(b: Blob): Promise<string> {
-	const ab = await b.arrayBuffer();
-	const digest = await crypto.subtle.digest('SHA-256', ab);
-	return Array.from(new Uint8Array(digest))
-		.map((x) => x.toString(16).padStart(2, '0'))
-		.join('');
+	// Universal hash — crypto.subtle is undefined on plain HTTP (non-secure).
+	return sha256HexUtil(await b.arrayBuffer());
 }
 
 export async function buildStoryInput(
