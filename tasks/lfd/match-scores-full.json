@@ -1,0 +1,330 @@
+{
+  "nQueries": 40,
+  "recall1": 0.5,
+  "recall3": 0.675,
+  "randomBaseline3": 0.02,
+  "perBook": [
+    {
+      "book": "p002",
+      "nQueries": 5,
+      "recall3": 0.8
+    },
+    {
+      "book": "p005",
+      "nQueries": 5,
+      "recall3": 1
+    },
+    {
+      "book": "p006",
+      "nQueries": 5,
+      "recall3": 1
+    },
+    {
+      "book": "p011",
+      "nQueries": 5,
+      "recall3": 0.2
+    },
+    {
+      "book": "p024",
+      "nQueries": 5,
+      "recall3": 1
+    },
+    {
+      "book": "p065",
+      "nQueries": 5,
+      "recall3": 0
+    },
+    {
+      "book": "p083",
+      "nQueries": 5,
+      "recall3": 1
+    },
+    {
+      "book": "p089",
+      "nQueries": 5,
+      "recall3": 0.4
+    }
+  ],
+  "queries": [
+    {
+      "book": "p002",
+      "query": "spread-climax.jpg",
+      "rank": 4,
+      "hit1": false,
+      "hit3": false
+    },
+    {
+      "book": "p002",
+      "query": "spread-midpoint.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p002",
+      "query": "spread-resolution.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p002",
+      "query": "spread-setup.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p002",
+      "query": "spread-trial.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p005",
+      "query": "spread-climax.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p005",
+      "query": "spread-midpoint.jpg",
+      "rank": 2,
+      "hit1": false,
+      "hit3": true
+    },
+    {
+      "book": "p005",
+      "query": "spread-resolution.jpg",
+      "rank": 3,
+      "hit1": false,
+      "hit3": true
+    },
+    {
+      "book": "p005",
+      "query": "spread-setup.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p005",
+      "query": "spread-trial.jpg",
+      "rank": 2,
+      "hit1": false,
+      "hit3": true
+    },
+    {
+      "book": "p006",
+      "query": "spread-climax.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p006",
+      "query": "spread-midpoint.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p006",
+      "query": "spread-resolution.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p006",
+      "query": "spread-setup.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p006",
+      "query": "spread-trial.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p011",
+      "query": "spread-climax.jpg",
+      "rank": 11,
+      "hit1": false,
+      "hit3": false
+    },
+    {
+      "book": "p011",
+      "query": "spread-midpoint.jpg",
+      "rank": 8,
+      "hit1": false,
+      "hit3": false
+    },
+    {
+      "book": "p011",
+      "query": "spread-resolution.jpg",
+      "rank": 4,
+      "hit1": false,
+      "hit3": false
+    },
+    {
+      "book": "p011",
+      "query": "spread-setup.jpg",
+      "rank": 7,
+      "hit1": false,
+      "hit3": false
+    },
+    {
+      "book": "p011",
+      "query": "spread-trial.jpg",
+      "rank": 2,
+      "hit1": false,
+      "hit3": true
+    },
+    {
+      "book": "p024",
+      "query": "spread-climax.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p024",
+      "query": "spread-midpoint.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p024",
+      "query": "spread-resolution.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p024",
+      "query": "spread-setup.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p024",
+      "query": "spread-trial.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p065",
+      "query": "spread-climax.jpg",
+      "rank": 20,
+      "hit1": false,
+      "hit3": false
+    },
+    {
+      "book": "p065",
+      "query": "spread-midpoint.jpg",
+      "rank": 4,
+      "hit1": false,
+      "hit3": false
+    },
+    {
+      "book": "p065",
+      "query": "spread-resolution.jpg",
+      "rank": 18,
+      "hit1": false,
+      "hit3": false
+    },
+    {
+      "book": "p065",
+      "query": "spread-setup.jpg",
+      "rank": 6,
+      "hit1": false,
+      "hit3": false
+    },
+    {
+      "book": "p065",
+      "query": "spread-trial.jpg",
+      "rank": 31,
+      "hit1": false,
+      "hit3": false
+    },
+    {
+      "book": "p083",
+      "query": "spread-climax.jpg",
+      "rank": 3,
+      "hit1": false,
+      "hit3": true
+    },
+    {
+      "book": "p083",
+      "query": "spread-midpoint.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p083",
+      "query": "spread-resolution.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p083",
+      "query": "spread-setup.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p083",
+      "query": "spread-trial.jpg",
+      "rank": 1,
+      "hit1": true,
+      "hit3": true
+    },
+    {
+      "book": "p089",
+      "query": "spread-climax.jpg",
+      "rank": 11,
+      "hit1": false,
+      "hit3": false
+    },
+    {
+      "book": "p089",
+      "query": "spread-midpoint.jpg",
+      "rank": 3,
+      "hit1": false,
+      "hit3": true
+    },
+    {
+      "book": "p089",
+      "query": "spread-resolution.jpg",
+      "rank": 22,
+      "hit1": false,
+      "hit3": false
+    },
+    {
+      "book": "p089",
+      "query": "spread-setup.jpg",
+      "rank": 3,
+      "hit1": false,
+      "hit3": true
+    },
+    {
+      "book": "p089",
+      "query": "spread-trial.jpg",
+      "rank": 19,
+      "hit1": false,
+      "hit3": false
+    }
+  ]
+}
