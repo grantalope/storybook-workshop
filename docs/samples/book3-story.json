@@ -1,0 +1,349 @@
+{
+  "title": "Why Do Stars Blink?",
+  "back_cover_blurb": "One summer evening, Wren notices the stars are blinking — and she has to know why. With Professor Hoot tucked in her pocket, she climbs the hill to find out. Along the way she discovers something even better than an answer: a secret she can share.",
+  "page_budget": 24,
+  "beats": [
+    {
+      "id": 1,
+      "beat_name": "setup",
+      "emotional_arc": "Wonder awakening — from earthly comfort to cosmic curiosity",
+      "scenes": [
+        {
+          "sceneId": "b1s1",
+          "spreadCount": 1,
+          "sceneBrief": "Wren in the meadow at dusk, sensory immersion",
+          "spreads": [
+            {
+              "spreadIndex": 0,
+              "spread_text": "Grass tickled Wren's knees.\nWarm. Wiggly. Green.\nThe meadow stretched wide, all buttercup and breeze.\nThen—\n\nblink.\n\nA tiny light, rising.\nNot a star.\nNot yet.\n\n\"Firefly!\" whispered Wren, and her hands became cups, trying to catch the glow.\nThe air smelled like clover and cooling and soon.",
+              "text_focus": "left",
+              "illustration_brief": "Wide horizontal spread showing Wren kneeling in tall meadow grass at golden hour, hands cupped around a single glowing firefly. Soft impressionist style with dappled light, buttercups, long shadows. Her cardigan pocket visible with tiny owl shape barely visible inside."
+            }
+          ]
+        },
+        {
+          "sceneId": "b1s2",
+          "spreadCount": 1,
+          "sceneBrief": "Professor Hoot emerges, first star appears, they notice it together",
+          "spreads": [
+            {
+              "spreadIndex": 1,
+              "spread_text": "Something stirred in her pocket.\nA feathered bump.\nA yawn.\n\nProfessor Hoot peeked out, all tufted ears and blinking gold eyes.\n\"Evening, Wren,\" he hooted, soft as moth wings.\n\nThey sat very still.\nThe sky deepened to blueberry, to plum, to almost-black.\n\nThen—\n\nthere.\n\nOne sharp point of silver, piercing through.\nWren's breath caught in her throat like a bubble.\n\"It moved,\" she said. \"Did you see?\"\n\nProfessor Hoot ruffled his feathers. \"Saw what, exactly?\"",
+              "text_focus": "left",
+              "illustration_brief": "Close-up of Professor Hoot emerging from cardigan pocket, Wren's finger gently touching his head. Above them, the sky transitions from sunset colors to deep blue with one brilliant star. Soft luminous glow around the star, impressionist brushwork in the meadow background fading to night."
+            }
+          ]
+        },
+        {
+          "sceneId": "b1s3",
+          "spreadCount": 1,
+          "sceneBrief": "Star blinks, central wonder-question established, hook to next beat",
+          "spreads": [
+            {
+              "spreadIndex": 2,
+              "spread_text": "One blink, two blink, the whole sky winks.\n\nThe star pulsed.\nDim.\nBright.\nDim again.\nLike someone far away, opening and closing one sleepy eye.\n\nWren's mouth made a small round O.\nHer shoulders lifted toward her ears, all excitement and can't-sit-still.\n\"Why do stars blink?\" she asked the meadow, the fireflies, the deepening dark.\n\nProfessor Hoot clicked his beak, thinking-thinking.\n\"That,\" he said, \"is a question worth climbing for.\"\n\nBut climb where?\nAnd would the stars blink louder, closer, if they could only get near enough to see?",
+              "text_focus": "left",
+              "illustration_brief": "Wren standing now, looking up with face illuminated by starlight, mouth open in wonder. Professor Hoot perched on her shoulder, also gazing upward. Fireflies scattered like fallen stars in the meadow grass. Distant hill silhouette visible in background, suggesting where they might climb. Star overhead pulses with visible light rings, impressionist style."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "beat_name": "catalyst",
+      "emotional_arc": "Wonder deepens into purposeful quest",
+      "scenes": [
+        {
+          "sceneId": "b2s1",
+          "spreadCount": 2,
+          "sceneBrief": "More stars appear and blink, Hoot offers a silly theory, Wren's curiosity sharpens into determination",
+          "spreads": [
+            {
+              "spreadIndex": 3,
+              "spread_text": "Then three! Then seven! Then more!\n\nOne blink, two blink, the whole sky winks.\n\n\"They must have colds,\" Hoot whisper-hooted, his feathers all puffed with worry. \"Stars sneeze, you know. Very loud. Very sparkly.\"\n\nWren pressed her thumb to her chin. The grass smelled of warm sugar and cricket songs.\n\n\"But WHY do they sneeze?\"\n\nShe turned to the hill. The highest hill. The one that scraped the bottom of the moon.\n\n\"We have to know for real.\"",
+              "text_focus": "left",
+              "illustration_brief": "Wren stands with hand on chin, looking skeptical and determined; Hoot puffed up comically in her pocket; multiple stars blinking above, meadow glowing with soft firefly light, distant hill rising against luminous navy sky, warm sugar-hued grass in foreground"
+            },
+            {
+              "spreadIndex": 4,
+              "spread_text": "Up they went.\n\nThe hill was steeper than pudding is deep, taller than Tuesday, twistier than a question mark. Wren's knees bumped. Her breath huffed. Hoot gripped her pocket with tiny talon-tight fingers.\n\nOne blink, two blink, the whole sky winks.\n\nHigher and higher, past the sleeping rabbit, past the last cricket song, past where the warm sugar smell turned to cool stone smell and wind that tasted of pennies.\n\nWren's finger shot straight up.\n\n\"What will we see from the very top?\"",
+              "text_focus": "left",
+              "illustration_brief": "Wren climbing steep hill, body angled upward with effort, knees and elbows in dynamic motion; Hoot peeking from pocket with wide eyes; sky now dominates upper half with dense blinking stars; sleeping rabbit, fading cricket, cool grey stone path, wind-whipped grass; her pointing finger leads eye to star-filled summit"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "beat_name": "debate",
+      "emotional_arc": "Rising playful tension — wrong theories stack up, night deepens, wonder builds toward unknown summit",
+      "scenes": [
+        {
+          "sceneId": "b3s1",
+          "spreadCount": 1,
+          "sceneBrief": "Wren and Hoot begin climbing, first theory: stars blink to count sheep in the sky",
+          "spreads": [
+            {
+              "spreadIndex": 5,
+              "spread_text": "Up they climbed.\n\nThe meadow curled small behind them, a green thumbprint swallowed by purple hills.\n\n\"Here's my thinking,\" Hoot puffed, his tiny talons gripping Wren's pocket edge. \"Stars blink to count sheep. Sky-sheep. Fluffy. Invisible. Obviously.\"\n\nWren's nose found the cool baked into the grass now, summer's warmth lifting like a blanket someone had folded away. She tilted her head so far back her braid swung like a pendulum.\n\n\"Sheep don't fly,\" she said.\n\n\"These do,\" said Hoot. \"They jump over moons instead of fences. One blink, two blink, the whole sky winks.\"\n\nWren's boots crunched gravel now, not grass. Higher. Always higher. She stuffed her free hand deep in her pocket and found a single buttercup, wilted warm.\n\nWhat would sheep need counting for?",
+              "text_focus": "left",
+              "illustration_brief": "Wren climbing steepening hill, one hand on pocket, head craned back at sky; Hoot poking from pocket gesturing with wing; meadow below shrinking into soft green blur; deep blue gradient sky with three distinct stars beginning to brighten; buttercup visible in her fingers; cool color temperature rising, warm meadow receding"
+            }
+          ]
+        },
+        {
+          "sceneId": "b3s2",
+          "spreadCount": 1,
+          "sceneBrief": "Second theory halfway up: stars wink hello to lonely travelers",
+          "spreads": [
+            {
+              "spreadIndex": 6,
+              "spread_text": "The wind turned buttery-soft to something sharper, something that nipped Wren's elbows through her cardigan. She buttoned the top button, right under her chin.\n\n\"Better theory,\" Hoot announced, ruffling against her heartbeat. \"Stars wink hello. To lonely travelers. To us. Specifically us.\"\n\nWren's mouth twitched at one corner. She watched one star, then another, the pause between their blinks like a held breath.\n\n\"Hello back,\" she whispered.\n\nHer legs pushed harder now. The hill had stopped being gentle. Stones pressed through her thin-soled sneakers, each step a small surprise of round and edge. She did not slow. Above, the sky had unrolled its darkest velvet, and the stars sat deeper in it, brighter, closer, blinking blinking blinking.\n\nOne blink, two blink, the whole sky winks.\n\n\"But why wink?\" Wren asked the air, and her breath came back to her, small and white and wondering.\n\nWhy wink and not speak straight out?",
+              "text_focus": "left",
+              "illustration_brief": "Wren mid-climb on steeper slope, one sneaker pressing a stone, cardigan buttoned to chin; Hoot fully emerged from pocket, wing raised in greeting toward sky; her breath visible as tiny white puff; stars dramatically brighter and more numerous, seeming closer; meadow now distant dreamy patch; color temperature cool and luminous, deep indigo sky"
+            }
+          ]
+        },
+        {
+          "sceneId": "b3s3",
+          "spreadCount": 1,
+          "sceneBrief": "Third theory near summit: stars send secret messages, the most plausible yet; end with uncertainty before top",
+          "spreads": [
+            {
+              "spreadIndex": 7,
+              "spread_text": "Near the top—so near her thighs hummed with the climb—Wren found a shelf of rock and stood. Below, the meadow had become a memory of green, a felt square someone had pressed into a quilt of darker hills. The air here smelled of nothing she could name, clean and old and star-bitten.\n\nHoot's beak tapped her collarbone, thinking-taps. \"Secret messages,\" he said, softer now. \"That's it. Stars blink in code. Dot-dot-dash-dash. Very important. Top secret. For star-eyes only.\"\n\nWren's neck ached from looking up. Her fingers found the rock's rough face, traced its cold fissures. The blinks above seemed patterned now, almost, almost, almost making sense—one long, two short, one long again.\n\nShe held her breath.\nShe let it go.\n\nOne blink, two blink, the whole sky winks.\n\n\"But what—\" she started, and her voice cracked small against the vast, and her knees pressed into the rock, and the summit waited just there, just beyond, still unseen.\n\nWhat could be so secret that stars must whisper it in light?",
+              "text_focus": "left",
+              "illustration_brief": "Wren paused on rocky outcrop near hilltop, one hand pressed to stone face, knees bent; Hoot pressed against her collarbone, whispering; her face turned up in awe and frustrated concentration, eyes reflecting starlight; meadow impossibly distant and dreamlike; sky vast and dominant, stars seeming to form almost-patterns; rock texture detailed and cold; she has not yet reached the top, summit glow suggested above frame; impressionist luminosity, deep wonder, unresolved tension"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "beat_name": "midpoint",
+      "emotional_arc": "Revelation and wonder — from anticipation to the magical discovery of why stars blink, building to active experimentation",
+      "scenes": [
+        {
+          "sceneId": "b4s1",
+          "spreadCount": 2,
+          "sceneBrief": "Reaching the hilltop and seeing the vast sky full of blinking stars",
+          "spreads": [
+            {
+              "spreadIndex": 8,
+              "spread_text": "Up, up, up!\nTheir legs burned like cinnamon, like summer sun on hot pavement.\nThen—\nno more hill.\nJust sky.\n\nWren's mouth made a little O.\nStars. Hundreds. Thousands. More than all the dandelion seeds she had ever blown, more than all the grains in her sandal after beach days, more than counting.\nAnd every single one—blink, blink, blinking.\n\n\"One blink, two blink, the whole sky winks,\" Professor Hoot whispered in her ear, his tiny talons gripping her collar.\n\nThe air smelled of dry grass and something else, something electric and old.\nWren's toes curled inside her sneakers.\n\nHow could the universe be this big and still fit inside her eyes?",
+              "text_focus": "left",
+              "illustration_brief": "Wren and Hoot framed against the vast bowl of night sky, the meadow falling away behind them. Stars everywhere, soft and luminous, some brighter, some barely there. Wren's shadow stretches long. The hilltop grass is silvered with moonlight. Her hands are at her sides, fingers slightly spread, overwhelmed."
+            },
+            {
+              "spreadIndex": 9,
+              "spread_text": "\"Read to me,\" Wren said, and her voice came out like a breath she had been holding since last Tuesday.\n\nProfessor Hoot pulled out his acorn-cap notebook, flipping tiny pages with his beak. His spectacles slid down his little owl nose.\n\n\"Ahem!\" He puffed his chest. \"Light travels SO far, it shimmers through the air.\"\n\nHe turned the page. His feather eyebrows wiggled.\n\"The starlight starts. The starlight beams. But air is bumpy, or so it seems.\"\n\nWren held her breath.\nHer chest went still as a held dandelion.\nThe wind hummed through the grass, warm and buttery against her cheeks.\n\n\"So the star doesn't blink at all?\" she asked.\n\nProfessor Hoot's eyes glowed amber coins. \"The STAR doesn't blink. The AIR does the work. Starlight slips on sky-stones, like toes on wet rock in a creek.\"",
+              "text_focus": "left",
+              "illustration_brief": "Close-up of Hoot's tiny notebook, illuminated by starlight, his spectacles catching light. Wren's face in profile, mouth slightly open, eyes enormous and reflecting stars. The warm wind lifts one strand of her hair. The acorn-cap notebook has tiny drawings of stars and wavy air-lines."
+            }
+          ]
+        },
+        {
+          "sceneId": "b4s2",
+          "spreadCount": 2,
+          "sceneBrief": "Wren cups her hands around a star and feels the wind make it blink faster, leading to her realization and desire to test",
+          "spreads": [
+            {
+              "spreadIndex": 10,
+              "spread_text": "Wren reached up.\nUp, up, past where her arms should end, past where arms ever ended before.\n\nShe cupped her hands around one small star, gentle as protecting a firefly, gentle as holding a grandmother's teacup.\n\nThe star sat in her palms.\nIt did not burn.\nIt hummed, low and sweet, like a refrigerator at night, like a cat's purr from three rooms away.\n\n\"One blink, two blink, the whole sky winks,\" she whispered to herself, and the star winked back, slow and steady.\n\nThen—\n\nA wind stirred.\nNot much. Just a nudge, a push, a sky-hello.\nThe grass bent. Her cardigan flapped. Hoot gripped tighter.\n\nAnd the star in her hands?\nIt blinked faster.\nBlinkblinkblink.\n\nWren's eyes went wide as moons.\nHer hands trembled, not from cold—the air was warm as oven bread—but from something opening inside her, some door with rusty hinges finally oiled.",
+              "text_focus": "left",
+              "illustration_brief": "Wren's hands cupped around a soft luminous point of starlight, her face illuminated from below by its gentle glow. Wind lifts her hair, bends the hilltop grass in waves. Hoot peeks from her pocket, one wing shading his eyes. The sky around them is deep blue-violet, impressionist swirls. Her expression: astonished, tender, fierce with discovery."
+            },
+            {
+              "spreadIndex": 11,
+              "spread_text": "\"It's the air,\" Wren breathed, and her voice floated up to join the stars. \"It's the air, dancing, that makes stars blink.\"\n\nShe moved her hands left.\nThe star followed, still blinking.\nShe moved them right, fast like shooing chickens.\nThe star blurred, blinked wild, settled when she held still.\n\nProfessor Hoot clapped his tiny wings. \"Empirical observation!\" he cheered. \"The young scientist at work!\"\n\nBut Wren was already somewhere else, somewhere new, somewhere with test tubes made of moonbeams and hypotheses thick as honey.\nShe looked at her empty palms, then at the sky, then at her palms again.\n\nHer knees bounced.\nHer chin lifted.\n\nWhat if she held TWO stars?\nWhat if she ran—fast, faster, fastest—and made a whole constellation stutter and dance?\n\n\"Hoot,\" she said, and her voice had that edge, that sound, that mothers know means grab the camera and the bandaids both.\n\n\"I need to test this.\"",
+              "text_focus": "left",
+              "illustration_brief": "Wren's face half-lit by starlight, eyes narrow with scientific determination, one hand still raised where the star was. The other hand is already reaching upward. Her knee bends, ready to spring into action. Hoot looks up at her from her pocket with admiration and mild alarm. The hilltop spreads wide behind her, more stars waiting. Her shadow seems to lean forward, eager, about to run."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "beat_name": "trial",
+      "emotional_arc": "Hopeful experimentation, momentary disappointment, then slow-building wonder as Wren discovers an unexpected clue about the wind and the blinking stars.",
+      "scenes": [
+        {
+          "sceneId": "b5s1",
+          "spreadCount": 1,
+          "sceneBrief": "Wren breathes on her hand and sees shimmer; Hoot's feathers ruffle and shimmer too",
+          "spreads": [
+            {
+              "spreadIndex": 12,
+              "spread_text": "\"Professor Hoot, watch this!\" Wren held up her palm like a tiny stage. She blew one slow breath—warm and ticklish—and the moonlit skin shivered, rippled, danced. The shimmer rose and vanished like a secret.\n\nHoot puffed out his own chest. His feather tips caught silver, trembled, blurred into soft halos of light.\n\n\"One blink, two blink, the whole sky winks.\"\n\nWren's eyes went wide as two full moons. \"We found it!\" she whispered, breath still warm on her lip. \"The answer—it's breath!\"\n\nShe spun toward the billion blinking stars and blew with all her might, cheeks ballooning, heart drumming.",
+              "text_focus": "left",
+              "illustration_brief": "Close-up of Wren's open palm catching moonlight, visible heat shimmer rising. Hoot beside her with ruffled feathers creating soft halos. Her cheeks puffed, blowing toward vast starfield. Meadow grass in foreground, night sky dominant. Impressionist style with luminous skin tones and silver feather edges."
+            }
+          ]
+        },
+        {
+          "sceneId": "b5s2",
+          "spreadCount": 1,
+          "sceneBrief": "Wren blows at stars, nothing changes, disappointment sets in",
+          "spreads": [
+            {
+              "spreadIndex": 13,
+              "spread_text": "The stars kept blinking.\n\nJust blinking.\n\nHer breath floated up, thin and lonely, until it was nothing at all. Not one star slowed. Not one star stayed. The sky winked on and on, indifferent, ancient, far.\n\nWren's shoulders curled forward. Her arms dropped heavy as wet laundry. The warm air from her lungs still lingered at her mouth, tasting of mint and failure.\n\n\"Too far,\" Hoot whispered, settling deeper into her pocket. \"We are small, and they are—\"\n\n\"—too far,\" Wren finished. She sat down hard in the cool grass, knees pulled to chest, and watched her useless breath dissolve into stars that would never, could never, know she breathed at all.\n\nBut why did the blinking speed up and slow down, if not from her breathing?",
+              "text_focus": "left",
+              "illustration_brief": "Wren sitting small on hilltop, knees hugged, looking diminished against overwhelming starfield. Visible breath trail rising and dissipating. Hoot's small face peeking from pocket, sympathetic. Cool blue tones, dew on grass catching light. Impressionist brushwork emphasizing distance and scale."
+            }
+          ]
+        },
+        {
+          "sceneId": "b5s3",
+          "spreadCount": 1,
+          "sceneBrief": "Wren notices wind has stopped; the blinking has slowed",
+          "spreads": [
+            {
+              "spreadIndex": 14,
+              "spread_text": "Then—stillness.\n\nThe meadow held its breath. Grass blades stood straight as soldiers. No rustle, no sway, no shiver in the clover.\n\nWren's chin lifted. She counted. One second. Two. Three.\n\nThe stars blinked slower.\n\nSofter. Lazier, like a cat stretching in noon sun.\n\n\"Hoot,\" she breathed, barely moving her lips. \"Do you see?\"\n\nThe owl's talons gripped her pocket edge, eyes reflecting starlight that now arrived in gentle, unhurried waves. The air sat thick and honey-sweet around them, warm as bread from the oven.\n\n\"One blink, two blink, the whole sky winks.\"\n\nBut so slowly now. So peacefully.\n\nWren did not move. She only breathed, small and careful, afraid that any sudden motion might stir what the stillness had settled.",
+              "text_focus": "left",
+              "illustration_brief": "Wren frozen in observation, chin lifted, eyes half-closed in concentration. Hoot gripping pocket edge, mirrored pose. Stilled meadow with upright grass blades, everything suspended. Stars showing visible slower pulsing rhythm. Warm honey-gold light pooling around figures. Impressionist treatment of thick, luminous air."
+            }
+          ]
+        },
+        {
+          "sceneId": "b5s4",
+          "spreadCount": 1,
+          "sceneBrief": "Wren stands, understanding dawning; she has found a clue about wind, not the full answer yet",
+          "spreads": [
+            {
+              "spreadIndex": 15,
+              "spread_text": "A breeze pricked her left ear.\n\nInstantly, the stars flickered faster—wink-wink-wink—like they shared a joke she was only now learning to hear.\n\nWren stood so fast that Hoot tumbled against her ribs. \"It's not breath,\" she said, and her voice rang clear as the creek back home. \"It's the moving! The air moving, the light moving, us breathing—it's all the same wiggling!\"\n\nShe spread her arms wide, cardigan billowing, and spun once in the new breeze. The meadow swayed with her. The stars blinked their endless code.\n\nBut what made the air move in the first place? What pulled the wind across the dark?\n\n\"One blink, two blink, the whole sky winks.\"\n\nShe cupped her hands around her mouth, ready to shout her half-answer to the universe, when—\n\nWhat was that sound from the valley below?",
+              "text_focus": "left",
+              "illustration_brief": "Wren mid-spin with arms outstretched, cardigan and hair flying, Hoot braced in pocket. Meadow grass bending in fresh breeze. Stars above showing faster twinkling rhythm. Her face illuminated with dawning understanding. Distant darker valley below with ambiguous suggestion of sound source. Dynamic impressionist brushwork, luminous night blues and warm skin tones."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "beat_name": "climax",
+      "emotional_arc": "Wonder fulfilled through reciprocal connection between Wren and the cosmos",
+      "scenes": [
+        {
+          "sceneId": "b6s1",
+          "spreadCount": 2,
+          "sceneBrief": "Wind dies, stars slow their blinking, tension builds in the stillness",
+          "spreads": [
+            {
+              "spreadIndex": 16,
+              "spread_text": "Then—nothing.\n\nThe wind holds its breath. Grass stands straight as pencils. Even the crickets pause their scraping song.\n\nWren holds her own breath too. Up above, the stars go still. One by one, their winking slows... slows... stops.\n\nA nearly-blinking sky. A held-breath world.\n\n\"Hoot,\" she whispers, \"where did the winks go?\"",
+              "text_focus": "left",
+              "illustration_brief": "Wide meadow suddenly frozen in stillness, grass blades upright, Wren's hair settling against her cheeks, stars above reduced to steady pinpricks of light, no motion anywhere, Professor Hoot's eyes wide and round in her pocket"
+            },
+            {
+              "spreadIndex": 17,
+              "spread_text": "Wren tilts her chin to the brightest star—the one that first called her name across the dark.\n\nShe blinks.\n\nSlowly. Deliberately. A hello and a thank-you and a please-all-mixed-together blink.\n\nThe air smells of warmed clover and something else—something like held magic, like the moment before a door swings open.\n\nNothing happens.\n\nThen—",
+              "text_focus": "left",
+              "illustration_brief": "Close-up of Wren's face upturned, eyelashes descending in a slow deliberate blink, the brightest star directly above her gaze, clover field silvered with dew, her hands slightly lifted as if in offering"
+            }
+          ]
+        },
+        {
+          "sceneId": "b6s2",
+          "spreadCount": 2,
+          "sceneBrief": "The star blinks back, Wren laughs and raises arms, Hoot tumbles onto her shoulder, sky feels close",
+          "spreads": [
+            {
+              "spreadIndex": 18,
+              "spread_text": "—the star blinks.\n\nRight then! Right there! A silver shiver of light exactly when her own eyes opened, as if the sky had been waiting all along for her to make the first move.\n\nOne blink, two blink—oh, Wren winks back!\n\nHer laugh bursts out, bright and surprised, and her arms shoot straight up like she's trying to hug the whole turning world.\n\n\"HOOT! IT SAW ME!\"",
+              "text_focus": "left",
+              "illustration_brief": "Radiant moment of connection: star's light ray seeming to reach toward Wren, her arms flung upward in joy, mouth open in delighted laughter, moonlit meadow responding with subtle glow, the sky appearing to lean closer"
+            },
+            {
+              "spreadIndex": 19,
+              "spread_text": "Something small and warm tumbles from her pocket.\n\nProfessor Hoot! He rolls down her cardigan, flapping, feathers fluffing every direction, and lands plop on her shoulder with his tiny talons gripping tight.\n\nHis hoot comes out as a squeak.\n\nWren doesn't lower her arms. The sky presses close—close enough to breathe star-cold air against her laughing cheeks, close enough that she could almost, almost touch the velvet dark.\n\nShe doesn't need to.\n\nShe already did.",
+              "text_focus": "left",
+              "illustration_brief": "Full spread of emotional peak: Hoot mid-tumble with comically ruffled feathers, now perched on Wren's shoulder both looking upward together, the hilltop making them seem at the very edge of sky's embrace, stars layered so thick they look touchable, soft luminescence bathing everything in wonder-tinged blues and silvers"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "beat_name": "resolution",
+      "emotional_arc": "Wonder settles into quiet knowing. The mystery embraced becomes a gentle secret shared with the world. Wren returns transformed, carrying the sky in her pocket. The vast cosmos shrinks to the size of a wink, personal and warm. Ends in soft invitation, the child reader now part of the secret.",
+      "scenes": [
+        {
+          "sceneId": "b7s1",
+          "spreadCount": 1,
+          "sceneBrief": "Walking home through the meadow, Wren speaks to fireflies, sharing her new knowledge",
+          "spreads": [
+            {
+              "spreadIndex": 20,
+              "spread_text": "\"I know your secret,\" Wren whispered to a firefly pulsing in the dark. It flickered once, twice, then sailed away over bluestem grass that smelled like warm vanilla and summer rain. Another flashed. Another. Wren walked slow as honey through the meadow, telling each one—stars blink because air dances between us and them, little lamps, nothing to be afraid of. Professor Hoot peeked from her pocket, his golden eyes half-closed, his tiny talons gripping the cardigan's worn edge like he was sailing a ship made of wool. The dew had started. Her sneakers grew wet. The moon rose pale as a pearl above the oak trees, and somewhere a cricket rubbed its wings into a single long note that hung and hung and hung in the blue-black air. What would the beetles think? What would the moths?",
+              "text_focus": "left",
+              "illustration_brief": "Wren walking through tall meadow grass at twilight's edge, fireflies scattered like floating lanterns around her, her hand lifted toward one glowing insect. Professor Hoot visible in her pocket, half-asleep, content. The moon just clearing the oak line. Dew catching light. Cricket in foreground on blade of grass. Impressionist style: soft edges, luminous points of light against deepening blue-violet, warm golden firefly glow against cool evening tones. Her wet sneakers catching moonlight."
+            }
+          ]
+        },
+        {
+          "sceneId": "b7s2",
+          "spreadCount": 1,
+          "sceneBrief": "Wren explains to beetles and moths, connecting her discovery to the small world around her",
+          "spreads": [
+            {
+              "spreadIndex": 21,
+              "spread_text": "A click beetle stopped on a milkweed leaf. A luna moth fluttered down like a piece of green sky torn loose. Wren crouched low, her knees pressing soft earth that held the day's heat still. \"Air dances,\" she told them, and her hands moved like she was conducting music only stars could hear. \"Hot and cold, up and down, wiggle-waggle, and the light goes blink, blink, blink.\" The moth fanned its tails. The beetle tilted its small black head. Professor Hoot puffed his chest feathers, proud as a clock, and a breeze came through then—pine and clover, warm as breath—and it lifted Wren's hair off her neck like someone had combed it with gentle fingers. She stood. The hill waited behind her, dark and friendly now, no longer a climb but a memory she wore like her cardigan, close and warm. Would she always remember this night? Would the stars remember her?",
+              "text_focus": "left",
+              "illustration_brief": "Wren crouched at eye level with small creatures, her hands moving in demonstration, luna moth hovering near her face with translucent green wings, click beetle on milkweed leaf. Professor Hoot puffed in pocket. Close perspective, intimate scale. Warm earth tones, soft moonlight casting no hard shadows. Her cardigan sleeve falling back to show her wrist. The dark hill behind her shoulder, rendered soft and friendly. Impressionist dappled light, pointillist stars beginning above."
+            }
+          ]
+        },
+        {
+          "sceneId": "b7s3",
+          "spreadCount": 1,
+          "sceneBrief": "Wren lies in the grass looking up, one star blinks, she winks back",
+          "spreads": [
+            {
+              "spreadIndex": 22,
+              "spread_text": "She lay back in grass that scratched her elbows just enough to know she was real, real, real. The sky opened above her like a story without pages, without end. Professor Hoot nestled deep in her pocket, a warm lump against her ribs, his breathing slowing to the rhythm of a tiny tide going out, going out. One star blinked. Wren's eyelid lifted, dropped, slow and deliberate as a door closing on a room full of light. The star pulsed again. She smiled with only the right side of her mouth, a private smile, a secret keeper's smile, and the grass smelled sharper now, greener, like the earth had held its breath all day and finally sighed. One blink, two blink, the whole sky winks. She said it soft. She said it softer. The words dissolved on her tongue like the last sweet of a peppermint, and she let them go, let them rise, let them become part of the dark above her, part of the breathing world. What happened next? Nothing and everything. The waiting. The wonderful.",
+              "text_focus": "left",
+              "illustration_brief": "Wren lying in grass from high angle, her face serene, one eye visible in winking closure, the other looking upward. Professor Hoot a visible lump in her pocket, sleeping. Star directly above her, drawn with a visible pulse or halo. Grass blades framing her face like a nest. Deep blue-black sky, stars soft as thumbprints. Impressionist treatment: her cardigan spread around her, one hand resting on her chest, fingers slightly curled. The intimacy of scale, sky vast but friendly, not frightening."
+            }
+          ]
+        },
+        {
+          "sceneId": "b7s4",
+          "spreadCount": 1,
+          "sceneBrief": "Quiet closing invitation to the child reader, original refrain returns as lullaby echo",
+          "spreads": [
+            {
+              "spreadIndex": 23,
+              "spread_text": "Somewhere a door opened in a house with a kitchen light. Somewhere a cat yawned on a porch step still warm from sun. Wren didn't move. The grass cradled her. The sky held her with no arms at all, held her like a bowl holds water, like a pocket holds an owl, like a question holds its answer close until the asking is done. She breathed in four, out four, in four, out four, matching the world's oldest tempo. Then, so quiet even the crickets leaned in to hear—one blink, two blink, the whole sky winks. An echo. A lullaby. A secret passed from star to child to star again, older than owls, younger than tomorrow. Try it, if you want. Lie down where the dark is soft and the grass remembers your name. Find the freckle of light that seems to look just at you. Lift your face. Wait. One blink, two blink—oh, wink back.",
+              "text_focus": "left",
+              "illustration_brief": "Final spread: wide view of meadow at full night, Wren small in the grass, house with kitchen light distant, cat on porch step. The sky dominant, stars numerous but soft, one star slightly brighter directly above her. The impressionist garden complete: no hard lines, everything breathing, everything connected. Her cardigan a pale shape in the dark grass. Professor Hoot visible only as a suggestion in her pocket. The moon high and thin. Endpapers could extend this scene. The feeling of a held breath, of invitation, of the story becoming the reader's own. Final line as text floating in sky space, or nestled in grass, part of the image itself."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tier2_words": [
+    "shimmer",
+    "luminous",
+    "atmosphere",
+    "scatter",
+    "stillness",
+    "drift",
+    "refraction"
+  ],
+  "meta": {
+    "generated_at_iso": "2026-06-12T00:00:00Z",
+    "template_fallback": false,
+    "per_beat": true,
+    "quality_score": null,
+    "grammarGate": null
+  }
+}
