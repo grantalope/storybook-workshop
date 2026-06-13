@@ -29,9 +29,15 @@
 
 ## Running gates
 
+**Node >=20 required.** The gate runner auto-detects the version and re-execs under
+`nvm exec 22 node` when running on Node <20. A `.nvmrc` (value `22`) is checked into
+the repo root for `nvm use` / `nvm exec` workflows.
+
 ```bash
 # Run all gates (table output + overall exit code):
 pnpm gates
+# or explicitly:
+nvm exec 22 node scripts/gates/run-all.mjs
 
 # Run a single gate:
 node scripts/gates/g1-tests.mjs
@@ -91,5 +97,7 @@ node scripts/gates/g3-privacy.mjs
 
 ## Post-mortem notes
 
-- **G2 baseline 143**: introduced 2026-06-11; pre-existing errors include `encodePageRaster` type mismatch in pdf-jpeg-compression test, `bookCostCents` type in security-fixes test, and `better-sqlite3` types missing in sqlite-order-store test. These are test-file type errors, not production regressions — tracked separately.
+- **G2 baseline 143→106→97**: introduced 2026-06-11 at 143; tightened to 106 after kernel-contracts merge; tightened again to 97 (2026-06-13) after adding missing optional fields `pageImageFormat`/`pageImageQuality`/`encodePageRaster` to `PdfBuildInput` interface — these were read by `buildPdf()` but absent from the type, causing 4 test-file type errors. Remaining 97 errors are from kernel-contracts scaffolding and are tracked for a separate sweep goal.
 - **G3 allowFail**: `getUserMedia` in `ExifStripper.ts` is the camera-capture EXIF strip path, not a microphone. The comment in the source explains this. The gate warns rather than fails while the allowlist logic matures.
+- **G7 clean**: `Math.random()` in `AutopilotDrafter.ts` / `BundleService.ts` replaced with `secureRandomString()` (commit a990e3e); allowFail entry removed from baselines.json.
+- **Node >=20 requirement**: `vite-plugin-svelte@6` + `util.styleText` require Node >=20. System default is Node 18. Gate runner now auto-detects and re-execs under nvm Node 22 when running on <20. `.nvmrc` added.

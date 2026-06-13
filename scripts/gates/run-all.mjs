@@ -1,10 +1,24 @@
 #!/usr/bin/env node
 // scripts/gates/run-all.mjs — run all acceptance gates and print a table.
 // Exit 0 if all pass (or only allow-listed failures); exit 1 otherwise.
+//
+// Node >=20 required (vite-plugin-svelte@6 + util.styleText).
+// If running under <20, this script re-execs itself via nvm node 22.
 import { spawnSync } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
+
+const [nodeMaj] = process.version.replace('v', '').split('.').map(Number);
+if (nodeMaj < 20) {
+  // Re-exec under Node 22 via nvm. Must use a login shell to source nvm.
+  const nvmNode = spawnSync(
+    'bash',
+    ['-lc', `source ~/.nvm/nvm.sh && nvm exec 22 node ${process.argv[1]} ${process.argv.slice(2).join(' ')}`],
+    { stdio: 'inherit', shell: false }
+  );
+  process.exit(nvmNode.status ?? 1);
+}
 
 const GATES_DIR = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(GATES_DIR, '..', '..');
