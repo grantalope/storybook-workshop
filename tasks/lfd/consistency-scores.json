@@ -1,9 +1,10 @@
 {
   "overall": {
-    "threshold": 0.6,
+    "absFloor": 0.7,
+    "flagRule": "cosine < ABS_FLOOR(0.70) OR < book-mean-1std",
     "nBooks": 8,
     "meanConsistencyAcrossBooks": 0.8483,
-    "totalFlaggedSpreads": 0,
+    "totalFlaggedSpreads": 7,
     "skipped": []
   },
   "books": [
@@ -12,7 +13,13 @@
       "meanConsistency": 0.8772,
       "minConsistency": 0.8161,
       "nSpreads": 5,
-      "flagged": [],
+      "flagged": [
+        {
+          "spread": "spread-climax.jpg",
+          "cosine": 0.8161,
+          "reason": "below-book-mean-minus-1std"
+        }
+      ],
       "perSpread": [
         {
           "spread": "spread-climax.jpg",
@@ -70,7 +77,13 @@
       "meanConsistency": 0.8553,
       "minConsistency": 0.8442,
       "nSpreads": 5,
-      "flagged": [],
+      "flagged": [
+        {
+          "spread": "spread-setup.jpg",
+          "cosine": 0.8442,
+          "reason": "below-book-mean-minus-1std"
+        }
+      ],
       "perSpread": [
         {
           "spread": "spread-climax.jpg",
@@ -99,7 +112,13 @@
       "meanConsistency": 0.8499,
       "minConsistency": 0.8224,
       "nSpreads": 5,
-      "flagged": [],
+      "flagged": [
+        {
+          "spread": "spread-midpoint.jpg",
+          "cosine": 0.8224,
+          "reason": "below-book-mean-minus-1std"
+        }
+      ],
       "perSpread": [
         {
           "spread": "spread-climax.jpg",
@@ -128,7 +147,13 @@
       "meanConsistency": 0.8746,
       "minConsistency": 0.8228,
       "nSpreads": 5,
-      "flagged": [],
+      "flagged": [
+        {
+          "spread": "spread-trial.jpg",
+          "cosine": 0.8228,
+          "reason": "below-book-mean-minus-1std"
+        }
+      ],
       "perSpread": [
         {
           "spread": "spread-climax.jpg",
@@ -157,7 +182,13 @@
       "meanConsistency": 0.8606,
       "minConsistency": 0.8074,
       "nSpreads": 5,
-      "flagged": [],
+      "flagged": [
+        {
+          "spread": "spread-trial.jpg",
+          "cosine": 0.8074,
+          "reason": "below-book-mean-minus-1std"
+        }
+      ],
       "perSpread": [
         {
           "spread": "spread-climax.jpg",
@@ -186,7 +217,13 @@
       "meanConsistency": 0.8104,
       "minConsistency": 0.7751,
       "nSpreads": 5,
-      "flagged": [],
+      "flagged": [
+        {
+          "spread": "spread-climax.jpg",
+          "cosine": 0.7751,
+          "reason": "below-book-mean-minus-1std"
+        }
+      ],
       "perSpread": [
         {
           "spread": "spread-climax.jpg",
@@ -215,7 +252,13 @@
       "meanConsistency": 0.783,
       "minConsistency": 0.7386,
       "nSpreads": 5,
-      "flagged": [],
+      "flagged": [
+        {
+          "spread": "spread-resolution.jpg",
+          "cosine": 0.7386,
+          "reason": "below-book-mean-minus-1std"
+        }
+      ],
       "perSpread": [
         {
           "spread": "spread-climax.jpg",
