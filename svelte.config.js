@@ -8,6 +8,7 @@ const config = {
 		adapter: adapter(),
 		alias: {
 			"$lib": "src/lib",
+		"$dd": "src/lib/pachinko-stubs",
 		},
 	},
 };

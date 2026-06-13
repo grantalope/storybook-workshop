@@ -26,8 +26,8 @@
  * which re-publishes the same caps and tears down the stub silently.
  */
 
-import { LLMWarmingError } from '$lib/llr';
-import type { ChatRequest, ChatResponse } from '$lib/llr';
+import { LLMWarmingError } from '$lib/stubs/llr';
+import type { ChatRequest, ChatResponse } from '$lib/stubs/llr';
 import type { PrivacyFilterLike } from '../adapters/privacy-scrub';
 
 const OLLAMA_BASE = 'http://localhost:11434';
@@ -103,7 +103,7 @@ export function createColdStubProvider(opts: ColdStubOpts = {}): ColdStubProvide
     }
     stats.ollama++;
     const prompt = (req.messages ?? [])
-      .map((m) => `${m.role === 'user' ? 'User' : m.role === 'system' ? 'System' : 'Assistant'}: ${m.content}`)
+      .map((m: { role: string; content: string }) => `${m.role === 'user' ? 'User' : m.role === 'system' ? 'System' : 'Assistant'}: ${m.content}`)
       .join('\n');
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), req.timeoutMs ?? OLLAMA_GEN_TIMEOUT_MS);

@@ -181,14 +181,14 @@ export const INFERENCE_CONTRACTS: CapabilityContract[] = [
         name: 'chat',
         transferMode: 'clone',
         assertions: {
-          precondition: (args) => {
+          precondition: (args: unknown[]) => {
             const [req] = args as [{ messages?: unknown }];
             if (!req || typeof req !== 'object') return 'req must be object';
             if (!Array.isArray(req.messages) || req.messages.length === 0)
               return 'req.messages must be non-empty array';
             return true;
           },
-          postcondition: (result) => {
+          postcondition: (result: unknown) => {
             const r = result as { content?: unknown };
             if (!r || typeof r.content !== 'string') return 'result.content must be string';
             return true;
@@ -202,7 +202,7 @@ export const INFERENCE_CONTRACTS: CapabilityContract[] = [
         assertions: {
           // Same precondition as chat. No postcondition: stream return; per-chunk
           // validation belongs in iter*-stream layer, not here.
-          precondition: (args) => {
+          precondition: (args: unknown[]) => {
             const [req] = args as [{ messages?: unknown }];
             if (!req || typeof req !== 'object') return 'req must be object';
             if (!Array.isArray(req.messages) || req.messages.length === 0)
@@ -310,13 +310,13 @@ export const INFERENCE_CONTRACTS: CapabilityContract[] = [
         name: 'embed',
         transferMode: 'clone',
         assertions: {
-          precondition: (args) => {
+          precondition: (args: unknown[]) => {
             const [req] = args as [{ input?: unknown }];
             if (!req || typeof req.input !== 'string' || req.input.length === 0)
               return 'embed.input must be non-empty string';
             return true;
           },
-          postcondition: (result) => {
+          postcondition: (result: unknown) => {
             const vector = result instanceof Float32Array || Array.isArray(result)
               ? result
               : (result as { vector?: { length?: number } })?.vector;
@@ -349,12 +349,12 @@ export const INFERENCE_CONTRACTS: CapabilityContract[] = [
         name: 'embedImage',
         transferMode: 'clone',
         assertions: {
-          precondition: (args) => {
+          precondition: (args: unknown[]) => {
             const [req] = args as [{ image?: unknown }];
             if (!req || !req.image) return 'embedImage.image must be present';
             return true;
           },
-          postcondition: (result) => {
+          postcondition: (result: unknown) => {
             const vector = result instanceof Float32Array || Array.isArray(result)
               ? result
               : (result as { vector?: { length?: number } })?.vector;
@@ -381,12 +381,12 @@ export const INFERENCE_CONTRACTS: CapabilityContract[] = [
         name: 'embedAudio',
         transferMode: 'clone',
         assertions: {
-          precondition: (args) => {
+          precondition: (args: unknown[]) => {
             const [req] = args as [{ audio?: unknown }];
             if (!req || !req.audio) return 'embedAudio.audio must be present';
             return true;
           },
-          postcondition: (result) => {
+          postcondition: (result: unknown) => {
             const vector = result instanceof Float32Array || Array.isArray(result)
               ? result
               : (result as { vector?: { length?: number } })?.vector;
@@ -408,12 +408,12 @@ export const INFERENCE_CONTRACTS: CapabilityContract[] = [
         name: 'scrub',
         transferMode: 'clone',
         assertions: {
-          precondition: (args) => {
+          precondition: (args: unknown[]) => {
             const [text] = args as [unknown];
             if (typeof text !== 'string') return 'scrub.text must be string';
             return true;
           },
-          postcondition: (result) => {
+          postcondition: (result: unknown) => {
             const r = result as { scrubbed?: unknown; report?: unknown };
             if (!r || typeof r.scrubbed !== 'string') return 'result.scrubbed must be string';
             if (!r.report) return 'result.report must be present';

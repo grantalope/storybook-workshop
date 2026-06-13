@@ -29,7 +29,7 @@
 //     and use the existing `llrLlm` / `llrEmbedding` identifiers internally.
 //
 // Why namespace import:
-//   - Vitest's `vi.mock('$lib/llr', () => ({ llm, embedding }))` is strict-
+//   - Vitest's `vi.mock('$lib/stubs/llr', () => ({ llm, embedding }))` is strict-
 //     mode by default: a named-import for an export that the mock factory
 //     doesn't return throws at module load. Pulling the entire LLR namespace
 //     via `import * as` and then re-exporting individual fields means tests
@@ -52,9 +52,9 @@
 //     read at a one-shot migration step; no inference traffic.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import * as llrModule from '$lib/llr';
+import * as llrModule from '$lib/stubs/llr';
 
-export type { ChatRequest, ChatResponse, EngineInfo } from '$lib/llr';
+export type { ChatRequest, ChatResponse, EngineInfo } from '$lib/stubs/llr';
 
 /**
  * Default ceiling (ms) for a single LLR/kernel chat call before it is treated
