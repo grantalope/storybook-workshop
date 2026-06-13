@@ -62,7 +62,17 @@
 </script>
 
 <svelte:head>
-	<title>Storybook Workshop</title>
+	<title>Storybook Workshop — Their name on the cover, the science of reading on every page</title>
+	<meta
+		name="description"
+		content="A personalized read-aloud picture book where your child is the hero — built on the science of reading: orthographic mapping, systematic synthetic phonics, and dialogic reading."
+	/>
+	<meta property="og:title" content="Storybook Workshop" />
+	<meta
+		property="og:description"
+		content="A personalized read-aloud picture book where your child is the hero — built on the science of reading."
+	/>
+	<meta property="og:type" content="website" />
 </svelte:head>
 
 <HeroBanner />

@@ -18,6 +18,7 @@
  * NameOverlayCompositor.ts header for the privacy contract.
  */
 
+import { sha256Hex as sha256HexUtil } from '$lib/util/sha256';
 import {
 	FORMAT_DIMENSIONS,
 	type AssembledBook,
@@ -68,19 +69,10 @@ export interface AssembleOptions {
 }
 
 async function sha256Hex(blob: Blob): Promise<string> {
-	const buf = await blob.arrayBuffer();
-	const cryptoSubtle = (globalThis as any).crypto?.subtle;
-	if (cryptoSubtle?.digest) {
-		const hash = await cryptoSubtle.digest('SHA-256', buf);
-		return Array.from(new Uint8Array(hash))
-			.map(b => b.toString(16).padStart(2, '0'))
-			.join('');
-	}
-	// Node fallback (vitest run without webcrypto polyfill)
-	const { createHash } = await import('node:crypto');
-	const h = createHash('sha256');
-	h.update(Buffer.from(buf));
-	return h.digest('hex');
+	// Universal hash: crypto.subtle when secure, pure-JS otherwise. The old
+	// node:crypto fallback threw in the browser ("n is not a function") because
+	// neither crypto.subtle (non-secure HTTP) nor node:crypto exist there.
+	return sha256HexUtil(await blob.arrayBuffer());
 }
 
 function orderedScenes(bundle: BookAssetBundle): string[] {

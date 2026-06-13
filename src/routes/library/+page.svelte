@@ -48,7 +48,7 @@
 	}
 </script>
 
-<svelte:head><title>Library</title></svelte:head>
+<svelte:head><title>Your Library — Storybook Workshop</title></svelte:head>
 
 <main class="library">
 	<header>

@@ -244,6 +244,11 @@
 
 <svelte:window onclick={handlePageClick} />
 
+<svelte:head>
+	<title>{book?.title ? book.title + ' — Storybook Workshop' : 'Read-along — Storybook Workshop'}</title>
+	<meta name="description" content="A personalized read-along picture book — words light up as they are read, and you can tap any word to sound it out." />
+</svelte:head>
+
 <div class="reader" role="main" aria-label="Storybook reader">
 	<!-- Header -->
 	<header class="reader-header">

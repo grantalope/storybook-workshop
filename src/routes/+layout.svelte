@@ -4,6 +4,7 @@
 	const path = $derived($page.url.pathname);
 	const onExamples = $derived(path.startsWith('/examples'));
 	const onApproach = $derived(path.startsWith('/approach'));
+	const onStyles = $derived(path.startsWith('/styles'));
 </script>
 
 <nav class="corner-pills" aria-label="Quick links">
@@ -13,9 +14,14 @@
 	{#if !onApproach}
 		<a class="pill science" href="/approach" aria-label="The science behind it">🔬 The Science</a>
 	{/if}
+	{#if !onStyles}
+		<a class="pill styles" href="/styles" aria-label="See the art styles">🎨 Art Styles</a>
+	{/if}
 </nav>
 
-{@render children()}
+<div class="app-content">
+	{@render children()}
+</div>
 
 <style>
 	.corner-pills {
@@ -41,6 +47,7 @@
 	}
 	.pill.examples { background: #ff8a5b; }
 	.pill.science { background: #5b8def; }
+	.pill.styles { background: #b5651d; }
 	.pill:hover {
 		transform: translateY(-1px);
 		box-shadow: 0 5px 14px rgba(0, 0, 0, 0.24);
@@ -50,5 +57,11 @@
 	}
 	@media (max-width: 480px) {
 		.pill { font-size: 0.78rem; padding: 0.4rem 0.7rem; }
+	}
+
+	.app-content { padding-top: 0; }
+	@media (max-width: 600px) {
+		/* clear the fixed top-right nav pills so page headings are not occluded */
+		.app-content { padding-top: 3rem; }
 	}
 </style>

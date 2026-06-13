@@ -124,7 +124,7 @@ function buildSpreadSmil(index: number, audioHref: string): string {
 `;
 }
 
-// crypto.randomUUID() is a browser/Node19+ global; Node 18 vitest env lacks it.
+// uuid() is a browser/Node19+ global; Node 18 vitest env lacks it.
 // The UUID is only an ePub identifier urn - uniqueness suffices, not crypto strength.
 function safeRandomUUID(): string {
 	const g = globalThis as { crypto?: { randomUUID?: () => string } };

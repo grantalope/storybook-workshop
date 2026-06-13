@@ -29,3 +29,25 @@ export function refreshOrchestrator(): void {
 	const o = get(currentOrchestrator);
 	if (o) currentOrchestrator.set(o);
 }
+
+import type { AssembledBook } from '$lib/services/assemble/types';
+import type { SceneTree } from '$lib/services/author/types';
+
+/**
+ * The book generated in Station 6 this session: its REAL pdf/epub blobs +
+ * SceneTree, so Station 7 can offer the actual PDF download (not a metadata
+ * stub) and a read-along of the just-made book. In-memory only — the create
+ * flow runs Station 6 -> 7 in one session; a reload before Station 7 loses it
+ * and the digital download degrades to the stub.
+ */
+export interface GeneratedBook {
+	shortcode: string;
+	title: string;
+	pdfBlob: Blob;
+	epubBlob: Blob;
+	tree: SceneTree;
+}
+export const generatedBookStore: Writable<GeneratedBook | null> = writable(null);
+
+/** Surface AssembledBook so callers importing GeneratedBook can adapt from it. */
+export type { AssembledBook };

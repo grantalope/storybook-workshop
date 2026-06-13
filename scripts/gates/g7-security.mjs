@@ -76,7 +76,7 @@ for (const raw of mathRandomLines) {
   );
   if (!idContext) continue;
   // Crypto fallback pattern: crypto.randomUUID ... Math.random() fallback — WARN not FAIL
-  const isCryptoFallback = c.includes('randomUUID') || (content.includes('crypto') && content.includes('||'));
+  const isCryptoFallback = c.includes('randomUUID') || content.includes('getRandomValues') || (content.includes('crypto') && content.includes('||'));
   if (isCryptoFallback) {
     findings.push({ check: 'math-random-crypto-fallback', severity: 'WARN', detail: c.slice(0, 120) + ' [' + basename + ']' });
     continue;

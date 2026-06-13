@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
 	import type { WorkshopOrchestrator } from '$lib/workshop/services/WorkshopOrchestrator';
-	import { currentOrchestrator } from '$lib/workshop/stores';
+	import { currentOrchestrator, generatedBookStore } from '$lib/workshop/stores';
 	import {
 		runWorkshopPipeline,
 		type PipelineProgress,
@@ -43,6 +43,15 @@
 		try {
 			result = await runWorkshopPipeline(orchestrator.draft, {
 				onProgress: (p) => (progress = p),
+			});
+			// Stash the REAL book blobs so Station 7 can download the actual
+			// PDF/ePub (not a metadata stub). In-memory, this session only.
+			generatedBookStore.set({
+				shortcode: result.book.shortcode,
+				title: result.tree.title,
+				pdfBlob: result.book.pdfBlob,
+				epubBlob: result.book.epubBlob,
+				tree: result.tree,
 			});
 		} catch (e) {
 			runError = (e as Error).message;
