@@ -23,7 +23,8 @@
     "test:e2e": "playwright test",
     "lint": "eslint .",
     "gates": "node scripts/gates/run-all.mjs",
-    "validate": "node scripts/validation/capture-defects.mjs"
+    "validate": "node scripts/validation/capture-defects.mjs",
+    "score:story": "node scripts/lfd/story-quality-scorer.mjs"
   },
   "dependencies": {
     "@chenglou/pretext": "^0.0.7",
