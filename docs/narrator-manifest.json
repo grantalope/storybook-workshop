@@ -1,0 +1,15 @@
+{
+  "book": "book-3 (Why Do Stars Blink?)",
+  "service": "Chatterbox MIT, D:/ai/narrator/server.py uvicorn :8189 (lazy-load)",
+  "wavsLocation": "D:/devbox/storybook-narrator/ (NOT in git — too large; candidate-v1..v5/ + book3-default/, 33 WAVs)",
+  "humanPickPending": true,
+  "candidates": [
+    {"id":"v1","name":"Warm Grandpa (Chenevert A)","wordAccuracy":0.974,"default":true},
+    {"id":"v2","name":"Bright Delight (Chenevert B)","wordAccuracy":0.974},
+    {"id":"v3","name":"Deep Drawl (Smith Remus A)","wordAccuracy":0.974},
+    {"id":"v4","name":"Composite Blend (ethics-preferred)","wordAccuracy":0.974},
+    {"id":"v5","name":"Front-Porch Enthusiast (seed 1056 re-roll)","wordAccuracy":0.923}
+  ],
+  "ethics":"style-alike from PD/CC0 Southern-US audio (LibriVox/GLOBE); zero Howser audio",
+  "consumerWiring":"BundleService VOICE_PICK_PENDING const — set chosen id post-operator-pick (loop task C4)"
+}
