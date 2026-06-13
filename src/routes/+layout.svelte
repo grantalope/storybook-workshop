@@ -19,7 +19,9 @@
 	{/if}
 </nav>
 
-{@render children()}
+<div class="app-content">
+	{@render children()}
+</div>
 
 <style>
 	.corner-pills {
@@ -55,5 +57,11 @@
 	}
 	@media (max-width: 480px) {
 		.pill { font-size: 0.78rem; padding: 0.4rem 0.7rem; }
+	}
+
+	.app-content { padding-top: 0; }
+	@media (max-width: 600px) {
+		/* clear the fixed top-right nav pills so page headings are not occluded */
+		.app-content { padding-top: 3rem; }
 	}
 </style>

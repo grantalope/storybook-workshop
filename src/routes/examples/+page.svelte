@@ -49,6 +49,14 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Example Storybooks — Storybook Workshop</title>
+	<meta
+		name="description"
+		content="Read finished personalized picture books aloud — tap any word to sound it out, with a talk-about-it prompt on every page. Full experience, no sign-up."
+	/>
+</svelte:head>
+
 <div class="page">
 	<header class="header">
 		<h1 class="title">Example Storybooks</h1>

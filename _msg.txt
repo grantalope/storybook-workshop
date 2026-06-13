@@ -1,27 +1,25 @@
-feat(demo): /styles art-style showcase + art-style-expansion plan; nav pill
+polish(demo): per-route titles + meta/OG, fix double-title, mobile pill clearance
 
-Surfaces the 15 launch style packs (12 art-history traditions + 3 modern/game
-looks) the way the operator asked ("WAY more art options... highlight the
-rigor"):
+D1 titles/meta:
+- /examples and /examples/[id] had NO <svelte:head> — added titles (the reader
+  uses the book title) + meta descriptions.
+- Landing (/) gained a descriptive title + meta description + OpenGraph tags.
+- /library title got the brand suffix.
+- ROOT FIX: src/app.html hardcoded <title>Storybook Workshop</title> BEFORE
+  %sveltekit.head%, so every page rendered two <title> tags and browsers used
+  the first — the tab title was stuck on "Storybook Workshop" everywhere.
+  Removed the static title; svelte:head titles are now authoritative. Verified
+  each route shows exactly its own title (curl SSR + browser document.title for
+  the client-rendered landing).
 
-- New /styles page iterates STYLE_PACKS (single source of truth) and renders
-  each as a card: 5-6 colour palette swatch strip, displayName, the pack's
-  kid-friendly educationalCard.kidExplainer + "Look for:" lookFor, and
-  "In the spirit of <artists> · <era>". The 3 legacy/modern packs (no
-  art-history educationalCard/palette) get a mirrored blurb + representative
-  palette so every card reads as intentional. Footer banner explains the
-  "many more on the way" expansion path.
-- "Art Styles" nav pill added to +layout.svelte (hides on its own page, like
-  the Examples/Science pills).
-- docs/art-style-expansion.md: the plan to scale the catalogue (style = a pure
-  data recipe; ComfyUI-on-4090 render path; batched roadmap; culture/banned-
-  artist guardrails).
+D3 mobile: fixed nav pills (position:fixed top-right) occluded page <h1>s on
+narrow screens. Wrapped layout children and added a mobile-only (<=600px) top
+padding so headings clear the pills. Verified landing + /styles at 375px.
 
-BROWSER-VERIFIED: /styles renders all 15 cards with palettes + descriptions
-(screenshot); page title 'Art Styles — Storybook Workshop'.
+D2 a11y: confirmed already correct — the 150 Station-2 archetype tiles are
+<button aria-label={pillarLabel}> with a decorative <img alt="">, which is the
+right pattern (no double announce). No change.
 
-Note: Station 2 portrait thumbs were ALREADY working (150 imgs, all loaded,
-/pillar-library-v2/portraits-thumb/*.jpg) — the earlier 'text-only' read was a
-false alarm (decorative alt="" imgs don't appear in the a11y snapshot).
+Gates 11/11, build green.
 
 Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
