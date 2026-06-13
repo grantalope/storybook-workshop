@@ -1,0 +1,217 @@
+{
+  "title": "Why Do Stars Blink?",
+  "blurb": "Join little Wren and Professor Hoot as they discover the secret dance of the night sky.",
+  "tier2_words": [
+    "shimmer",
+    "flicker",
+    "wonder"
+  ],
+  "grammar_gate": {
+    "setting": true,
+    "initiating_event": true,
+    "internal_response": true,
+    "attempt": true,
+    "consequence": true,
+    "reaction": true
+  },
+  "skeleton_meta": {
+    "beat_count": 7,
+    "spread_count": 24,
+    "template_fallback": false
+  },
+  "beats": [
+    {
+      "id": 1,
+      "name": "setup",
+      "emotional_arc": "calm curious",
+      "spreads": [
+        {
+          "index": 0,
+          "spread_text": "Look at the night sky.",
+          "scene_brief": "Impressionist garden. Dabs of blue and deep purple paint create a soft evening glow.",
+          "dialogic_prompt": "What do you see?"
+        },
+        {
+          "index": 1,
+          "spread_text": "It is so very large.",
+          "scene_brief": "Wren stands small against a massive sky. Vibrant brushstrokes of light surround her.",
+          "dialogic_prompt": "How does she feel?"
+        },
+        {
+          "index": 2,
+          "spread_text": "What are those tiny lights?",
+          "scene_brief": "Professor Hoot perches on a branch. His feathers catch the golden light.",
+          "dialogic_prompt": "What would you do?"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "catalyst",
+      "emotional_arc": "surprised curious",
+      "spreads": [
+        {
+          "index": 3,
+          "spread_text": "Wait! Did that star blink?",
+          "scene_brief": "A bright white dot flickers. Bold, impasto paint highlights the movement.",
+          "dialogic_prompt": "What do you see?"
+        },
+        {
+          "index": 4,
+          "spread_text": "It blinked twice, Professor!",
+          "scene_brief": "Wren points upward with a surprised face. The colors around her are lively.",
+          "dialogic_prompt": "How does she feel?"
+        },
+        {
+          "index": 5,
+          "spread_text": "Let us find out why.",
+          "scene_brief": "Professor Hoot adjusts his tiny glasses. He looks very wise in the moonlight.",
+          "dialogic_prompt": "What happens next?"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "debate",
+      "emotional_arc": "wonder small worry",
+      "spreads": [
+        {
+          "index": 6,
+          "spread_text": "Is it a secret wink?",
+          "scene_brief": "Wren imagines eyes in the stars. The painting is dreamy and hazy.",
+          "dialogic_prompt": "What do you think?"
+        },
+        {
+          "index": 7,
+          "spread_text": "Maybe they are sleepy stars.",
+          "scene_brief": "Soft yellow strokes make the lights look fuzzy. Wren looks a bit worried.",
+          "dialogic_prompt": "Have you felt this?"
+        },
+        {
+          "index": 8,
+          "spread_text": "Do they have tiny eyes?",
+          "scene_brief": "Hoot shakes his head. He looks thoughtful in the dappled light.",
+          "dialogic_prompt": "What question would you ask?"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "midpoint",
+      "emotional_arc": "determined hopeful",
+      "spreads": [
+        {
+          "index": 9,
+          "spread_text": "They push up the steep grass together.",
+          "scene_brief": "Wren and Hoot climbing a green hill at twilight.",
+          "dialogic_prompt": "What do you see?"
+        },
+        {
+          "index": 10,
+          "spread_text": "One more step! They both say.",
+          "scene_brief": "The two friends looking upward with intent faces.",
+          "dialogic_prompt": "How does she feel?"
+        },
+        {
+          "index": 11,
+          "spread_text": "The summit is almost within reach.",
+          "scene_brief": "Wren reaching forward while Hoot encourages her.",
+          "dialogic_prompt": "What would you do?"
+        },
+        {
+          "index": 12,
+          "spread_text": "Together, the climb feels possible.",
+          "scene_brief": "A wide shot of them on a high ridge.",
+          "dialogic_prompt": "Have you felt this?"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "trial",
+      "emotional_arc": "small overwhelmed",
+      "spreads": [
+        {
+          "index": 13,
+          "spread_text": "The night sky is so big and deep.",
+          "scene_brief": "Looking at a massive, dark purple cosmos.",
+          "dialogic_prompt": "What do you see?"
+        },
+        {
+          "index": 14,
+          "spread_text": "Wren feels like a tiny speck.",
+          "scene_brief": "Wren shrinking back into Hoot's feathers.",
+          "dialogic_prompt": "How does she feel?"
+        },
+        {
+          "index": 15,
+          "spread_text": "The stars are much too far away.",
+          "scene_brief": "Looking at distant tiny dots of light.",
+          "dialogic_prompt": "What would you do?"
+        },
+        {
+          "index": 16,
+          "spread_text": "Everything feels very large and cold.",
+          "scene_brief": "Shadows stretching across the grass.",
+          "dialogic_prompt": "Have you felt this?"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "climax",
+      "emotional_arc": "wonder discovery",
+      "spreads": [
+        {
+          "index": 17,
+          "spread_text": "Hoot points to the sparkling lights.",
+          "scene_brief": "Hoot's wing gesturing toward a bright star.",
+          "dialogic_prompt": "What do you see?"
+        },
+        {
+          "index": 18,
+          "spread_text": "The air makes them shimmer and dance.",
+          "scene_brief": "Twinkling light refracting through the atmosphere.",
+          "dialogic_prompt": "How does she feel?"
+        },
+        {
+          "index": 19,
+          "spread_text": "Look how they spin in the breeze!",
+          "scene_brief": "The stars appearing to swirl like jewels.",
+          "dialogic_prompt": "What question would you ask?"
+        },
+        {
+          "index": 20,
+          "spread_text": "A secret magic lives above us.",
+          "scene_brief": "Wide-eyed wonder on Wren's face in the glow.",
+          "dialogic_prompt": "Have you felt this?"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "resolution",
+      "emotional_arc": "peaceful empowered",
+      "spreads": [
+        {
+          "index": 21,
+          "spread_text": "They rest on the soft hill.",
+          "scene_brief": "The two birds snuggled together under moonlight.",
+          "dialogic_prompt": "What do you see?"
+        },
+        {
+          "index": 22,
+          "spread_text": "Asking questions is where the adventure begins.",
+          "scene_brief": "Wren looking brave with a small smile.",
+          "dialogic_prompt": "How does she feel?"
+        },
+        {
+          "index": 23,
+          "spread_text": "Tomorrow brings brand new wonders.",
+          "scene_brief": "A peaceful sleeping scene under the stars.",
+          "dialogic_prompt": "What would you do?"
+        }
+      ]
+    }
+  ]
+}
