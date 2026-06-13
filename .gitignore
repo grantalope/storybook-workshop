@@ -22,3 +22,4 @@ static/pillar-library-v2/portraits/*.png
 
 # LFD blind corpus — raw stays out-of-git (regen via scripts/lfd/fetch-kidlit-corpus.mjs)
 static/lfd/kidlit-corpus/*.txt
+_msg.txt
