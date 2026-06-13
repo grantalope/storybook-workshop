@@ -1,7 +1,7 @@
 // @graph-layer: infrastructure
 // @rationale: infrastructure (kernel — layer-agnostic primitive: supervisor/ports/WAL/effects)
 
-import type { ChatRequest, ChatResponse } from '$lib/llr';
+import type { ChatRequest, ChatResponse } from '$lib/stubs/llr';
 
 export interface KVCacheSession {
   key: string;
@@ -83,7 +83,7 @@ function promptPrefix(req: ChatRequest): string {
 function estimatePromptTokens(req: ChatRequest): number {
   return (req.messages ?? [])
     .map(canonicalMessage)
-    .reduce((sum, text) => sum + estimateTokens(text), 0);
+    .reduce((sum: number, text: string) => sum + estimateTokens(text), 0);
 }
 
 export class KVCacheOS {
