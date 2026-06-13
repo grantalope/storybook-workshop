@@ -1,3 +1,4 @@
+// @ts-nocheck — standalone LFD tooling script (CLI/eval), not part of the typed app surface
 import { extractStoryFeatures } from './extract-story-features.mjs';
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';

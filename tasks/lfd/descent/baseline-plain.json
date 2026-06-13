@@ -1,0 +1,29 @@
+{
+  "title": "Pip the Hedgehog",
+  "beats": [
+    {
+      "beat": "setup",
+      "storyText": "Pip is a little hedgehog. He lives in a cozy burrow. The sun is shining. Pip is happy."
+    },
+    {
+      "beat": "catalyst",
+      "storyText": "The sky gets dark. Clouds cover the sun. Pip sees raindrops on the window."
+    },
+    {
+      "beat": "rising",
+      "storyText": "Pip is scared. He does not like the rain. The thunder is loud. Pip hides under his bed."
+    },
+    {
+      "beat": "midpoint",
+      "storyText": "The rain gets stronger. Water pours down. Pip's burrow starts to leak. He gets wet."
+    },
+    {
+      "beat": "climax",
+      "storyText": "Pip is cold and shivering. He needs to find a way to stay dry. He remembers a big umbrella in the closet."
+    },
+    {
+      "beat": "resolution",
+      "storyText": "Pip uses the umbrella. He goes outside. The rain is fun. Pip splashes in puddles. He is no longer scared. The sun comes out again. Pip is happy and dry."
+    }
+  ]
+}

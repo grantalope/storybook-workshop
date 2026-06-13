@@ -1,3 +1,4 @@
+// @ts-nocheck — standalone LFD tooling script (CLI/eval), not part of the typed app surface
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
@@ -127,7 +128,7 @@ export function extractStoryFeatures(text) {
   };
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const filePath = process.argv[2];
   const text = readFileSync(filePath, 'utf-8');
   const features = extractStoryFeatures(text);

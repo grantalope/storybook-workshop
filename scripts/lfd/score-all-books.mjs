@@ -1,3 +1,4 @@
+// @ts-nocheck — standalone LFD tooling script (CLI/eval), not part of the typed app surface
 // Scores every story.json (8 example-books + book3) with the LF2 instrument.
 // Run from repo root on lilaiputia (Node 22). Emits tasks/lfd/story-scores.json.
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs';
