@@ -1,0 +1,92 @@
+[
+  {
+    "bookId": "book3",
+    "score": 52.59,
+    "words": 236,
+    "weakestFeatures": [
+      "repetitionScore(0)",
+      "exclaimQuestionRatio(0)",
+      "sentenceCount(0)"
+    ]
+  },
+  {
+    "bookId": "p083",
+    "score": 88.95,
+    "words": 180,
+    "weakestFeatures": [
+      "wordCount(0)",
+      "typeTokenRatio(0.2905)",
+      "dialogueRatio(0.812)"
+    ]
+  },
+  {
+    "bookId": "p011",
+    "score": 90.5,
+    "words": 191,
+    "weakestFeatures": [
+      "wordCount(0)",
+      "typeTokenRatio(0.4996)",
+      "dialogueRatio(0.812)"
+    ]
+  },
+  {
+    "bookId": "p024",
+    "score": 91.04,
+    "words": 181,
+    "weakestFeatures": [
+      "wordCount(0)",
+      "typeTokenRatio(0.2905)",
+      "fleschReadingEase(1)"
+    ]
+  },
+  {
+    "bookId": "p065",
+    "score": 91.28,
+    "words": 191,
+    "weakestFeatures": [
+      "wordCount(0)",
+      "typeTokenRatio(0.3234)",
+      "fleschReadingEase(1)"
+    ]
+  },
+  {
+    "bookId": "p006",
+    "score": 92.5,
+    "words": 184,
+    "weakestFeatures": [
+      "wordCount(0)",
+      "typeTokenRatio(0.5474)",
+      "avgWordLength(0.9406)"
+    ]
+  },
+  {
+    "bookId": "p002",
+    "score": 93.14,
+    "words": 194,
+    "weakestFeatures": [
+      "wordCount(0)",
+      "typeTokenRatio(0.5743)",
+      "fleschReadingEase(1)"
+    ]
+  },
+  {
+    "bookId": "p089",
+    "score": 93.69,
+    "words": 187,
+    "weakestFeatures": [
+      "wordCount(0)",
+      "typeTokenRatio(0.6475)",
+      "fleschReadingEase(1)"
+    ]
+  },
+  {
+    "bookId": "p005",
+    "score": 96.3,
+    "words": 198,
+    "weakestFeatures": [
+      "wordCount(0)",
+      "fleschReadingEase(1)",
+      "avgWordsPerSentence(1)"
+    ]
+  }
+]
