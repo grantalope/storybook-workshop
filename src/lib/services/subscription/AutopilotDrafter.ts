@@ -293,5 +293,5 @@ export class AutopilotDrafter {
 let _idCounter = 0;
 function defaultIdGen(): string {
 	_idCounter += 1;
-	return ;
+	return `${Date.now().toString(36)}_${_idCounter}_${secureRandomString(8, '0123456789abcdefghijklmnopqrstuvwxyz')}`;
 }
