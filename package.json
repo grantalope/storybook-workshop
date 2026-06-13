@@ -24,7 +24,8 @@
     "lint": "eslint .",
     "gates": "node scripts/gates/run-all.mjs",
     "validate": "node scripts/validation/capture-defects.mjs",
-    "score:story": "node scripts/lfd/story-quality-scorer.mjs"
+    "score:story": "node scripts/lfd/story-quality-scorer.mjs",
+    "score:match": "node scripts/lfd/score-match.mjs"
   },
   "dependencies": {
     "@chenglou/pretext": "^0.0.7",
