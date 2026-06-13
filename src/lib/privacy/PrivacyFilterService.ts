@@ -1,4 +1,3 @@
-import { uuid } from '$lib/util/uuid';
 // @graph-layer: join
 // @rationale: join (privacy filter — the canonical chokepoint for every private→universal write)
 
@@ -414,7 +413,7 @@ export class PrivacyFilterService {
         try {
             // Browser + Node ≥19 both ship globalThis.crypto.randomUUID.
             if (typeof globalThis !== 'undefined' && globalThis.crypto?.randomUUID) {
-                return globalThis.uuid();
+                return globalThis.crypto.randomUUID();
             }
         } catch {
             /* fallthrough */

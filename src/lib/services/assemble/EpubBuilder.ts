@@ -1,4 +1,3 @@
-import { uuid } from '$lib/util/uuid';
 // @graph-layer: private
 // @rationale: private (per-user / per-settler state — never leaves device by default)
 
@@ -129,7 +128,7 @@ function buildSpreadSmil(index: number, audioHref: string): string {
 // The UUID is only an ePub identifier urn - uniqueness suffices, not crypto strength.
 function safeRandomUUID(): string {
 	const g = globalThis as { crypto?: { randomUUID?: () => string } };
-	if (g.crypto?.randomUUID) return g.uuid();
+	if (g.crypto?.randomUUID) return g.crypto.randomUUID();
 	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
 		const r = (Math.random() * 16) | 0;
 		return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
