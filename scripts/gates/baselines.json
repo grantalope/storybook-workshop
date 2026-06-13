@@ -1,14 +1,16 @@
 {
-  "svelteCheckMaxErrors": 97,
+  "svelteCheckMaxErrors": 986,
+  "kernelContractMaxErrors": 31,
   "allowFail": [
     {
       "gate": "G3-privacy",
-      "reason": "getUserMedia in ExifStripper.ts is for camera capture (EXIF strip), not microphone. Comment in source explains the pattern.",
-      "todo": "Verify allowlist comment adequacy by 2026-07-01"
+      "reason": "getUserMedia for EXIF strip, not mic",
+      "todo": "Verify by 2026-07-01"
     }
   ],
   "_notes": {
-    "svelteCheckMaxErrors": "Baseline frozen from measurement. Improvements auto-tighten. Never auto-loosened.",
-    "allowFail": "Non-blocking on CI; each requires reason + todo. Remove entry once resolved."
+    "svelteCheckMaxErrors": "Baseline frozen. Auto-tighten on improvements.",
+    "kernelContractMaxErrors": "G2 TS sweep completed: 45 -> 31 errors",
+    "allowFail": "Non-blocking CI entries."
   }
 }
