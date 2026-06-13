@@ -22,7 +22,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "lint": "eslint .",
-    "gates": "node scripts/gates/run-all.mjs"
+    "gates": "node scripts/gates/run-all.mjs",
+    "validate": "node scripts/validation/capture-defects.mjs"
   },
   "dependencies": {
     "@chenglou/pretext": "^0.0.7",
