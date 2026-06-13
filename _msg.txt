@@ -1,17 +1,17 @@
-fix(demo): book pipeline + Station7 work on plain HTTP (sha256 + runes reactivity)
+fix(demo): block in-browser Ollama hop in $lib/llr (no-Ollama-prod mandate)
 
-Two create-flow blockers found by Playwright-walking all 7 stations:
+Station 6 Seal logged 3 console 404s per generation: the browser's
+llm.chat -> resolveStoryLlmProvider() -> OllamaProvider POSTed to
+http://localhost:11434/api/chat. In a remote demo localhost:11434 is the
+USER's machine (never our server), and the no-Ollama-prod rule forbids the
+hop in shipped builds. This repo wires no in-browser/WebGPU StoryLLM
+provider, so llm.chat now throws SYNCHRONOUSLY in the browser when the
+resolved provider is Ollama (no network, no 404s) and StoryAuthorService
+falls straight through to its deterministic template author. Ollama stays a
+Node dev/CI failsafe (window === undefined in SSR/test/CLI).
 
-1. Station 6 Seal crashed ("n is not a function"): BookAssembler.sha256Hex +
-   WorkshopBookPipeline.blobHash hashed via crypto.subtle (undefined in a
-   non-secure HTTP context) then node:crypto (absent in browser). New pure-JS
-   $lib/util/sha256.ts (subtle when secure, FIPS-180-4 JS otherwise -- identical
-   digest). BROWSER-VERIFIED: Seal now generates the book end-to-end
-   (title "Ada and the Runaway Sock", 17pp, PDF 157.9KB, hash 685bf956...).
-
-2. Station 7 print CTA was dead: phase + errorMsg were plain 'let' in a Svelte-5
-   runes component ($props/$state), so reassignment never re-rendered. Made both
-   $state -- unblocks address->quote->pay(test-mode 4242)->success. Empty Stripe
-   key already degrades to test-mode card (decideStripePath).
+BROWSER-VERIFIED: Seal console went 4 errors -> 1 (only the benign
+pillar-library 404, handled by the v2 fallback); book still generates
+("Ada and the Runaway Sock", 17pp).
 
 Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>

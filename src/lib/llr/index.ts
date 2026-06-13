@@ -66,6 +66,20 @@ function toStoryLlmRequest(req: ChatRequest): StoryLlmChatRequest {
 export const llm = {
 	async chat(req: ChatRequest): Promise<ChatResponse> {
 		const provider = resolveStoryLlmProvider();
+		// no-Ollama-prod mandate: the browser must NEVER hop to Ollama
+		// (localhost:11434 is the USER's machine, never reachable as our server,
+		// and the no-Ollama-prod rule blocks the hop in shipped builds). This repo
+		// wires no in-browser/WebGPU StoryLLM provider, so in the browser we throw
+		// SYNCHRONOUSLY (no network call, no console 404s) and let StoryAuthorService
+		// fall straight through to its deterministic template author. Ollama stays a
+		// Node dev/CI failsafe (window === undefined in SSR/test/CLI).
+		if (typeof window !== 'undefined' && provider.name === 'ollama') {
+			throw new Error(
+				'storybook: in-browser Ollama hop blocked (no-Ollama-prod mandate); ' +
+					'using deterministic template author. Wire an in-app/WebGPU StoryLLM ' +
+					'provider to enable browser-side LLM stories.',
+			);
+		}
 		const out = await provider.chat(toStoryLlmRequest(req));
 		return {
 			content: out.content,
