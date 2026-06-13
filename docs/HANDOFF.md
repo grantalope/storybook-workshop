@@ -3904,3 +3904,10 @@ Original lane worktrees still present at  — safe to  when no longer needed.
 Station2ForgeHero reads  from the v2 manifest entries directly (thumb paths ).
 
 **Visual spot-check notes** (8/10): Consistent warm painted oil-portrait style across all 6 portrait samples and 2 book covers. Skin tones match taxonomy (tones 1-6 confirmed correct). Hair textures match (coily/curly/wavy/straight all visually consistent). Props/archetype vibes correct. Minor note: portraits use neutral backgrounds while book covers have full environments — intentional design difference, not a defect.
+
+
+## Loop-2 Retro + Loop-3 Goals authored (architect, 2026-06-12)
+- Loop-2 verdict: portraits/books/demo all merged. 7/10 gates FAIL due to Node 18 vs svelte-plugin-svelte@6 (needs Node >=20/22); G2 +34 TS errors in kernel-contracts scaffolding. Visual 8/10, harmonization 7.5/10 in-flight, narrator candidates ready (needs VRAM free). Book-3 PDF exists but LLM/audio/harmonization all stub.
+- Loop-3 goals: (1) Fix gates Node 22 [P0], (2) Narrator WAVs + voice-pick handoff [P1], (3) Harmonization apply + prop cleanup [P1], (4) Book-3 real LLM story [P1], (5) G2 TS deep-fix ≤40 errors [P2], (6) iPhone/M1 smoke + Stripe/Lulu checklist [P2].
+- Nearly-perfect ETA: gates green + narrator WAVs + harmonization applied + prop bank clean. Human-only remaining: voice pick (ear), Stripe/Lulu creds, final eyeball.
+- Full goal file: docs/goals/loop-3-goals.md
