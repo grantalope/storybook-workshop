@@ -1,14 +1,27 @@
-feat(demo): Station 7 'free digital book' downloads the REAL PDF (not a stub)
+feat(demo): /styles art-style showcase + art-style-expansion plan; nav pill
 
-The AssembledBook PDF/ePub blobs were never carried Station 6 -> Station 7
-(Station 6 persisted only metadata), so 'Get the free digital book' emitted a
-.txt stub with the shortcode/hash. Added an in-memory generatedBookStore
-(stores.ts) that Station 6 fills with the real { pdfBlob, epubBlob, tree,
-shortcode, title } after the pipeline succeeds; Station 7 downloadDigital()
-now downloads the actual print-ready PDF, falling back to the stub only if the
-blob was lost (reload mid-flow).
+Surfaces the 15 launch style packs (12 art-history traditions + 3 modern/game
+looks) the way the operator asked ("WAY more art options... highlight the
+rigor"):
 
-BROWSER-VERIFIED: download is storybook-<shortcode>.pdf, application/pdf,
-161,664 bytes (matches the ~157.9 KB seal-card size).
+- New /styles page iterates STYLE_PACKS (single source of truth) and renders
+  each as a card: 5-6 colour palette swatch strip, displayName, the pack's
+  kid-friendly educationalCard.kidExplainer + "Look for:" lookFor, and
+  "In the spirit of <artists> · <era>". The 3 legacy/modern packs (no
+  art-history educationalCard/palette) get a mirrored blurb + representative
+  palette so every card reads as intentional. Footer banner explains the
+  "many more on the way" expansion path.
+- "Art Styles" nav pill added to +layout.svelte (hides on its own page, like
+  the Examples/Science pills).
+- docs/art-style-expansion.md: the plan to scale the catalogue (style = a pure
+  data recipe; ComfyUI-on-4090 render path; batched roadmap; culture/banned-
+  artist guardrails).
+
+BROWSER-VERIFIED: /styles renders all 15 cards with palettes + descriptions
+(screenshot); page title 'Art Styles — Storybook Workshop'.
+
+Note: Station 2 portrait thumbs were ALREADY working (150 imgs, all loaded,
+/pillar-library-v2/portraits-thumb/*.jpg) — the earlier 'text-only' read was a
+false alarm (decorative alt="" imgs don't appear in the a11y snapshot).
 
 Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
