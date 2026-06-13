@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
 	import { browser } from '$app/environment';
+	import { get } from 'svelte/store';
+	import { generatedBookStore } from '$lib/workshop/stores';
 	import type { WorkshopOrchestrator } from '$lib/workshop/services/WorkshopOrchestrator';
 	import type { BookFormat } from '$lib/services/assemble/types';
 	import type {
@@ -134,23 +136,33 @@
 	}
 
 	// ── Free digital download ────────────────────────────────────────────────
-	function downloadDigital() {
-		if (!browser) return;
-		// MVP: the AssembledBook blob is not currently persisted across
-		// stations (Station6Output stores only metadata). Emit a stub text
-		// payload pointing to the shortcode + hash. Replace with the real PDF
-		// once the in-memory transport ships (tracked in impl notes §Free-Digital).
-		const text =
-			`Your storybook shortcode: ${shortcode}\n` +
-			`PDF size: ${(s6?.pdfBlobSize ?? 0) / 1024} KB\n` +
-			`PDF hash: ${s6?.pdfHash}\n`;
-		const blob = new Blob([text], { type: 'text/plain' });
+	function _downloadBlob(blob: Blob, filename: string) {
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = `storybook-${shortcode}.txt`;
+		a.download = filename;
 		a.click();
 		setTimeout(() => URL.revokeObjectURL(url), 5_000);
+	}
+
+	function downloadDigital() {
+		if (!browser) return;
+		// Prefer the REAL generated book stashed by Station 6 this session —
+		// download the actual print-ready PDF. Falls back to a metadata stub
+		// only if the blob was lost (e.g. the page was reloaded mid-flow).
+		const gen = get(generatedBookStore);
+		if (gen?.pdfBlob) {
+			_downloadBlob(gen.pdfBlob, `storybook-${gen.shortcode || shortcode}.pdf`);
+			downloaded = true;
+			return;
+		}
+		const text =
+			`Your storybook shortcode: ${shortcode}\n` +
+			`PDF size: ${(s6?.pdfBlobSize ?? 0) / 1024} KB\n` +
+			`PDF hash: ${s6?.pdfHash}\n` +
+			`(Reload cleared the in-memory book — regenerate to download the full PDF.)\n`;
+		const blob = new Blob([text], { type: 'text/plain' });
+		_downloadBlob(blob, `storybook-${shortcode}.txt`);
 		downloaded = true;
 	}
 

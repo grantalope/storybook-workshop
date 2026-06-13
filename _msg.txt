@@ -1,17 +1,14 @@
-fix(demo): block in-browser Ollama hop in $lib/llr (no-Ollama-prod mandate)
+feat(demo): Station 7 'free digital book' downloads the REAL PDF (not a stub)
 
-Station 6 Seal logged 3 console 404s per generation: the browser's
-llm.chat -> resolveStoryLlmProvider() -> OllamaProvider POSTed to
-http://localhost:11434/api/chat. In a remote demo localhost:11434 is the
-USER's machine (never our server), and the no-Ollama-prod rule forbids the
-hop in shipped builds. This repo wires no in-browser/WebGPU StoryLLM
-provider, so llm.chat now throws SYNCHRONOUSLY in the browser when the
-resolved provider is Ollama (no network, no 404s) and StoryAuthorService
-falls straight through to its deterministic template author. Ollama stays a
-Node dev/CI failsafe (window === undefined in SSR/test/CLI).
+The AssembledBook PDF/ePub blobs were never carried Station 6 -> Station 7
+(Station 6 persisted only metadata), so 'Get the free digital book' emitted a
+.txt stub with the shortcode/hash. Added an in-memory generatedBookStore
+(stores.ts) that Station 6 fills with the real { pdfBlob, epubBlob, tree,
+shortcode, title } after the pipeline succeeds; Station 7 downloadDigital()
+now downloads the actual print-ready PDF, falling back to the stub only if the
+blob was lost (reload mid-flow).
 
-BROWSER-VERIFIED: Seal console went 4 errors -> 1 (only the benign
-pillar-library 404, handled by the v2 fallback); book still generates
-("Ada and the Runaway Sock", 17pp).
+BROWSER-VERIFIED: download is storybook-<shortcode>.pdf, application/pdf,
+161,664 bytes (matches the ~157.9 KB seal-card size).
 
 Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
