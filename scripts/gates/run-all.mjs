@@ -38,6 +38,7 @@ const gates = [
   { id: 'G8-determinism',    script: 'g8-determinism.mjs',     desc: 'Collapse engine determinism' },
   { id: 'G9-content-safety', script: 'g9-content-safety.mjs',  desc: 'Kids content safety / NEGATIVE_PROMPT' },
   { id: 'G10-a11y',          script: 'g10-a11y.mjs',           desc: 'Static a11y checks (img-alt, roles)' },
+  { id: 'G11-logic-gaps',     script: 'g11-logic-gaps.mjs',     desc: 'Logic-gap probes (P0/P1 fail, P2/P3 report)' },
 ];
 
 const results = [];

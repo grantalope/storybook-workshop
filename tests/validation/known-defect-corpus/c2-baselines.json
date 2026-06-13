@@ -1,0 +1,7 @@
+{
+  "svelteCheckMaxErrors": 200,
+  "allowFail": [],
+  "_notes": {
+    "svelteCheckMaxErrors": "Raised to allow for new features"
+  }
+}
