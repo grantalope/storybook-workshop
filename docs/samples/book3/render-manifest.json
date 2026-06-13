@@ -1,0 +1,22 @@
+{
+  "book": "book3",
+  "title": "Why Do Stars Blink?",
+  "beats": 7,
+  "renderedVia": "ComfyUI Qwen-Image on RTX 4090 (Tailscale 100.101.215.25:8188)",
+  "pipeline": "photo->archetype->7-beat story (kimi-k2.6 free-cloud lane)->ComfyUI spreads->harmonize-scenes->Lulu PDF",
+  "luluSpec": "PASS",
+  "visionScore": 8.5,
+  "knownCaveat": "scene-6 climax (Van Gogh Starry Night style) shows identity contamination — a spurious 3rd child figure that the harmonization pass did not correct. D4 operator taste-call: accept 8.5/10 or re-render climax with a single-ref character sheet.",
+  "binariesOutOfGit": true,
+  "sourcePath": "D:/devbox/storybook-real-book-3 (Windows box; ephemeral — wire to LFS/CDN before launch)",
+  "note": "109MB of PDF + PNG kept out-of-git per the pregen-bank pattern. sha256 listed (first 16 hex) + exact byte size for integrity verification. Regenerate via D:/devbox/storybook-real-book-3/{render-book3-scenes.mjs, harmonize-scenes.mjs, assemble-book3-v2.mjs}.",
+  "artifacts": [
+    { "path": "book3-why-do-stars-blink.pdf", "type": "print-pdf", "bytes": 22778369, "sha256_16": "a79c62b6510d2d15" },
+    { "path": "harmonized/book3-harmonized-cover.png", "type": "spread", "beat": "cover", "bytes": 2032307, "sha256_16": "53e172307f19c126" },
+    { "path": "harmonized/book3-harmonized-setup.png", "type": "spread", "beat": "setup", "bytes": 1844496, "sha256_16": "32e26e96a488589e" },
+    { "path": "harmonized/book3-harmonized-catalyst.png", "type": "spread", "beat": "catalyst", "bytes": 2038891, "sha256_16": "4fa4af6652207770" },
+    { "path": "harmonized/book3-harmonized-midpoint.png", "type": "spread", "beat": "midpoint", "bytes": 1858670, "sha256_16": "083ca8e393cdfb8d" },
+    { "path": "harmonized/book3-harmonized-climax.png", "type": "spread", "beat": "climax", "bytes": 2467859, "sha256_16": "2978fd0879a5e809" },
+    { "path": "harmonized/book3-harmonized-resolution.png", "type": "spread", "beat": "resolution", "bytes": 1991578, "sha256_16": "755ec8b66ea3b20f" }
+  ]
+}
